@@ -11,7 +11,8 @@ This is an original regeneration of the *DSA for Mobile* curriculum (preview TOC
 3. After each chapter, attempt the practice problems before opening `solutions/`.
 4. Use Chapter 24 as a timed interview drill bank; use Appendix A for a 12-week schedule.
 5. For **top fintech** loops, continue with Part VIII (money/idempotency, hard drills, system design lite, behavioral).
-6. Before applying, read [Appendix F — Execution & Optional Polish](book/appendices/F-execution-and-optional-polish.md) for what you still must **do** vs optional future content.
+6. For **document / e-signature** loops (Docusign-style), add Part IX: signing-app drills and math/number problems.
+7. Before applying, read [Appendix F — Execution & Optional Polish](book/appendices/F-execution-and-optional-polish.md) for what you still must **do** vs optional future content.
 
 ## Language legend
 
@@ -69,6 +70,10 @@ This is an original regeneration of the *DSA for Mobile* curriculum (preview TOC
 - [28. Mobile Fintech System Design (Lite)](book/part-viii/28-mobile-fintech-system-design.md)
 - [29. Behavioral & Product Sense (Fintech)](book/part-viii/29-behavioral-product-fintech.md)
 
+### Part IX — Document & Signing Apps (Docusign-style loops)
+- [30. Document & Signing Drill Bank](book/part-ix/30-document-signing-drill-bank.md)
+- [31. Math & Number Drills](book/part-ix/31-math-and-number-drills.md)
+
 ### Appendices
 - [A. 12-Week Preparation Roadmap](book/appendices/A-12-week-roadmap.md) (plus optional weeks 13–16 for fintech)
 - [B. Big-O Master Cheat Sheet](book/appendices/B-big-o-cheat-sheet.md)
@@ -84,6 +89,7 @@ Per-chapter model solutions live under [`solutions/`](solutions/).
 - Chapter 24: full solutions inline in the interview chapter; index at [`solutions/ch24/`](solutions/ch24/README.md)
 - Chapter 25: reference architectures at [`solutions/ch25/`](solutions/ch25/README.md)
 - Chapters 26–29: [`solutions/ch26`](solutions/ch26/README.md) · [`ch27`](solutions/ch27/README.md) · [`ch28`](solutions/ch28/README.md) · [`ch29`](solutions/ch29/README.md)
+- Chapters 30–31: [`solutions/ch30`](solutions/ch30/README.md) · [`ch31`](solutions/ch31/README.md)
 - Self-Check answers: [`Appendix D`](book/appendices/D-self-check-answer-key.md)
 
 ## Code samples

@@ -35,6 +35,12 @@
           name: "DSA for Mobile",
           homepage: "README.md",
           loadSidebar: true,
+          // One sidebar at the root; stops Docsify probing every folder for _sidebar.md
+          alias: {
+            "/.*/_sidebar.md": "/_sidebar.md",
+            // Old doubled URLs (e.g. /book/part-i/book/part-i/02-...) from before the sidebar fix
+            "/(?:book|solutions)/.+?/((?:book|solutions)/.*)": "/$1",
+          },
           subMaxLevel: 3,
           relativePath: true,
           basePath: basePath,
