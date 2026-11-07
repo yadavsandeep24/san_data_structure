@@ -53,9 +53,11 @@ Same idea, different names — and different places where the UI thread lives.
 | UI / main thread | Main thread / main looper | Main thread | UI isolate | JS thread + UI thread |
 | Contiguous list | `Array` / `ArrayList` | `Array` / `ContiguousArray` | `List` | `Array` / `[]` |
 | Fast membership | `HashSet` / `LinkedHashSet` | `Set` | `Set` | `Set` |
-| List UI backbone | `RecyclerView` | `UITableView` / `UICollectionView` | `ListView` / `ListView.builder` | `FlatList` / `FlashList` |
+| List UI backbone | `RecyclerView` (Views) / `LazyColumn` (Compose) | `UITableView` / `UICollectionView` | `ListView` / `ListView.builder` | `FlatList` / `FlashList` |
 
 **Android:** Work that touches views must stay on the main thread; CPU-heavy prep belongs on Dispatchers.Default / a background executor, then post results back.
+
+**Android, both toolkits:** In the View system the hot path is `onBindViewHolder`; in Jetpack Compose it is the composable body, which can re-run on every recomposition. Both run on the main thread, so the same rule holds: build the `Set`/`Map` once (in the ViewModel, or `remember(inputs) { … }` in Compose) and do only O(1) lookups per row.
 
 **iOS:** Same rule with GCD or Swift Concurrency — never block the main actor with linear scans of large arrays during scroll or search.
 
@@ -183,7 +185,7 @@ Choosing a HashMap for an ID → model index can *reduce* battery use by ending 
 2. **Doing “just one more pass” on the main thread** — three O(n) passes per keystroke still lose the 16ms budget at large n.
 3. **Premature micro-optimization of cold paths** — optimize the structure on the screen’s hot path first.
 4. **Assuming flagship performance** — test mid-tier Android and older iPhones; O(n²) fails there first.
-5. **Confusing “framework list widget” with “efficient data model”** — `RecyclerView` / `FlatList` only recycle views; they do not fix O(n²) data prep.
+5. **Confusing “framework list widget” with “efficient data model”** — `RecyclerView` / `LazyColumn` / `FlatList` only recycle (or lazily compose) rows; they do not fix O(n²) data prep.
 
 ---
 

@@ -54,7 +54,7 @@ Elements sit in contiguous memory. Scanning an array plays well with CPU caches 
 |------|------------------|-------------|----------------|-------------------|
 | Dynamic list | `ArrayList` / `mutableListOf` | `Array` / `ContiguousArray` | `List` / `Growable` list | `Array` (`[]`) |
 | Fixed buffer | `Array(n) { }` | `Array(repeating:count:)` | fixed via typed data / careful use | `TypedArray` / pre-sized rare |
-| UI backbone | `RecyclerView` + `ListAdapter` | `UITableView` / `DiffableDataSource` | `ListView.builder` | `FlatList` |
+| UI backbone | `RecyclerView` + `ListAdapter` (Views) / `LazyColumn` (Compose) | `UITableView` / `DiffableDataSource` | `ListView.builder` | `FlatList` |
 | Prefer for UI models | random access by index | same | same | same |
 
 **Android:** `ArrayList` is the workhorse; `arrayOf` is fixed-size (but still reference cells). Prefer `listOf` / immutability at the UI boundary after background prep.
@@ -130,7 +130,7 @@ If step 2 calls `selected.contains(id)` on a list, you reintroduce Chapter 1’s
 1. **Prepend in a loop** — classic O(n²) inbox construction.
 2. **Using arrays for mid-list deletes at scale** — each remove shifts; batch or rethink representation.
 3. **Ignoring capacity** — parsing 50k JSON objects into a default-growth list causes repeated copies and GC churn.
-4. **Mutating the array FlatList/RecyclerView is iterating** without a coherent diff — crashes or blank frames.
+4. **Mutating the array FlatList/RecyclerView is iterating** without a coherent diff — crashes or blank frames. (Compose's `LazyColumn` fails differently: an in-place mutation of a plain list is simply not observed — publish a new list.)
 5. **Storing heavy objects** (bitmaps, full subgraphs) directly in the scrolling array — store IDs, cache payloads elsewhere (Chapter 12).
 
 ---

@@ -119,7 +119,7 @@ O(amount · coins) time. This is the correct approach when greedy fails (Chapter
 
 | Area | DP? | Notes |
 |------|-----|-------|
-| RecyclerView / ListView layout | Rarely | Layout is constraint/measure passes, not knapsack DP |
+| RecyclerView / `LazyColumn` / ListView layout | Rarely | Layout is constraint/measure passes, not knapsack DP |
 | Text height caching | Not DP | Memoize measure results — caching, not optimal substructure |
 | Image decode / resize | Not DP | Pipelines and caches |
 | Offline games / puzzles | Sometimes | Levels, scoring, path counts |
@@ -165,6 +165,6 @@ O(amount · coins) time. This is the correct approach when greedy fails (Chapter
 
 1. **Climbing stairs** — [solutions/ch19](../../solutions/ch19/README.md#p1-climbing-stairs)
 2. **House robber** — [solutions/ch19](../../solutions/ch19/README.md#p2-house-robber)
-3. **Coin change (fewest coins)** — [solutions/ch19](../../solutions/ch19/README.md#p3-coin-change-fewest)
+3. **Coin change (fewest coins)** — [solutions/ch19](../../solutions/ch19/README.md#p3-coin-change-fewest-coins)
 
 Next: [Chapter 20 — Graphs Advanced](20-graphs-advanced.md) — Dijkstra, topological ideas, and heavier graph algorithms.

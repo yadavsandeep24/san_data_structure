@@ -250,7 +250,7 @@ Two-pointer merge: compare heads of `a` and `b`, append the smaller, advance tha
 
 ### Mobile note
 
-Mental model for offline sync: local and remote change-logs already ordered by `updatedAt`. Merge linearly instead of `concat + sort`. Run off the UI thread when merging tens of thousands of rows; publish an immutable result to the list adapter.
+Mental model for offline sync: local and remote change-logs already ordered by `updatedAt`. Merge linearly instead of `concat + sort`. Run off the UI thread when merging tens of thousands of rows; publish an immutable result to the list adapter (Views) or the `StateFlow` your `LazyColumn` collects (Compose).
 
 ### Kotlin
 

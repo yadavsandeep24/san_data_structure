@@ -41,6 +41,63 @@ Linear structures (arrays, lists, stacks, queues) have one neighbor relationship
 
 Recycling lists do **not** keep one native view per model forever — but the **logical** UI description is still hierarchical.
 
+### Android: View tree vs Compose tree — what depth costs
+
+Android gives you two UI trees with different traversal costs, and many apps have both (a `ComposeView` is a **leaf View** that hosts a whole Compose tree; `AndroidView` is a Compose node that hosts a View subtree).
+
+| | View system (XML / `ViewGroup`) | Jetpack Compose |
+|---|---|---|
+| Tree | `View` / `ViewGroup` objects; XML inflation builds it once | Composition tree (composables recorded in the slot table) emitting a `LayoutNode` tree |
+| Per-frame work | Three recursive passes from the root: **measure** (`onMeasure`) → **layout** (`onLayout`) → **draw** (`onDraw`, recorded into display lists) | Three phases: **composition** (run composables whose inputs changed) → **layout** (measure + place) → **drawing** |
+| What triggers work | `requestLayout()` marks the view and every ancestor up to the root (O(depth)), so the next frame re-measures that path; `invalidate()` → redraw only | A changed `State` that was read: composition-phase reads → recompose; layout-phase reads → re-layout only; draw-phase reads → redraw only |
+| Measuring children | A parent may measure a child **more than once**: `LinearLayout` with `layout_weight`, `RelativeLayout` measure twice. Nest them *k* deep and the leaf can be measured ~2^*k* times — the "double taxation" behind "keep the View hierarchy flat" (`ConstraintLayout`, `merge`) | **Single-pass measurement**: a layout may measure each child only once per pass (measuring twice throws). Parents that need a child's size first ask **intrinsic** measurements instead |
+| Cost of depth | Expensive: every level adds measure/layout recursion, and nested weights multiply it | Cheap: nesting `Row`/`Column`/`Box` is linear; the cost to watch is **how much recomposes**, not how deep |
+| Unit of re-execution | The invalidated View and its subtree on the next traversal | The **recomposition scope**: the nearest restartable composable that read the changed state. `Column`/`Row`/`Box` are inline and do not create their own scope — split work into small composables so a change re-runs a small subtree |
+| Debugging the tree | Layout Inspector; `adb shell dumpsys activity top` (prints the View tree); `ViewGroup.getChildAt` walks | Layout Inspector (recomposition counts); `onRoot().printToLog(tag)` in UI tests prints the semantics tree |
+
+Interview phrasing: *a deep View hierarchy is a measure/layout problem; a wide Compose recomposition is a composition problem.* The fix for the first is flattening; the fix for the second is narrower state reads (pass lambdas, read state in the lowest composable, defer reads to layout/draw).
+
+**Kotlin — Views: depth of a real `ViewGroup` tree, iteratively**
+
+The same max-depth algorithm as below, applied to an n-ary View tree with an explicit stack (safe for pathological depth):
+
+```kotlin
+fun maxViewDepth(root: View): Int {
+    val stack = ArrayDeque<Pair<View, Int>>()
+    stack.addLast(root to 1)
+    var max = 0
+    while (stack.isNotEmpty()) {
+        val (view, depth) = stack.removeLast()
+        max = maxOf(max, depth)
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) stack.addLast(view.getChildAt(i) to depth + 1)
+        }
+    }
+    return max
+}
+```
+
+**Kotlin — Compose: keep the recomposition scope small**
+
+```kotlin
+@Composable
+fun CartHeader(itemCount: Int, total: () -> String) {
+    Column {
+        Text("$itemCount items")   // not re-run when only the total changes
+        TotalLine(total)           // total() is read inside → only this scope recomposes
+    }
+}
+
+@Composable
+fun TotalLine(total: () -> String) = Text(total())
+
+@Composable
+fun ParallaxHeader(scroll: ScrollState) {
+    // Read scroll in the layout phase (lambda offset): no recomposition per pixel.
+    Box(Modifier.offset { IntOffset(0, scroll.value / 2) })
+}
+```
+
 ## Binary trees
 
 A **binary tree** gives each node at most two children: `left` and `right`. Many interview problems use binary trees because the API is small and recursion is natural.
@@ -239,6 +296,7 @@ fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
 4. **Assuming binary** when the real UI tree is n-ary — generalize to `children: List`.
 5. **Recursing too deep** on mobile for untrusted input — use iterative traversal.
 6. **Mutating while sharing subtrees** — inverted tree may need copies if nodes are reused immutably (SwiftUI/Compose mindset).
+7. **Treating View depth and Compose depth as the same cost** — nested `LinearLayout` weights multiply measure passes; nested `Column`s do not. In Compose, worry about recomposition breadth instead.
 
 ## Self-Check
 
@@ -251,6 +309,8 @@ fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
 **9.4** Give one mobile example of an n-ary tree (not necessarily binary).
 
 **9.5** What is the time complexity of visiting every node once?
+
+**9.6** Why is a deeply nested View hierarchy more expensive than an equally deep Compose layout?
 
 *(Answers: Appendix D.)*
 

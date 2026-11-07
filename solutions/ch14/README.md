@@ -65,7 +65,7 @@ For each scenario: pick a structure (or hybrid) and justify. Expected answers be
 
 ### Mobile note
 
-Android `RecyclerView`, iOS cell config, Flutter `itemBuilder`, RN `renderItem` — all share this trap. Pass `Set`/`Set<String>` into bind, or hold it on the view model.
+Android `RecyclerView` (`onBindViewHolder`) and Jetpack Compose (`LazyColumn` item lambdas, which re-run on recomposition), iOS cell config, Flutter `itemBuilder`, RN `renderItem` — all share this trap. Pass `Set`/`Set<String>` into bind, or hold it on the view model.
 
 ### Kotlin — fixed
 
@@ -80,6 +80,31 @@ fun buildCartSet(cartSkus: List<String>): Set<String> = cartSkus.toHashSet()
 
 fun bindRow(sku: String, cartSet: Set<String>, check: CheckBox) {
     check.isChecked = cartSet.contains(sku) // O(1) average
+}
+```
+
+### Kotlin (Jetpack Compose) — fixed
+
+```kotlin
+// BAD — O(m) list scan per visible row, on every recomposition
+@Composable
+fun CartListSlow(skus: List<String>, cartSkus: List<String>, onToggle: (String) -> Unit) {
+    LazyColumn {
+        items(skus, key = { it }) { sku ->
+            Checkbox(checked = cartSkus.contains(sku), onCheckedChange = { onToggle(sku) })
+        }
+    }
+}
+
+// GOOD — Set rebuilt only when the cart changes (or expose a Set from the ViewModel)
+@Composable
+fun CartList(skus: List<String>, cartSkus: List<String>, onToggle: (String) -> Unit) {
+    val cartSet = remember(cartSkus) { cartSkus.toHashSet() }
+    LazyColumn {
+        items(skus, key = { it }) { sku ->
+            Checkbox(checked = sku in cartSet, onCheckedChange = { onToggle(sku) })
+        }
+    }
 }
 ```
 

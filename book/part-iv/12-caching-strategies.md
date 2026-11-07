@@ -144,6 +144,72 @@ Shared pipeline (simplified):
 
 **Why size is part of the key:** caching a 4000px bitmap for a 40px avatar is a memory bug. Downsample at decode time; store the result under a size-aware key.
 
+### In practice on Android: `ImageView` (Views) vs `AsyncImage` (Compose)
+
+The cache structure above is identical in both toolkits — what changes is **how the loader learns the target size** and **when it cancels**. In a mixed app, XML screens and Compose screens should share **one** loader singleton (one memory LRU, one disk cache); a second `ImageLoader` per screen is a second cache competing for the same RAM.
+
+| Concern | Views: Glide / Coil into an `ImageView` | Compose: Coil `AsyncImage` (Glide: experimental `GlideImage`) |
+|---------|------------------------------------------|----------------------------------------------------------------|
+| Request | `Glide.with(fragment).load(url).centerCrop().into(imageView)` or Coil's `imageView.load(url)` | `AsyncImage(model = url, contentDescription = …, contentScale = ContentScale.Crop, modifier = Modifier.size(48.dp))` |
+| Target size (part of the cache key) | Waits for the `ImageView` to be measured; `wrap_content` can mean "decode at screen size" — give fixed dimensions or `override(w, h)` / `size(px)` | Resolved from the layout **constraints**; give the image a bounded size (`Modifier.size`, `fillMaxWidth().aspectRatio(…)`) or it may load at original size |
+| Cancel when the row leaves | Loading into the same `ImageView` cancels its previous request (recycled holder + new bind); `Glide.with(fragment).clear(imageView)` in `onViewRecycled` releases the bitmap back to the pool | The request is tied to the composition: when the item scrolls out of a `LazyColumn` and leaves composition, the request is cancelled |
+| Lifecycle | `Glide.with(fragment)` pauses/cancels with that Fragment; never pass an application context for a screen-scoped load | Composition lifetime; nothing extra to pass |
+| Memory cache sizing | Configured once on the loader (below) — applies to every `ImageView` | Same loader, same numbers — applies to every `AsyncImage` |
+| Memory pressure | Both libraries register `ComponentCallbacks2` and trim their memory LRU on `onTrimMemory` — keep your own caches doing the same | Same |
+
+**Memory cache sizing applies to both.** Glide sizes its memory cache from screen dimensions (roughly a couple of screens' worth of bitmaps), capped by a fraction of the app's memory class; override it in an `AppGlideModule.applyOptions` with `builder.setMemoryCache(LruResourceCache(bytes))`. Coil takes a percentage of available app memory. Either way it is the bounded LRU from this chapter, measured in **bytes** (size-weighted), not entries.
+
+**Kotlin — one loader for both toolkits (Coil 3)**
+
+```kotlin
+class App : Application(), SingletonImageLoader.Factory {
+    override fun newImageLoader(context: PlatformContext): ImageLoader =
+        ImageLoader.Builder(context)
+            .memoryCache {
+                MemoryCache.Builder()
+                    .maxSizePercent(context, 0.20) // bounded, size-weighted LRU
+                    .build()
+            }
+            .crossfade(true)
+            .build()
+}
+```
+
+(Coil 2 spells this `ImageLoaderFactory.newImageLoader()` and `MemoryCache.Builder(context).maxSizePercent(0.20)`; packages are `coil` instead of `coil3`.)
+
+**Kotlin — Views: bind and release in a `RecyclerView`**
+
+```kotlin
+override fun onBindViewHolder(holder: RowHolder, position: Int) {
+    val item = getItem(position)
+    Glide.with(holder.itemView)               // lifecycle from the hosting Fragment/Activity
+        .load(item.thumbUrl)
+        .override(thumbPx)                    // size-aware key: decode at 48dp, not 4000px
+        .centerCrop()
+        .into(holder.binding.thumb)           // cancels whatever this ImageView loaded before
+}
+
+override fun onViewRecycled(holder: RowHolder) {
+    Glide.with(holder.itemView).clear(holder.binding.thumb) // free the bitmap for reuse
+}
+```
+
+**Kotlin — Compose: the same thumbnail in a `LazyColumn` row**
+
+```kotlin
+@Composable
+fun Thumb(url: String) {
+    AsyncImage(
+        model = url,
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.size(48.dp),      // bounded constraints → 48dp decode, size-aware key
+    )
+}
+```
+
+`RowHolder`, `thumbPx`, and `item.thumbUrl` are app-specific. Glide vs Coil is a team choice; the structure lesson (bounded, size-keyed LRU + cancellation) is the same for both.
+
 ---
 
 ## Eviction under memory pressure
@@ -329,6 +395,8 @@ Same idea in Swift/Dart/TS: store `expiresAt`; on `get`, compare to `now` before
 6. **Caching UI objects** — leak activities/controllers; cache data.
 7. **Ignoring memory warnings** — LRU alone is not enough when the OS demands RAM now.
 8. **Using list `contains` to decide cache membership** — use the hash map; you already paid for O(1).
+9. **One image loader per screen** — XML and Compose screens each building their own `ImageLoader` means two memory LRUs fighting for the same RAM; use one app-wide singleton.
+10. **Unbounded image size** — `wrap_content` `ImageView` or an `AsyncImage` without bounded constraints can decode at full resolution; the size-aware key only helps if the size is known.
 
 ---
 

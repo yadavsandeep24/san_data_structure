@@ -299,7 +299,7 @@ class LruSketch<K, V>(private val capacity: Int) {
 ## Practice
 
 1. **Two Sum** — return indices of two numbers that add to `target` — [solutions/ch07](../../solutions/ch07/README.md#p1-two-sum)
-2. **Group by key / frequency** — group anagrams or count frequencies then emit groups — [solutions/ch07](../../solutions/ch07/README.md#p2-group-by-key-frequency)
+2. **Group by key / frequency** — group anagrams or count frequencies then emit groups — [solutions/ch07](../../solutions/ch07/README.md#p2-group-by-key--frequency)
 3. **First unique character** — first index whose character appears once — [solutions/ch07](../../solutions/ch07/README.md#p3-first-unique-character)
 
 Back: [Chapter 6 — Queues](../part-ii/06-queues-deques.md) · Next: [Chapter 8 — Sets](08-sets.md)

@@ -20,7 +20,7 @@ Index the old list by `id`. Build the set of new IDs. Every old ID missing from 
 
 ### Mobile note
 
-This is the mental model behind `DiffUtil.areItemsTheSame` (ID) vs `areContentsTheSame` (value). Prefer framework diff on device; know this algorithm in interviews.
+This is the mental model behind `DiffUtil.areItemsTheSame` (ID) vs `areContentsTheSame` (value) in the View system, and behind `LazyColumn` `key` (ID) plus recomposition skipping (value) in Jetpack Compose. Prefer the framework on device; know this algorithm in interviews.
 
 ### Kotlin
 
@@ -48,6 +48,24 @@ fun minimalDiff(old: List<Row>, new: List<Row>): List<Edit> {
         }
     }
     return edits
+}
+```
+
+### Kotlin — the same split inside both Android toolkits
+
+```kotlin
+// Views: ListAdapter runs this diff off the main thread and emits notifyItem* calls
+object RowDiff : DiffUtil.ItemCallback<Row>() {
+    override fun areItemsTheSame(old: Row, new: Row) = old.id == new.id           // Remove/Insert vs keep
+    override fun areContentsTheSame(old: Row, new: Row) = old.value == new.value  // Update vs no-op
+}
+
+// Compose: no edit script — identity comes from key, contents from skipping equal rows
+@Composable
+fun Rows(rows: List<Row>) {
+    LazyColumn {
+        items(rows, key = { it.id }) { row -> Text(row.value) }
+    }
 }
 ```
 
@@ -173,7 +191,7 @@ Keep `items: List`, `seen: Set<id>`, and `nextCursor`. `append(page, cursor)` ad
 
 ### Mobile note
 
-Prefer cursor tokens from the server. Pair with `DiffUtil`/`keyExtractor` when replacing the UI list reference.
+Prefer cursor tokens from the server. Pair with `DiffUtil`/`ListAdapter` (Views), `LazyColumn` `key` (Compose), or `keyExtractor` (RN) when replacing the UI list reference. On Android, Paging 3 (`PagingDataAdapter` / `collectAsLazyPagingItems`) packages this buffer for you — Chapter 13.
 
 ### Kotlin
 
@@ -203,6 +221,34 @@ class FeedBuffer {
     }
 
     fun hasMore(): Boolean = nextCursor != null
+}
+```
+
+### Kotlin — "load more" trigger in both Android toolkits
+
+Both call the same `onLoadMore()`, which must be idempotent (ignore calls while a page is in flight) because scroll events fire many times.
+
+```kotlin
+// Views
+fun RecyclerView.onNearEnd(threshold: Int = 5, onLoadMore: () -> Unit) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+            val lm = rv.layoutManager as LinearLayoutManager
+            if (dy > 0 && lm.findLastVisibleItemPosition() >= lm.itemCount - threshold) onLoadMore()
+        }
+    })
+}
+
+// Compose
+@Composable
+fun LoadMoreEffect(listState: LazyListState, threshold: Int = 5, onLoadMore: () -> Unit) {
+    val nearEnd by remember {
+        derivedStateOf {
+            val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            last >= listState.layoutInfo.totalItemsCount - threshold
+        }
+    }
+    LaunchedEffect(nearEnd) { if (nearEnd) onLoadMore() }
 }
 ```
 
@@ -336,7 +382,7 @@ Namespace keys by type prefix so a post with id `"1"` and an ad with id `"1"` ca
 
 ### Mobile note
 
-Use as `keyExtractor`, `ValueKey`, or diffable item identifier. Prefixing is the standard fix for heterogeneous lists (stories + ads + markers).
+Use as `keyExtractor`, `ValueKey`, diffable item identifier, `DiffUtil` identity (Android Views), or `LazyColumn` `key` (Jetpack Compose — where a duplicate key throws at runtime). Prefixing is the standard fix for heterogeneous lists (stories + ads + markers).
 
 ### Kotlin
 
@@ -360,6 +406,30 @@ fun stableKey(entry: FeedEntry): String = when (entry) {
 }
 
 // Collision proof sketch: Post("1") → "post:1"; Ad("1") → "ad:1" — unequal strings
+```
+
+### Kotlin — wiring the key into Views and Compose
+
+```kotlin
+// Views: identity in DiffUtil; the entry class picks the view type
+object EntryDiff : DiffUtil.ItemCallback<FeedEntry>() {
+    override fun areItemsTheSame(old: FeedEntry, new: FeedEntry) = stableKey(old) == stableKey(new)
+    override fun areContentsTheSame(old: FeedEntry, new: FeedEntry) = old == new
+}
+
+fun viewTypeOf(entry: FeedEntry): Int = when (entry) {   // return from ListAdapter.getItemViewType
+    is FeedEntry.Post -> 0
+    is FeedEntry.Ad -> 1
+    is FeedEntry.Header -> 2
+}
+
+// Compose: the same key; contentType mirrors getItemViewType
+@Composable
+fun Entries(entries: List<FeedEntry>) {
+    LazyColumn {
+        items(entries, key = ::stableKey, contentType = { it::class }) { entry -> EntryRow(entry) }
+    }
+}
 ```
 
 ### Swift

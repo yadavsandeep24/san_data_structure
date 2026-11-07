@@ -26,7 +26,7 @@ Recursive definition: empty tree has depth 0; otherwise depth = 1 + max(depth(le
 
 ### Mobile note
 
-Mirrors “how deep is this Compose/SwiftUI subtree?” mental model; for untrusted depth prefer iterative BFS.
+Mirrors “how deep is this Compose/SwiftUI subtree?” mental model — and on the Android View side, “how deep is this `ViewGroup` hierarchy?”, where depth costs real measure/layout passes (Chapter 9). For untrusted depth prefer iterative BFS.
 
 ### Kotlin
 

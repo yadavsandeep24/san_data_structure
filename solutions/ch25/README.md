@@ -151,6 +151,8 @@ class ImageLruCache {
 
 **Production note:** Prefer `LruCache` / Coil / SDWebImage / `cached_network_image` — still know the DLL+map interview form.
 
+**Android UI, both toolkits:** the cache sits behind one app-wide loader that serves XML screens (`Glide.with(view).load(url).into(imageView)` or Coil `imageView.load(url)`) and Compose screens (Coil `AsyncImage(model = url, …)`) alike — one memory LRU, sized in bytes. The differences are size resolution (measured `ImageView` vs layout constraints) and cancellation (rebinding the `ImageView` / `onViewRecycled` vs leaving composition). Wiring code: [Chapter 12](../../book/part-iv/12-caching-strategies.md#in-practice-on-android-imageview-views-vs-asyncimage-compose).
+
 ---
 
 ## P2. Autocomplete Trie
@@ -391,6 +393,41 @@ final class FeedBuffer {
 }
 ```
 
+### Android wiring (Views and Compose)
+
+One ViewModel publishes `buffer.snapshot()` as a fresh immutable list; each toolkit renders it. On device you do not call `diff` yourself — `ListAdapter` (DiffUtil) and `LazyColumn` (`key`) derive the edits from identity. `diff` stays as the interview/test form.
+
+```kotlin
+class FeedViewModel(private val buffer: FeedBuffer = FeedBuffer()) : ViewModel() {
+    private val _items = MutableStateFlow<List<Entity>>(emptyList())
+    val items: StateFlow<List<Entity>> = _items.asStateFlow()
+
+    fun onPage(page: List<Entity>, prepend: Boolean) {
+        buffer.applyPage(page, prepend)
+        _items.value = buffer.snapshot() // new immutable list every time
+    }
+}
+
+// Views: ListAdapter<Entity, VH>(EntityDiff), where EntityDiff compares ids / then contents
+object EntityDiff : DiffUtil.ItemCallback<Entity>() {
+    override fun areItemsTheSame(old: Entity, new: Entity) = old.id == new.id
+    override fun areContentsTheSame(old: Entity, new: Entity) = old == new
+}
+// in the Fragment, inside repeatOnLifecycle(STARTED):
+//     viewModel.items.collect { adapter.submitList(it) }
+
+// Compose
+@Composable
+fun FeedList(viewModel: FeedViewModel, listState: LazyListState) {
+    val items by viewModel.items.collectAsStateWithLifecycle()
+    LazyColumn(state = listState) {
+        items(items, key = { it.id }) { EntityRow(it) }
+    }
+}
+```
+
+**Prepend without scrambling the viewport** (acceptance criterion): `RecyclerView` keeps its anchor on the first visible ViewHolder when DiffUtil dispatches `notifyItemRangeInserted(0, n)`; `LazyColumn` keeps the first visible item **by key**, so older/newer items inserted above do not move what the user is reading. Without `key`, Compose falls back to index and the viewport jumps.
+
 ---
 
 ## P4. Task Scheduler (Priority Queue)
@@ -611,6 +648,43 @@ class NavStack {
   snapshot() { return this.stack.slice(); }
 }
 ```
+
+### Android: the same API over the real back stacks
+
+`NavStack` maps one-to-one onto both Android toolkits — useful for explaining that the platform back stack *is* this structure.
+
+```kotlin
+// Views: FragmentManager (root fragment added without addToBackStack)
+class FragmentNavStack(
+    private val fm: FragmentManager,
+    @IdRes private val container: Int,
+    private val screen: (route: String) -> Fragment,
+) {
+    fun push(r: String) = fm.commit {
+        setReorderingAllowed(true)
+        replace(container, screen(r))
+        addToBackStack(r)
+    }
+    fun pop() = fm.popBackStack()
+    fun popToRoot() = fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+    fun peek(): String? = fm.backStackEntryCount.takeIf { it > 0 }?.let { fm.getBackStackEntryAt(it - 1).name }
+    fun snapshot(): List<String?> = (0 until fm.backStackEntryCount).map { fm.getBackStackEntryAt(it).name }
+}
+
+// Compose: Navigation Compose NavController
+class ComposeNavStack(private val nav: NavController) {
+    fun push(r: String) = nav.navigate(r)
+    fun pop() = nav.popBackStack()
+    fun peek(): String? = nav.currentDestination?.route   // route pattern, e.g. "detail/{id}"
+    fun replace(r: String) {
+        val current = nav.currentDestination?.route
+        nav.navigate(r) { if (current != null) popUpTo(current) { inclusive = true } }
+    }
+    fun popToRoot() = nav.popBackStack(nav.graph.findStartDestination().id, inclusive = false)
+}
+```
+
+State restoration (the "serialize stack" criterion) is built in on both sides: `FragmentManager` saves its back stack in the Activity's saved state, and `rememberNavController()` saves the `NavController` stack across configuration change and process death. Back interception (`OnBackPressedCallback` vs `BackHandler`) is in [Chapter 5](../../book/part-ii/05-stacks.md#predictive-back-intercepting-the-pop).
 
 ---
 

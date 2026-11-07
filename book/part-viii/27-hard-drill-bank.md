@@ -1096,7 +1096,7 @@ class MedianFinder {
 }
 ```
 
-**Say in interview:** “Production code uses binary heaps for O(log n) `addNum`; Kotlin above uses `PriorityQueue`.” Swift/Dart heap ports: [`solutions/ch27`](../../solutions/ch27/README.md#q14--find-median-from-data-stream).
+**Say in interview:** “Production code uses binary heaps for O(log n) `addNum`; Kotlin above uses `PriorityQueue`.” Swift/Dart heap ports: [`solutions/ch27`](../../solutions/ch27/README.md#q14--find-median-from-data-stream-typescript-two-heap--swift--dart).
 
 ---
 

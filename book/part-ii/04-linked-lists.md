@@ -47,7 +47,7 @@ null ← [A] ⇄ [B] ⇄ [C] → null
 | Splicing without shifting neighbors | Memory locality and GC pressure matter |
 | You need stable node identity across mutations | Size is small and simplicity wins |
 
-**Avoid** linked lists as your default “list of rows” for RecyclerView / UITableView / ListView. Contiguous arrays win on prefetch and iteration. Use lists as the *ordering spine* under a cache or as an algorithm building block — not as a substitute for `ArrayList` / `Array`.
+**Avoid** linked lists as your default “list of rows” for RecyclerView / `LazyColumn` / UITableView / ListView. Contiguous arrays win on prefetch and iteration. Use lists as the *ordering spine* under a cache or as an algorithm building block — not as a substitute for `ArrayList` / `Array`.
 
 ## Complexity at a glance
 

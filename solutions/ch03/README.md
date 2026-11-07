@@ -122,7 +122,7 @@ for each id:
 
 **Edge cases.** `n = 0`. `k = 0`. `k` multiple of `n` (no visible change). `k > n` (must modulo). Single-element array.
 
-**Mobile note.** In-place mutation is allocation-friendly but dangerous if the same array instance is bound to a scrolling list mid-frame — rotate on a background copy, then swap the immutable snapshot into the adapter/`FlatList` data prop. For UI-facing code, the O(n) extra-space copy is often the safer hand-off.
+**Mobile note.** In-place mutation is allocation-friendly but dangerous if the same array instance is bound to a scrolling list mid-frame — rotate on a background copy, then swap the immutable snapshot into the adapter (`ListAdapter.submitList`), Compose state (`StateFlow` collected by a `LazyColumn`), or `FlatList` data prop. For UI-facing code, the O(n) extra-space copy is often the safer hand-off.
 
 ### Kotlin (in-place reverse method)
 

@@ -79,6 +79,8 @@ Concise answers matching Self-Check numbering in chapters **1–23**.
 
 **5.5** `java.util.Stack` is synchronized legacy `Vector`; `ArrayDeque` is faster, clearer as stack/deque.
 
+**5.6** It is a stack of callbacks: the most recently added *enabled* callback wins; if none is enabled the system handles Back. `BackHandler` registers a callback on the same dispatcher, so the most recently composed enabled `BackHandler` wins — the same rule whether the screen is a Fragment or a composable.
+
 ---
 
 ## Chapter 6 — Queues / Deques
@@ -135,6 +137,8 @@ Concise answers matching Self-Check numbering in chapters **1–23**.
 
 **9.5** O(n) time for n nodes.
 
+**9.6** View parents may measure children more than once (`layout_weight`, `RelativeLayout`), so nesting multiplies measure work (up to ~2^depth), and `requestLayout` walks the whole ancestor path. Compose enforces single-pass measurement (intrinsics instead of re-measuring), so depth is roughly linear; the Compose cost to watch is how large a recomposition scope a state change invalidates.
+
 ---
 
 ## Chapter 10 — Trees Practical
@@ -190,6 +194,8 @@ Concise answers matching Self-Check numbering in chapters **1–23**.
 **13.4** Offset pagination duplicates/skips rows when new items insert at the head; cursors stay stable.
 
 **13.5** Array (order / random access) + Set (seen IDs for dedupe).
+
+**13.6** `areItemsTheSame` → `items(key = { it.id })`. `areContentsTheSame` → recomposition skipping of a row whose stable parameters are equal. `getChangePayload` → no explicit API: only composables that read the changed field recompose, so split the row (e.g. a `LikeIcon` reading `liked`).
 
 ---
 

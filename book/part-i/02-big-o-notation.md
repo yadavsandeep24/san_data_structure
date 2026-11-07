@@ -91,7 +91,7 @@ for x in a:          → O(n) total if map.get is O(1) average
 | Sort | `sort()` ~ O(n log n) | `sorted()` | `sort` / `..sort` | `sort` |
 | Hash map | `HashMap` | `Dictionary` | `Map` | `Map` / object keys |
 
-UI toolkits do **not** change your algorithmic class. `RecyclerView` and `FlatList` recycle views in roughly O(visible) bind work *per frame*; if each bind does O(n) work, you still have a scaling problem.
+UI toolkits do **not** change your algorithmic class. `RecyclerView` and `FlatList` recycle views in roughly O(visible) bind work *per frame*, and Compose's `LazyColumn` composes only visible items; if each bind (or each item composable) does O(n) work, you still have a scaling problem.
 
 ---
 

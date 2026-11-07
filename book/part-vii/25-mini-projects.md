@@ -22,6 +22,8 @@ Full reference architectures: **[`solutions/ch25/README.md`](../../solutions/ch2
 
 **Stretch:** TTL per entry; size-weighted capacity (bytes); `trimToSize` on memory warning; thread-safe wrapper.
 
+**Android UI (both toolkits):** demo it behind an XML `RecyclerView` of `ImageView`s *and* a Compose `LazyColumn` of images sharing one cache instance — the cache must not care which toolkit asked (Chapter 12).
+
 → [`solutions/ch25` §P1](../../solutions/ch25/README.md#p1-lru-image-memory-cache)
 
 ---
@@ -58,6 +60,8 @@ Full reference architectures: **[`solutions/ch25/README.md`](../../solutions/ch2
 
 **Stretch:** Conflict policy (server wins / LWW); SQLite persistence; partial updates; animated diff application.
 
+**Android UI (both toolkits):** render the same `StateFlow<List<Entity>>` with `RecyclerView` + `ListAdapter` + `DiffUtil.ItemCallback` and with `LazyColumn` + `items(key = { it.id })`; verify prepend keeps the viewport in both (Chapter 13).
+
 → [`solutions/ch25` §P3](../../solutions/ch25/README.md#p3-offline-first-feed)
 
 ---
@@ -76,7 +80,7 @@ Full reference architectures: **[`solutions/ch25/README.md`](../../solutions/ch2
 
 **Stretch:** Fairness / aging; rate limit per task type; persistence across process death.
 
-→ [`solutions/ch25` §P4](../../solutions/ch25/README.md#p4-task-scheduler)
+→ [`solutions/ch25` §P4](../../solutions/ch25/README.md#p4-task-scheduler-priority-queue)
 
 ---
 
@@ -93,6 +97,8 @@ Full reference architectures: **[`solutions/ch25/README.md`](../../solutions/ch2
 - Property: after any sequence, `peek` is the last successfully pushed, not-yet-popped route.
 
 **Stretch:** Parallel tab stacks; result-passing (`pop` with result); middleware guards.
+
+**Android UI (both toolkits):** map the API onto `FragmentManager` (`addToBackStack` / `popBackStack`) and onto Navigation Compose (`navigate` / `popBackStack` / `popUpTo`); guard “unsaved changes” with `OnBackPressedCallback` vs `BackHandler` (Chapter 5).
 
 → [`solutions/ch25` §P5](../../solutions/ch25/README.md#p5-navigation-back-stack)
 
@@ -112,7 +118,7 @@ Full reference architectures: **[`solutions/ch25/README.md`](../../solutions/ch2
 
 **Stretch:** TTL single-flight; stale-while-revalidate; per-key rate limit; cancellation when all waiters cancel.
 
-→ [`solutions/ch25` §P6](../../solutions/ch25/README.md#p6-request-coalescer)
+→ [`solutions/ch25` §P6](../../solutions/ch25/README.md#p6-thread-safe-request-coalescer)
 
 ---
 

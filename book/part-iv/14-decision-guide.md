@@ -86,10 +86,10 @@ On device, **constants and locality** matter: arrays beat node-pointer structure
 
 1. **Membership via `list.contains` in `bind` / `renderItem`** — O(n) per row → O(n²) per frame.
 2. **Prepend in a loop** to build a timeline — O(n²) allocations and copies.
-3. **`notifyDataSetChanged` / `reloadData` / index keys** — full rebind, lost state, image flicker (Chapter 13).
+3. **`notifyDataSetChanged` / `reloadData` / index keys / `LazyColumn` without `key`** — full rebind, lost state, image flicker (Chapter 13).
 4. **Unbounded caches** of bitmaps or JSON — jetsam / OOM (Chapter 12).
 5. **Heavy work on the UI thread** — even O(n) can jank at n = 50k; move parse/diff off main.
-6. **Linked lists as the RecyclerView/FlatList backbone** — no O(1) index; builders become O(n²).
+6. **Linked lists as the RecyclerView/LazyColumn/FlatList backbone** — no O(1) index; builders become O(n²).
 7. **New `Set` built inside every row** instead of once per frame — allocation storm.
 8. **Offset pagination** for live feeds — duplicates and gaps under inserts.
 9. **Deep recursion** on untrusted depth — prefer explicit stacks (Chapter 5).
@@ -232,6 +232,8 @@ class RecentSearches {
 
 ## Compose patterns (cheat within a cheat sheet)
 
+*“Compose” here means composing data structures, not Jetpack Compose — the Android toolkit split is in the next table.*
+
 | UI feature | Composition |
 |------------|-------------|
 | Multi-select list | Array of rows + Set of selected IDs |
@@ -239,6 +241,18 @@ class RecentSearches {
 | Offline-first reader | Disk cache + memory LRU + array of IDs for the list |
 | Tab + back navigation | Stack per tab (or single stack with tab ids) |
 | Typeahead | Trie or sorted array; results as array; selection Set optional |
+
+### Same composition, both Android toolkits
+
+The data structure is decided in the ViewModel; the View system and Jetpack Compose only differ in where you plug it in.
+
+| UI feature | Views (XML + `RecyclerView` / Fragments) | Jetpack Compose |
+|------------|------------------------------------------|-----------------|
+| Multi-select list | Adapter receives `Set<String>`; `notifyItemChanged(i, payload)` on toggle | Row gets `checked = id in selectedIds`; only toggled rows recompose |
+| Feed with likes | `ListAdapter` + `DiffUtil.ItemCallback` (+ payload for the like) | `LazyColumn` `items(key = { it.id })` + immutable models |
+| Offline-first reader | Shared image loader into `ImageView` | Same loader via `AsyncImage` |
+| Tab + back navigation | `FragmentManager` / Navigation component back stack; `OnBackPressedCallback` | `NavController` back stack; `BackHandler` |
+| Typeahead | Results `submitList`ed; trie built off main | Results as state; trie built off main, not in the composable body |
 
 If you only remember one sentence from Part IV: **arrays show order; sets and maps answer “is it / where is it?” in O(1); caches bound memory; diffs protect the UI.**
 
@@ -289,6 +303,8 @@ fun bindRow(sku: String, cartSkus: List<String>, check: CheckBox) {
     check.isChecked = cartSkus.contains(sku) // ???
 }
 ```
+
+The Jetpack Compose version of the same bug is `Checkbox(checked = cartSkus.contains(sku), …)` inside a `LazyColumn` item — it runs on every recomposition of every visible row.
 
 Explain why this hurts, then provide a fixed version (and Swift/Dart/TS equivalents) in the solutions file.
 

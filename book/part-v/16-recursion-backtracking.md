@@ -2,7 +2,7 @@
 
 ## Mobile motivation
 
-UI trees are recursive: a `ViewGroup` contains children that contain children; a SwiftUI/Flutter widget builds a tree; a React component tree reconciles depth-first. Walking that structure with recursion feels natural — until a pathological depth (deeply nested comments, crafted HTML, huge JSON) blows the **native call stack** and the process dies with little ceremony.
+UI trees are recursive: a `ViewGroup` contains children that contain children; a Jetpack Compose `Column` emits child layout nodes that emit their own; a SwiftUI/Flutter widget builds a tree; a React component tree reconciles depth-first. Walking that structure with recursion feels natural — until a pathological depth (deeply nested comments, crafted HTML, huge JSON) blows the **native call stack** and the process dies with little ceremony.
 
 Backtracking — try a choice, recurse, undo — shines in interviews (subsets, combinations, mazes). In shipping apps it appears rarely: puzzle games, constraint solvers, sometimes codegen. Most product code should prefer iteration, explicit stacks, or library solvers. Learn the template anyway; know when to leave it on the whiteboard.
 
