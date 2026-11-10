@@ -347,6 +347,55 @@ Short design answers. No full apps required; counter/queue code above is the cod
 
 Interviewers care that you spot **shared mutable state** and **compound actions**, not that you recite lock bitmasks. Prefer confinement and structured concurrency on iOS/Android over sprinkling locks everywhere.
 
+### Kotlin
+
+```kotlin
+enum class Verdict { CORRECT, INCORRECT }
+
+fun grade(explanationId: String): Verdict = when (explanationId) {
+    "A" -> Verdict.INCORRECT // stack myth
+    "B" -> Verdict.CORRECT   // if confinement holds
+    "C" -> Verdict.INCORRECT // await interleaving
+    "D" -> Verdict.CORRECT   // backpressure
+    "E" -> Verdict.INCORRECT // check-then-act
+    else -> throw IllegalArgumentException("unknown")
+}
+```
+
+### Swift
+
+```swift
+enum Verdict { case correct, incorrect }
+
+struct UnknownExplanation: Error {}
+
+func grade(_ explanationId: String) throws -> Verdict {
+    switch explanationId {
+    case "A": return .incorrect // stack myth
+    case "B": return .correct   // if confinement holds
+    case "C": return .incorrect // await interleaving
+    case "D": return .correct   // backpressure
+    case "E": return .incorrect // check-then-act
+    default: throw UnknownExplanation()
+    }
+}
+```
+
+### Dart
+
+```dart
+enum Verdict { correct, incorrect }
+
+Verdict grade(String explanationId) => switch (explanationId) {
+      'A' => Verdict.incorrect, // stack myth
+      'B' => Verdict.correct, // if confinement holds
+      'C' => Verdict.incorrect, // await interleaving
+      'D' => Verdict.correct, // backpressure
+      'E' => Verdict.incorrect, // check-then-act
+      _ => throw ArgumentError('unknown'),
+    };
+```
+
 ### Optional tiny “quiz harness” (TypeScript)
 
 ```typescript

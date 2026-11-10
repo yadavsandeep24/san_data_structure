@@ -74,6 +74,15 @@ This is an original regeneration of the *DSA for Mobile* curriculum (preview TOC
 - [30. Document & Signing Drill Bank](book/part-ix/30-document-signing-drill-bank.md)
 - [31. Math & Number Drills](book/part-ix/31-math-and-number-drills.md)
 
+### Part X — 12-Day Plan Gap-Closer
+The 67 problems from a popular 12-day / 120-problem DSA plan that earlier parts didn't already cover. [Appendix G](book/appendices/G-12-day-dsa-plan-map.md) maps all 120 to where they live in this book.
+- [32. Arrays, Hashing & Matrix](book/part-x/32-arrays-hashing-matrix.md)
+- [33. Two Pointers, Windows & Intervals](book/part-x/33-two-pointers-windows-intervals.md)
+- [34. Stacks & Binary Search](book/part-x/34-stacks-binary-search.md)
+- [35. Linked Lists & Trees](book/part-x/35-linked-lists-trees.md)
+- [36. Heaps, Tries & Greedy](book/part-x/36-heaps-tries-greedy.md)
+- [37. Graphs & Dynamic Programming](book/part-x/37-graphs-dynamic-programming.md)
+
 ### Appendices
 - [A. 12-Week Preparation Roadmap](book/appendices/A-12-week-roadmap.md) (plus optional weeks 13–16 for fintech)
 - [B. Big-O Master Cheat Sheet](book/appendices/B-big-o-cheat-sheet.md)
@@ -81,6 +90,7 @@ This is an original regeneration of the *DSA for Mobile* curriculum (preview TOC
 - [D. Quick Self-Check Answer Key](book/appendices/D-self-check-answer-key.md)
 - [E. UPI & India Payment Rails](book/appendices/E-upi-india-rails.md)
 - [F. Execution Checklist & Optional Polish](book/appendices/F-execution-and-optional-polish.md) — **what you must still do** + future curriculum ideas
+- [G. 12-Day DSA Plan Map](book/appendices/G-12-day-dsa-plan-map.md) — all 120 plan problems, day by day, linked to their chapter
 
 ## Solutions
 
@@ -90,6 +100,7 @@ Per-chapter model solutions live under [`solutions/`](solutions/).
 - Chapter 25: reference architectures at [`solutions/ch25/`](solutions/ch25/README.md)
 - Chapters 26–29: [`solutions/ch26`](solutions/ch26/README.md) · [`ch27`](solutions/ch27/README.md) · [`ch28`](solutions/ch28/README.md) · [`ch29`](solutions/ch29/README.md)
 - Chapters 30–31: [`solutions/ch30`](solutions/ch30/README.md) · [`ch31`](solutions/ch31/README.md)
+- Chapters 32–37: [`ch32`](solutions/ch32/README.md) · [`ch33`](solutions/ch33/README.md) · [`ch34`](solutions/ch34/README.md) · [`ch35`](solutions/ch35/README.md) · [`ch36`](solutions/ch36/README.md) · [`ch37`](solutions/ch37/README.md)
 - Self-Check answers: [`Appendix D`](book/appendices/D-self-check-answer-key.md)
 
 ## Code samples

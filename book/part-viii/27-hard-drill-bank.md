@@ -14,7 +14,7 @@ Companion index: [`solutions/ch27/README.md`](../../solutions/ch27/README.md)
 | **Open** | Restate, examples, edges (3–5 min) |
 | **Speak first** | Structure + **time/space complexity before code** |
 | **Code** | Happy path mid-window; edges in the last 8–10 min |
-| **Languages** | Chapter shows **Kotlin + TypeScript** fully; Swift/Dart when short — else see `solutions/ch27` |
+| **Languages** | All four inline for every problem: **Kotlin, Swift, Dart, TypeScript** (same algorithm, same names); `solutions/ch27` adds a binary-heap TS variant for Q14 |
 | **Mobile tell** | One sentence: main-thread risk, cache bound, or money/idempotency if relevant |
 
 Do **not** skim all 20 in one sitting. Rotate: 2 hard / day in Appendix A weeks **14–15** (fintech track), or earlier if you are already strong on Ch 24.
@@ -66,6 +66,63 @@ fun findMedianSortedArrays(a: IntArray, b: IntArray): Double {
 }
 ```
 
+### Swift
+
+```swift
+func findMedianSortedArrays(_ a: [Int], _ b: [Int]) -> Double {
+    if a.count > b.count { return findMedianSortedArrays(b, a) }
+    let m = a.count, n = b.count
+    var lo = 0, hi = m
+    let half = (m + n + 1) / 2
+    while lo <= hi {
+        let i = (lo + hi) / 2
+        let j = half - i
+        let aLeft = i == 0 ? Int.min : a[i - 1]
+        let aRight = i == m ? Int.max : a[i]
+        let bLeft = j == 0 ? Int.min : b[j - 1]
+        let bRight = j == n ? Int.max : b[j]
+        if aLeft <= bRight && bLeft <= aRight {
+            if (m + n) % 2 == 0 {
+                return Double(max(aLeft, bLeft) + min(aRight, bRight)) / 2.0
+            }
+            return Double(max(aLeft, bLeft))
+        } else if aLeft > bRight { hi = i - 1 }
+        else { lo = i + 1 }
+    }
+    fatalError("unreachable")
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+double findMedianSortedArrays(List<int> a, List<int> b) {
+  if (a.length > b.length) return findMedianSortedArrays(b, a);
+  final m = a.length, n = b.length;
+  var lo = 0, hi = m;
+  final half = (m + n + 1) ~/ 2;
+  while (lo <= hi) {
+    final i = (lo + hi) ~/ 2;
+    final j = half - i;
+    final num aLeft = i == 0 ? double.negativeInfinity : a[i - 1];
+    final num aRight = i == m ? double.infinity : a[i];
+    final num bLeft = j == 0 ? double.negativeInfinity : b[j - 1];
+    final num bRight = j == n ? double.infinity : b[j];
+    if (aLeft <= bRight && bLeft <= aRight) {
+      if ((m + n) % 2 == 1) return max(aLeft, bLeft).toDouble();
+      return (max(aLeft, bLeft) + min(aRight, bRight)) / 2.0;
+    } else if (aLeft > bRight) {
+      hi = i - 1;
+    } else {
+      lo = i + 1;
+    }
+  }
+  throw StateError('unreachable');
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -93,8 +150,6 @@ function findMedianSortedArrays(a: number[], b: number[]): number {
   throw new Error("unreachable");
 }
 ```
-
-*(Swift/Dart: same partition loop — see solutions/ch27.)*
 
 ---
 
@@ -136,6 +191,50 @@ fun trap(height: IntArray): Int {
 }
 ```
 
+### Swift
+
+```swift
+func trap(_ height: [Int]) -> Int {
+    var lo = 0, hi = height.count - 1, leftMax = 0, rightMax = 0, water = 0
+    while lo < hi {
+        if height[lo] <= height[hi] {
+            if height[lo] >= leftMax { leftMax = height[lo] } else { water += leftMax - height[lo] }
+            lo += 1
+        } else {
+            if height[hi] >= rightMax { rightMax = height[hi] } else { water += rightMax - height[hi] }
+            hi -= 1
+        }
+    }
+    return water
+}
+```
+
+### Dart
+
+```dart
+int trap(List<int> height) {
+  var lo = 0, hi = height.length - 1, leftMax = 0, rightMax = 0, water = 0;
+  while (lo < hi) {
+    if (height[lo] <= height[hi]) {
+      if (height[lo] >= leftMax) {
+        leftMax = height[lo];
+      } else {
+        water += leftMax - height[lo];
+      }
+      lo++;
+    } else {
+      if (height[hi] >= rightMax) {
+        rightMax = height[hi];
+      } else {
+        water += rightMax - height[hi];
+      }
+      hi--;
+    }
+  }
+  return water;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -153,24 +252,6 @@ function trap(height: number[]): number {
     }
   }
   return water;
-}
-```
-
-### Swift (short)
-
-```swift
-func trap(_ height: [Int]) -> Int {
-    var lo = 0, hi = height.count - 1, leftMax = 0, rightMax = 0, water = 0
-    while lo < hi {
-        if height[lo] <= height[hi] {
-            if height[lo] >= leftMax { leftMax = height[lo] } else { water += leftMax - height[lo] }
-            lo += 1
-        } else {
-            if height[hi] >= rightMax { rightMax = height[hi] } else { water += rightMax - height[hi] }
-            hi -= 1
-        }
-    }
-    return water
 }
 ```
 
@@ -204,6 +285,42 @@ fun longestConsecutive(nums: IntArray): Int {
         best = maxOf(best, len)
     }
     return best
+}
+```
+
+### Swift
+
+```swift
+func longestConsecutive(_ nums: [Int]) -> Int {
+    let set = Set(nums)
+    var best = 0
+    for x in set {
+        if set.contains(x - 1) { continue }
+        var y = x
+        var len = 1
+        while set.contains(y + 1) { y += 1; len += 1 }
+        best = max(best, len)
+    }
+    return best
+}
+```
+
+### Dart
+
+```dart
+int longestConsecutive(List<int> nums) {
+  final set = nums.toSet();
+  var best = 0;
+  for (final x in set) {
+    if (set.contains(x - 1)) continue;
+    var y = x, len = 1;
+    while (set.contains(y + 1)) {
+      y++;
+      len++;
+    }
+    if (len > best) best = len;
+  }
+  return best;
 }
 ```
 
@@ -254,6 +371,46 @@ fun wordBreak(s: String, wordDict: List<String>): Boolean {
         }
     }
     return dp[n]
+}
+```
+
+### Swift
+
+```swift
+func wordBreak(_ s: String, _ wordDict: [String]) -> Bool {
+    let dict = Set(wordDict)
+    let chars = Array(s)
+    let n = chars.count
+    var dp = Array(repeating: false, count: n + 1)
+    dp[0] = true
+    let maxLen = wordDict.map(\.count).max() ?? 0
+    for i in 0..<n where dp[i] {
+        for len in stride(from: 1, through: min(maxLen, n - i), by: 1) {
+            if dict.contains(String(chars[i..<(i + len)])) { dp[i + len] = true }
+        }
+    }
+    return dp[n]
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+bool wordBreak(String s, List<String> wordDict) {
+  final dict = wordDict.toSet();
+  final n = s.length;
+  final dp = List.filled(n + 1, false);
+  dp[0] = true;
+  final maxLen = wordDict.fold<int>(0, (m, w) => max(m, w.length));
+  for (var i = 0; i < n; i++) {
+    if (!dp[i]) continue;
+    for (var len = 1; len <= min(maxLen, n - i); len++) {
+      if (dict.contains(s.substring(i, i + len))) dp[i + len] = true;
+    }
+  }
+  return dp[n];
 }
 ```
 
@@ -336,6 +493,119 @@ class Codec {
         }
         return root
     }
+}
+```
+
+### Swift
+
+```swift
+final class TreeNode {
+    var val: Int
+    var left: TreeNode?
+    var right: TreeNode?
+    init(_ val: Int) { self.val = val }
+}
+
+final class Codec {
+    func serialize(_ root: TreeNode?) -> String {
+        guard let root else { return "#" }
+        var q: [TreeNode?] = [root]
+        var head = 0
+        var out: [String] = []
+        while head < q.count {
+            let node = q[head]
+            head += 1
+            guard let n = node else { out.append("#"); continue }
+            out.append(String(n.val))
+            q.append(n.left)
+            q.append(n.right)
+        }
+        return out.joined(separator: ",")
+    }
+
+    func deserialize(_ data: String) -> TreeNode? {
+        if data == "#" || data.isEmpty { return nil }
+        let parts = data.split(separator: ",", omittingEmptySubsequences: false).map(String.init)
+        guard let rootVal = Int(parts[0]) else { return nil }
+        let root = TreeNode(rootVal)
+        var q: [TreeNode] = [root]
+        var head = 0
+        var i = 1
+        while head < q.count && i < parts.count {
+            let n = q[head]
+            head += 1
+            if let v = Int(parts[i]) { // "#" → nil
+                let child = TreeNode(v)
+                n.left = child
+                q.append(child)
+            }
+            i += 1
+            if i < parts.count, let v = Int(parts[i]) {
+                let child = TreeNode(v)
+                n.right = child
+                q.append(child)
+            }
+            i += 1
+        }
+        return root
+    }
+}
+```
+
+### Dart
+
+```dart
+import 'dart:collection';
+
+class TreeNode {
+  TreeNode(this.val);
+  int val;
+  TreeNode? left;
+  TreeNode? right;
+}
+
+class Codec {
+  String serialize(TreeNode? root) {
+    if (root == null) return '#';
+    final q = Queue<TreeNode?>()..add(root);
+    final out = <String>[];
+    while (q.isNotEmpty) {
+      final n = q.removeFirst();
+      if (n == null) {
+        out.add('#');
+        continue;
+      }
+      out.add('${n.val}');
+      q
+        ..add(n.left)
+        ..add(n.right);
+    }
+    return out.join(',');
+  }
+
+  TreeNode? deserialize(String data) {
+    if (data == '#' || data.isEmpty) return null;
+    final parts = data.split(',');
+    final root = TreeNode(int.parse(parts[0]));
+    final q = Queue<TreeNode>()..add(root);
+    var i = 1;
+    while (q.isNotEmpty && i < parts.length) {
+      final n = q.removeFirst();
+      if (parts[i] != '#') {
+        final child = TreeNode(int.parse(parts[i]));
+        n.left = child;
+        q.add(child);
+      }
+      i++;
+      if (i < parts.length && parts[i] != '#') {
+        final child = TreeNode(int.parse(parts[i]));
+        n.right = child;
+        q.add(child);
+      }
+      i++;
+    }
+    return root;
+  }
 }
 ```
 
@@ -424,6 +694,51 @@ fun findOrder(numCourses: Int, prerequisites: Array<IntArray>): IntArray {
 }
 ```
 
+### Swift
+
+```swift
+func findOrder(_ numCourses: Int, _ prerequisites: [[Int]]) -> [Int] {
+    var g = Array(repeating: [Int](), count: numCourses)
+    var indeg = Array(repeating: 0, count: numCourses)
+    for e in prerequisites {
+        g[e[1]].append(e[0])
+        indeg[e[0]] += 1
+    }
+    var order = (0..<numCourses).filter { indeg[$0] == 0 } // doubles as the queue
+    var head = 0
+    while head < order.count {
+        let u = order[head]
+        head += 1
+        for v in g[u] {
+            indeg[v] -= 1
+            if indeg[v] == 0 { order.append(v) }
+        }
+    }
+    return order.count == numCourses ? order : []
+}
+```
+
+### Dart
+
+```dart
+List<int> findOrder(int numCourses, List<List<int>> prerequisites) {
+  final g = List.generate(numCourses, (_) => <int>[]);
+  final indeg = List.filled(numCourses, 0);
+  for (final e in prerequisites) {
+    g[e[1]].add(e[0]);
+    indeg[e[0]]++;
+  }
+  // `order` doubles as the queue; `head` is the dequeue pointer.
+  final order = [for (var i = 0; i < numCourses; i++) if (indeg[i] == 0) i];
+  for (var head = 0; head < order.length; head++) {
+    for (final v in g[order[head]]) {
+      if (--indeg[v] == 0) order.add(v);
+    }
+  }
+  return order.length == numCourses ? order : [];
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -496,6 +811,80 @@ fun alienOrder(words: Array<String>): String {
         }
     }
     return if (sb.length == indeg.size) sb.toString() else ""
+}
+```
+
+### Swift
+
+```swift
+func alienOrder(_ words: [String]) -> String {
+    var adj: [Character: Set<Character>] = [:]
+    var indeg: [Character: Int] = [:]
+    for w in words {
+        for c in w where adj[c] == nil {
+            adj[c] = []
+            indeg[c] = 0
+        }
+    }
+    for (a, b) in zip(words, words.dropFirst()) {
+        if a.count > b.count && a.hasPrefix(b) { return "" }
+        for (x, y) in zip(a, b) where x != y {
+            if adj[x, default: []].insert(y).inserted { indeg[y, default: 0] += 1 }
+            break
+        }
+    }
+    var q = indeg.filter { $0.value == 0 }.map(\.key)
+    var head = 0
+    var out = ""
+    while head < q.count {
+        let u = q[head]
+        head += 1
+        out.append(u)
+        for v in adj[u, default: []] {
+            indeg[v, default: 0] -= 1
+            if indeg[v] == 0 { q.append(v) }
+        }
+    }
+    return out.count == indeg.count ? out : ""
+}
+```
+
+### Dart
+
+```dart
+import 'dart:collection';
+
+String alienOrder(List<String> words) {
+  final adj = <String, Set<String>>{};
+  final indeg = <String, int>{};
+  for (final w in words) {
+    for (final c in w.split('')) {
+      adj.putIfAbsent(c, () => <String>{});
+      indeg.putIfAbsent(c, () => 0);
+    }
+  }
+  for (var i = 0; i + 1 < words.length; i++) {
+    final a = words[i], b = words[i + 1];
+    if (a.length > b.length && a.startsWith(b)) return '';
+    final n = a.length < b.length ? a.length : b.length;
+    for (var j = 0; j < n; j++) {
+      if (a[j] != b[j]) {
+        if (adj[a[j]]!.add(b[j])) indeg[b[j]] = indeg[b[j]]! + 1;
+        break;
+      }
+    }
+  }
+  final q = Queue<String>()..addAll([for (final e in indeg.entries) if (e.value == 0) e.key]);
+  final sb = StringBuffer();
+  while (q.isNotEmpty) {
+    final u = q.removeFirst();
+    sb.write(u);
+    for (final v in adj[u]!) {
+      indeg[v] = indeg[v]! - 1;
+      if (indeg[v] == 0) q.add(v);
+    }
+  }
+  return sb.length == indeg.length ? sb.toString() : '';
 }
 ```
 
@@ -585,6 +974,85 @@ fun insert(intervals: Array<IntArray>, newInterval: IntArray): Array<IntArray> {
     out += intArrayOf(ns, ne)
     while (i < n) out += intervals[i++]
     return out.toTypedArray()
+}
+```
+
+### Swift
+
+```swift
+func merge(_ intervals: [[Int]]) -> [[Int]] {
+    guard !intervals.isEmpty else { return [] }
+    let sorted = intervals.sorted { $0[0] < $1[0] }
+    var out = [sorted[0]]
+    for cur in sorted.dropFirst() {
+        let last = out.count - 1
+        if cur[0] <= out[last][1] {
+            out[last][1] = max(out[last][1], cur[1])
+        } else {
+            out.append(cur)
+        }
+    }
+    return out
+}
+
+func insert(_ intervals: [[Int]], _ newInterval: [Int]) -> [[Int]] {
+    var out: [[Int]] = []
+    var i = 0
+    let n = intervals.count
+    var ns = newInterval[0], ne = newInterval[1]
+    while i < n && intervals[i][1] < ns { out.append(intervals[i]); i += 1 }
+    while i < n && intervals[i][0] <= ne {
+        ns = min(ns, intervals[i][0])
+        ne = max(ne, intervals[i][1])
+        i += 1
+    }
+    out.append([ns, ne])
+    while i < n { out.append(intervals[i]); i += 1 }
+    return out
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+List<List<int>> merge(List<List<int>> intervals) {
+  if (intervals.isEmpty) return [];
+  intervals.sort((a, b) => a[0].compareTo(b[0]));
+  final out = [
+    [intervals[0][0], intervals[0][1]]
+  ];
+  for (var i = 1; i < intervals.length; i++) {
+    final last = out.last;
+    final cur = intervals[i];
+    if (cur[0] <= last[1]) {
+      last[1] = max(last[1], cur[1]);
+    } else {
+      out.add([cur[0], cur[1]]);
+    }
+  }
+  return out;
+}
+
+List<List<int>> insert(List<List<int>> intervals, List<int> newInterval) {
+  final out = <List<int>>[];
+  var i = 0;
+  final n = intervals.length;
+  var ns = newInterval[0], ne = newInterval[1];
+  while (i < n && intervals[i][1] < ns) {
+    out.add(intervals[i++]);
+  }
+  while (i < n && intervals[i][0] <= ne) {
+    ns = min(ns, intervals[i][0]);
+    ne = max(ne, intervals[i][1]);
+    i++;
+  }
+  out.add([ns, ne]);
+  while (i < n) {
+    out.add(intervals[i++]);
+  }
+  return out;
 }
 ```
 
@@ -681,6 +1149,127 @@ class LFUCache(private val capacity: Int) {
         n.freq = f + 1
         freqList.getOrPut(n.freq) { LinkedHashSet() }.add(n.key)
     }
+}
+```
+
+### Swift
+
+```swift
+/// Insertion-ordered key set: O(1) append / remove / first (doubly linked list over dictionaries).
+struct OrderedKeySet {
+    private var prev: [Int: Int] = [:]
+    private var next: [Int: Int] = [:]
+    private(set) var first: Int?
+    private var last: Int?
+    private(set) var count = 0
+    var isEmpty: Bool { count == 0 }
+
+    mutating func append(_ k: Int) {
+        if let l = last { next[l] = k; prev[k] = l } else { first = k }
+        last = k
+        count += 1
+    }
+
+    /// Precondition: `k` is in the set.
+    mutating func remove(_ k: Int) {
+        let p = prev.removeValue(forKey: k), n = next.removeValue(forKey: k)
+        if let p { next[p] = n } else { first = n }
+        if let n { prev[n] = p } else { last = p }
+        count -= 1
+    }
+}
+
+final class LFUCache {
+    private let cap: Int
+    private var keyNode: [Int: (value: Int, freq: Int)] = [:]
+    private var freqList: [Int: OrderedKeySet] = [:] // freq -> keys, LRU first
+    private var minFreq = 0
+
+    init(_ capacity: Int) { cap = capacity }
+
+    func get(_ key: Int) -> Int {
+        guard let n = keyNode[key] else { return -1 }
+        touch(key, n)
+        return n.value
+    }
+
+    func put(_ key: Int, _ value: Int) {
+        guard cap > 0 else { return }
+        if var n = keyNode[key] {
+            n.value = value
+            keyNode[key] = n
+            touch(key, n)
+            return
+        }
+        if keyNode.count >= cap, let evict = freqList[minFreq]?.first {
+            freqList[minFreq]?.remove(evict)
+            keyNode.removeValue(forKey: evict)
+        }
+        keyNode[key] = (value, 1)
+        freqList[1, default: OrderedKeySet()].append(key)
+        minFreq = 1
+    }
+
+    private func touch(_ key: Int, _ n: (value: Int, freq: Int)) {
+        let f = n.freq
+        freqList[f]?.remove(key)
+        if freqList[f]?.isEmpty == true {
+            freqList.removeValue(forKey: f)
+            if minFreq == f { minFreq += 1 }
+        }
+        keyNode[key] = (n.value, f + 1)
+        freqList[f + 1, default: OrderedKeySet()].append(key)
+    }
+}
+```
+
+### Dart
+
+```dart
+class LFUCache {
+  LFUCache(this.capacity);
+  final int capacity;
+  final _keyNode = <int, (int value, int freq)>{};
+  final _freqList = <int, Set<int>>{}; // LinkedHashSet: insertion order = LRU first
+  var _minFreq = 0;
+
+  int get(int key) {
+    final n = _keyNode[key];
+    if (n == null) return -1;
+    _touch(key, n);
+    return n.$1;
+  }
+
+  void put(int key, int value) {
+    if (capacity == 0) return;
+    final existing = _keyNode[key];
+    if (existing != null) {
+      _keyNode[key] = (value, existing.$2);
+      _touch(key, (value, existing.$2));
+      return;
+    }
+    if (_keyNode.length >= capacity) {
+      final set = _freqList[_minFreq]!;
+      final evict = set.first;
+      set.remove(evict);
+      _keyNode.remove(evict);
+    }
+    _keyNode[key] = (value, 1);
+    (_freqList[1] ??= {}).add(key);
+    _minFreq = 1;
+  }
+
+  void _touch(int key, (int, int) n) {
+    final f = n.$2;
+    _freqList[f]!.remove(key);
+    if (_freqList[f]!.isEmpty) {
+      _freqList.remove(f);
+      if (_minFreq == f) _minFreq++;
+    }
+    final nf = f + 1;
+    _keyNode[key] = (n.$1, nf);
+    (_freqList[nf] ??= {}).add(key);
+  }
 }
 ```
 
@@ -795,6 +1384,100 @@ class Twitter {
 }
 ```
 
+### Swift
+
+```swift
+final class Twitter {
+    private var time = 0
+    private var tweets: [Int: [(time: Int, id: Int)]] = [:] // newest first
+    private var follows: [Int: Set<Int>] = [:]
+
+    func postTweet(_ userId: Int, _ tweetId: Int) {
+        time += 1
+        tweets[userId, default: []].insert((time, tweetId), at: 0)
+    }
+
+    func getNewsFeed(_ userId: Int) -> [Int] {
+        var people = follows[userId] ?? []
+        people.insert(userId)
+        typealias Item = (t: Int, id: Int, u: Int, idx: Int)
+        var heap: [Item] = []
+        func push(_ x: Item) { heap.append(x); heap.sort { $0.t > $1.t } }
+        for u in people {
+            if let first = tweets[u]?.first { push((first.time, first.id, u, 0)) }
+        }
+        var out: [Int] = []
+        while out.count < 10 && !heap.isEmpty {
+            let cur = heap.removeFirst()
+            out.append(cur.id)
+            let list = tweets[cur.u] ?? []
+            let ni = cur.idx + 1
+            if ni < list.count { push((list[ni].time, list[ni].id, cur.u, ni)) }
+        }
+        return out
+    }
+
+    func follow(_ followerId: Int, _ followeeId: Int) {
+        if followerId != followeeId { follows[followerId, default: []].insert(followeeId) }
+    }
+
+    func unfollow(_ followerId: Int, _ followeeId: Int) {
+        follows[followerId]?.remove(followeeId)
+    }
+}
+```
+
+### Dart
+
+```dart
+typedef _Item = ({int t, int id, int u, int idx});
+
+class Twitter {
+  var _time = 0;
+  final _tweets = <int, List<(int time, int id)>>{}; // newest first
+  final _follows = <int, Set<int>>{};
+
+  void postTweet(int userId, int tweetId) {
+    (_tweets[userId] ??= []).insert(0, (++_time, tweetId));
+  }
+
+  List<int> getNewsFeed(int userId) {
+    final people = {...?_follows[userId], userId};
+    final heap = <_Item>[];
+    void push(_Item x) {
+      heap.add(x);
+      heap.sort((a, b) => b.t.compareTo(a.t));
+    }
+
+    for (final u in people) {
+      final list = _tweets[u];
+      if (list != null && list.isNotEmpty) {
+        push((t: list[0].$1, id: list[0].$2, u: u, idx: 0));
+      }
+    }
+    final out = <int>[];
+    while (out.length < 10 && heap.isNotEmpty) {
+      final cur = heap.removeAt(0);
+      out.add(cur.id);
+      final list = _tweets[cur.u]!;
+      final ni = cur.idx + 1;
+      if (ni < list.length) {
+        push((t: list[ni].$1, id: list[ni].$2, u: cur.u, idx: ni));
+      }
+    }
+    return out;
+  }
+
+  void follow(int followerId, int followeeId) {
+    if (followerId != followeeId) (_follows[followerId] ??= {}).add(followeeId);
+  }
+
+  void unfollow(int followerId, int followeeId) {
+    _follows[followerId]?.remove(followeeId);
+  }
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -841,7 +1524,7 @@ class Twitter {
 }
 ```
 
-*(Teaching note: TS heap above sorts for clarity; say “binary heap O(log F)” in interview.)*
+*(Teaching note: the Swift, Dart and TS heaps above sort for clarity; say “binary heap O(log F)” in interview.)*
 
 ---
 
@@ -880,6 +1563,48 @@ fun lengthOfLongestSubstringKDistinct(s: String, k: Int): Int {
 }
 ```
 
+### Swift
+
+```swift
+func lengthOfLongestSubstringKDistinct(_ s: String, _ k: Int) -> Int {
+    if k == 0 { return 0 }
+    let chars = Array(s)
+    var freq: [Character: Int] = [:]
+    var lo = 0, best = 0
+    for hi in chars.indices {
+        freq[chars[hi], default: 0] += 1
+        while freq.count > k {
+            let c = chars[lo]
+            lo += 1
+            freq[c, default: 0] -= 1
+            if freq[c] == 0 { freq.removeValue(forKey: c) }
+        }
+        best = max(best, hi - lo + 1)
+    }
+    return best
+}
+```
+
+### Dart
+
+```dart
+int lengthOfLongestSubstringKDistinct(String s, int k) {
+  if (k == 0) return 0;
+  final freq = <String, int>{};
+  var lo = 0, best = 0;
+  for (var hi = 0; hi < s.length; hi++) {
+    freq[s[hi]] = (freq[s[hi]] ?? 0) + 1;
+    while (freq.length > k) {
+      final c = s[lo++];
+      freq[c] = freq[c]! - 1;
+      if (freq[c] == 0) freq.remove(c);
+    }
+    best = best > (hi - lo + 1) ? best : (hi - lo + 1);
+  }
+  return best;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -895,26 +1620,6 @@ function lengthOfLongestSubstringKDistinct(s: string, k: number): number {
       if (freq.get(c) === 0) freq.delete(c);
     }
     best = Math.max(best, hi - lo + 1);
-  }
-  return best;
-}
-```
-
-### Dart (short)
-
-```dart
-int lengthOfLongestSubstringKDistinct(String s, int k) {
-  if (k == 0) return 0;
-  final freq = <String, int>{};
-  var lo = 0, best = 0;
-  for (var hi = 0; hi < s.length; hi++) {
-    freq[s[hi]] = (freq[s[hi]] ?? 0) + 1;
-    while (freq.length > k) {
-      final c = s[lo++];
-      freq[c] = freq[c]! - 1;
-      if (freq[c] == 0) freq.remove(c);
-    }
-    best = best > (hi - lo + 1) ? best : (hi - lo + 1);
   }
   return best;
 }
@@ -953,6 +1658,49 @@ fun minDistance(word1: String, word2: String): Int {
         prev = cur
     }
     return prev[n]
+}
+```
+
+### Swift
+
+```swift
+func minDistance(_ word1: String, _ word2: String) -> Int {
+    let a = Array(word1), b = Array(word2)
+    let m = a.count, n = b.count
+    var prev = Array(0...n)
+    for i in stride(from: 1, through: m, by: 1) {
+        var cur = Array(repeating: 0, count: n + 1)
+        cur[0] = i
+        for j in stride(from: 1, through: n, by: 1) {
+            cur[j] = a[i - 1] == b[j - 1]
+                ? prev[j - 1]
+                : 1 + min(prev[j], cur[j - 1], prev[j - 1])
+        }
+        prev = cur
+    }
+    return prev[n]
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+int minDistance(String word1, String word2) {
+  final m = word1.length, n = word2.length;
+  var prev = List.generate(n + 1, (j) => j);
+  for (var i = 1; i <= m; i++) {
+    final cur = List.filled(n + 1, 0);
+    cur[0] = i;
+    for (var j = 1; j <= n; j++) {
+      cur[j] = word1[i - 1] == word2[j - 1]
+          ? prev[j - 1]
+          : 1 + min(min(prev[j], cur[j - 1]), prev[j - 1]);
+    }
+    prev = cur;
+  }
+  return prev[n];
 }
 ```
 
@@ -1009,6 +1757,43 @@ fun maxPathSum(root: TreeNode?): Int {
 }
 ```
 
+### Swift
+
+```swift
+func maxPathSum(_ root: TreeNode?) -> Int {
+    var best = Int.min
+    func gain(_ n: TreeNode?) -> Int {
+        guard let n else { return 0 }
+        let l = max(0, gain(n.left))
+        let r = max(0, gain(n.right))
+        best = max(best, n.val + l + r)
+        return n.val + max(l, r)
+    }
+    _ = gain(root)
+    return best
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+int maxPathSum(TreeNode root) {
+  var best = root.val; // any real path beats a sentinel
+  int gain(TreeNode? n) {
+    if (n == null) return 0;
+    final l = max(0, gain(n.left));
+    final r = max(0, gain(n.right));
+    best = max(best, n.val + l + r);
+    return n.val + max(l, r);
+  }
+
+  gain(root);
+  return best;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -1061,6 +1846,53 @@ class MedianFinder {
 }
 ```
 
+### Swift
+
+```swift
+final class MedianFinder {
+    private var low: [Int] = [] // max-heap
+    private var high: [Int] = [] // min-heap
+
+    func addNum(_ num: Int) {
+        low.append(num); low.sort(by: >)
+        high.append(low.removeFirst()); high.sort()
+        if high.count > low.count {
+            low.append(high.removeFirst()); low.sort(by: >)
+        }
+    }
+
+    func findMedian() -> Double {
+        if low.count > high.count { return Double(low[0]) }
+        return Double(low[0] + high[0]) / 2.0
+    }
+}
+```
+
+### Dart
+
+```dart
+class MedianFinder {
+  final _low = <int>[]; // max via sort desc
+  final _high = <int>[];
+
+  void addNum(int num) {
+    _low.add(num);
+    _low.sort((a, b) => b.compareTo(a));
+    _high.add(_low.removeAt(0));
+    _high.sort();
+    if (_high.length > _low.length) {
+      _low.add(_high.removeAt(0));
+      _low.sort((a, b) => b.compareTo(a));
+    }
+  }
+
+  double findMedian() {
+    if (_low.length > _high.length) return _low.first.toDouble();
+    return (_low.first + _high.first) / 2.0;
+  }
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -1096,7 +1928,7 @@ class MedianFinder {
 }
 ```
 
-**Say in interview:** “Production code uses binary heaps for O(log n) `addNum`; Kotlin above uses `PriorityQueue`.” Swift/Dart heap ports: [`solutions/ch27`](../../solutions/ch27/README.md#q14--find-median-from-data-stream-typescript-two-heap--swift--dart).
+**Say in interview:** “Production code uses binary heaps for O(log n) `addNum`; Kotlin above uses `PriorityQueue`; the Swift/Dart/TS versions use sorted inserts for clarity.” Binary-heap TypeScript version: [`solutions/ch27`](../../solutions/ch27/README.md#q14-find-median-from-data-stream-typescript-two-heap-swift-dart).
 
 ---
 
@@ -1144,6 +1976,72 @@ fun accountsMerge(accounts: List<List<String>>): List<List<String>> {
         emails.sort()
         mutableListOf(emailName[root]!!).also { it.addAll(emails) }
     }
+}
+```
+
+### Swift
+
+```swift
+func accountsMerge(_ accounts: [[String]]) -> [[String]] {
+    var parent: [String: String] = [:]
+    var emailName: [String: String] = [:]
+    func find(_ x: String) -> String {
+        let p = parent[x] ?? x
+        if p == x { return x }
+        let root = find(p)
+        parent[x] = root
+        return root
+    }
+    func union(_ a: String, _ b: String) {
+        parent[find(a)] = find(b)
+    }
+    for acc in accounts {
+        guard let name = acc.first, acc.count > 1 else { continue }
+        for e in acc.dropFirst() {
+            if parent[e] == nil { parent[e] = e }
+            emailName[e] = name
+            union(acc[1], e)
+        }
+    }
+    var groups: [String: [String]] = [:]
+    for e in parent.keys { groups[find(e), default: []].append(e) }
+    return groups.map { root, emails in [emailName[root] ?? ""] + emails.sorted() }
+}
+```
+
+### Dart
+
+```dart
+List<List<String>> accountsMerge(List<List<String>> accounts) {
+  final parent = <String, String>{};
+  final emailName = <String, String>{};
+  String find(String x) {
+    final p = parent[x] ?? x;
+    if (p == x) return x;
+    final root = find(p);
+    parent[x] = root;
+    return root;
+  }
+
+  void union(String a, String b) => parent[find(a)] = find(b);
+
+  for (final acc in accounts) {
+    final name = acc[0];
+    for (var i = 1; i < acc.length; i++) {
+      final e = acc[i];
+      parent.putIfAbsent(e, () => e);
+      emailName[e] = name;
+      union(acc[1], e);
+    }
+  }
+  final groups = <String, List<String>>{};
+  for (final e in parent.keys.toList()) {
+    (groups[find(e)] ??= []).add(e);
+  }
+  return [
+    for (final MapEntry(key: root, value: emails) in groups.entries)
+      [emailName[root]!, ...(emails..sort())]
+  ];
 }
 ```
 
@@ -1218,6 +2116,55 @@ fun isMatch(s: String, p: String): Boolean {
 }
 ```
 
+### Swift
+
+```swift
+func isMatch(_ s: String, _ p: String) -> Bool {
+    let s = Array(s), p = Array(p)
+    let m = s.count, n = p.count
+    var dp = Array(repeating: Array(repeating: false, count: n + 1), count: m + 1)
+    dp[0][0] = true
+    for j in stride(from: 2, through: n, by: 1) where p[j - 1] == "*" && dp[0][j - 2] {
+        dp[0][j] = true
+    }
+    for i in stride(from: 1, through: m, by: 1) {
+        for j in stride(from: 1, through: n, by: 1) {
+            if p[j - 1] == "*" {
+                dp[i][j] = dp[i][j - 2] ||
+                    ((p[j - 2] == "." || p[j - 2] == s[i - 1]) && dp[i - 1][j])
+            } else if p[j - 1] == "." || p[j - 1] == s[i - 1] {
+                dp[i][j] = dp[i - 1][j - 1]
+            }
+        }
+    }
+    return dp[m][n]
+}
+```
+
+### Dart
+
+```dart
+bool isMatch(String s, String p) {
+  final m = s.length, n = p.length;
+  final dp = List.generate(m + 1, (_) => List.filled(n + 1, false));
+  dp[0][0] = true;
+  for (var j = 2; j <= n; j++) {
+    if (p[j - 1] == '*' && dp[0][j - 2]) dp[0][j] = true;
+  }
+  for (var i = 1; i <= m; i++) {
+    for (var j = 1; j <= n; j++) {
+      if (p[j - 1] == '*') {
+        dp[i][j] = dp[i][j - 2] ||
+            ((p[j - 2] == '.' || p[j - 2] == s[i - 1]) && dp[i - 1][j]);
+      } else if (p[j - 1] == '.' || p[j - 1] == s[i - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      }
+    }
+  }
+  return dp[m][n];
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -1285,6 +2232,71 @@ fun numBusesToDestination(routes: Array<IntArray>, source: Int, target: Int): In
         }
     }
     return -1
+}
+```
+
+### Swift
+
+```swift
+func numBusesToDestination(_ routes: [[Int]], _ source: Int, _ target: Int) -> Int {
+    if source == target { return 0 }
+    var stopToBus: [Int: [Int]] = [:]
+    for (b, route) in routes.enumerated() {
+        for s in route { stopToBus[s, default: []].append(b) }
+    }
+    var q = [source]
+    var seenBus = Array(repeating: false, count: routes.count)
+    var seenStop: Set<Int> = [source]
+    var buses = 0
+    while !q.isEmpty {
+        buses += 1
+        var next: [Int] = []
+        for stop in q {
+            for b in stopToBus[stop] ?? [] where !seenBus[b] {
+                seenBus[b] = true
+                for ns in routes[b] {
+                    if ns == target { return buses }
+                    if seenStop.insert(ns).inserted { next.append(ns) }
+                }
+            }
+        }
+        q = next
+    }
+    return -1
+}
+```
+
+### Dart
+
+```dart
+int numBusesToDestination(List<List<int>> routes, int source, int target) {
+  if (source == target) return 0;
+  final stopToBus = <int, List<int>>{};
+  for (var b = 0; b < routes.length; b++) {
+    for (final s in routes[b]) {
+      (stopToBus[s] ??= []).add(b);
+    }
+  }
+  var q = [source];
+  final seenBus = List.filled(routes.length, false);
+  final seenStop = {source};
+  var buses = 0;
+  while (q.isNotEmpty) {
+    buses++;
+    final next = <int>[];
+    for (final stop in q) {
+      for (final b in stopToBus[stop] ?? const <int>[]) {
+        if (seenBus[b]) continue;
+        seenBus[b] = true;
+        for (final ns in routes[b]) {
+          if (ns == target) return buses;
+          if (seenStop.add(ns)) next.add(ns);
+        }
+      }
+    }
+    q = next;
+  }
+  return -1;
 }
 ```
 
@@ -1363,6 +2375,61 @@ fun minimumSemesters(n: Int, relations: Array<IntArray>): Int {
 }
 ```
 
+### Swift
+
+```swift
+func minimumSemesters(_ n: Int, _ relations: [[Int]]) -> Int {
+    var g = Array(repeating: [Int](), count: n + 1)
+    var indeg = Array(repeating: 0, count: n + 1)
+    for e in relations {
+        g[e[0]].append(e[1])
+        indeg[e[1]] += 1
+    }
+    var q = stride(from: 1, through: n, by: 1).filter { indeg[$0] == 0 }
+    var sem = 0, taken = 0
+    while !q.isEmpty {
+        sem += 1
+        var next: [Int] = []
+        for u in q {
+            taken += 1
+            for v in g[u] {
+                indeg[v] -= 1
+                if indeg[v] == 0 { next.append(v) }
+            }
+        }
+        q = next
+    }
+    return taken == n ? sem : -1
+}
+```
+
+### Dart
+
+```dart
+int minimumSemesters(int n, List<List<int>> relations) {
+  final g = List.generate(n + 1, (_) => <int>[]);
+  final indeg = List.filled(n + 1, 0);
+  for (final e in relations) {
+    g[e[0]].add(e[1]);
+    indeg[e[1]]++;
+  }
+  var q = [for (var i = 1; i <= n; i++) if (indeg[i] == 0) i];
+  var sem = 0, taken = 0;
+  while (q.isNotEmpty) {
+    sem++;
+    final next = <int>[];
+    for (final u in q) {
+      taken++;
+      for (final v in g[u]) {
+        if (--indeg[v] == 0) next.add(v);
+      }
+    }
+    q = next;
+  }
+  return taken == n ? sem : -1;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -1415,6 +2482,36 @@ class HitCounter {
 }
 ```
 
+### Swift
+
+```swift
+final class HitCounter {
+    private var q: [Int] = []
+    func hit(_ timestamp: Int) { q.append(timestamp) }
+    func getHits(_ timestamp: Int) -> Int {
+        while let f = q.first, f <= timestamp - 300 { q.removeFirst() }
+        return q.count
+    }
+}
+```
+
+### Dart
+
+```dart
+import 'dart:collection';
+
+class HitCounter {
+  final _q = Queue<int>();
+  void hit(int timestamp) => _q.add(timestamp);
+  int getHits(int timestamp) {
+    while (_q.isNotEmpty && _q.first <= timestamp - 300) {
+      _q.removeFirst();
+    }
+    return _q.length;
+  }
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -1425,19 +2522,6 @@ class HitCounter {
     while (this.q.length && this.q[0] <= timestamp - 300) this.q.shift();
     return this.q.length;
   }
-}
-```
-
-### Swift (short)
-
-```swift
-final class HitCounter {
-    private var q: [Int] = []
-    func hit(_ timestamp: Int) { q.append(timestamp) }
-    func getHits(_ timestamp: Int) -> Int {
-        while let f = q.first, f <= timestamp - 300 { q.removeFirst() }
-        return q.count
-    }
 }
 ```
 
@@ -1476,6 +2560,57 @@ fun hasArbitrage(pairs: List<Triple<String, String, Double>>): Boolean {
     }
     for ((u, v, w) in edges) if (dist[v] > dist[u] + w + 1e-12) return true
     return false
+}
+```
+
+### Swift
+
+```swift
+import Foundation
+
+func hasArbitrage(_ pairs: [(String, String, Double)]) -> Bool {
+    var nodes = Set<String>()
+    for (a, b, _) in pairs { nodes.insert(a); nodes.insert(b) }
+    let list = Array(nodes)
+    let idx = Dictionary(uniqueKeysWithValues: list.enumerated().map { ($1, $0) })
+    let n = list.count
+    let edges = pairs.map { (a, b, rate) in (idx[a]!, idx[b]!, -log(rate)) }
+    var dist = Array(repeating: 0.0, count: n)
+    for _ in 0..<max(0, n - 1) {
+        for (u, v, w) in edges where dist[v] > dist[u] + w { dist[v] = dist[u] + w }
+    }
+    for (u, v, w) in edges where dist[v] > dist[u] + w + 1e-12 { return true }
+    return false
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+bool hasArbitrage(List<(String, String, double)> pairs) {
+  final nodes = <String>{};
+  for (final (a, b, _) in pairs) {
+    nodes.add(a);
+    nodes.add(b);
+  }
+  final list = nodes.toList();
+  final idx = {for (var i = 0; i < list.length; i++) list[i]: i};
+  final n = list.length;
+  final edges = pairs
+      .map((e) => (idx[e.$1]!, idx[e.$2]!, -log(e.$3)))
+      .toList();
+  final dist = List.filled(n, 0.0);
+  for (var i = 0; i < n - 1; i++) {
+    for (final (u, v, w) in edges) {
+      if (dist[v] > dist[u] + w) dist[v] = dist[u] + w;
+    }
+  }
+  for (final (u, v, w) in edges) {
+    if (dist[v] > dist[u] + w + 1e-12) return true;
+  }
+  return false;
 }
 ```
 

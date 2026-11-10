@@ -57,7 +57,29 @@ p.contains(.write) // true
 p.remove(.write)
 ```
 
-**Dart / TypeScript** — same shift masks with `&` / `|` / `^`; document bit meanings in one place.
+**Dart**
+
+```dart
+abstract final class Perm {
+  static const read = 1 << 0;
+  static const write = 1 << 1;
+  static const exec = 1 << 2;
+}
+
+bool canWrite(int flags) => (flags & Perm.write) != 0;
+int grantWrite(int flags) => flags | Perm.write;
+```
+
+**TypeScript** — a frozen object instead of an `enum`
+
+```typescript
+const Perm = { READ: 1 << 0, WRITE: 1 << 1, EXEC: 1 << 2 } as const;
+
+const canWrite = (flags: number) => (flags & Perm.WRITE) !== 0;
+const grantWrite = (flags: number) => flags | Perm.WRITE;
+```
+
+All four: same shift masks with `&` / `|` / `^`; document bit meanings in one place.
 
 ## Classic bit tricks
 
@@ -65,14 +87,47 @@ p.remove(.write)
 
 Every element appears twice except one. XOR is associative/commutative and `x ^ x = 0`, `x ^ 0 = x` → XOR everything; result is the singleton.
 
+**Kotlin**
+
 ```kotlin
 fun singleNumber(nums: IntArray): Int =
     nums.fold(0) { acc, x -> acc xor x }
 ```
 
+**Swift**
+
+```swift
+func singleNumber(_ nums: [Int]) -> Int {
+    nums.reduce(0, ^)
+}
+```
+
+**Dart**
+
+```dart
+int singleNumber(List<int> nums) => nums.fold(0, (acc, x) => acc ^ x);
+```
+
+**TypeScript**
+
+```typescript
+function singleNumber(nums: number[]): number {
+  return nums.reduce((a, x) => a ^ x, 0);
+}
+```
+
 ### Power of two
 
 Positive `n` is a power of two iff it has exactly one bit set: `n > 0 && (n and (n - 1)) == 0`.
+
+**Kotlin**
+
+```kotlin
+fun isPowerOfTwo(n: Int): Boolean =
+    n > 0 && (n and (n - 1)) == 0
+```
+
+**Swift**
 
 ```swift
 func isPowerOfTwo(_ n: Int) -> Bool {
@@ -80,14 +135,58 @@ func isPowerOfTwo(_ n: Int) -> Bool {
 }
 ```
 
+**Dart**
+
+```dart
+bool isPowerOfTwo(int n) => n > 0 && (n & (n - 1)) == 0;
+```
+
+**TypeScript**
+
+```typescript
+function isPowerOfTwo(n: number): boolean {
+  return n > 0 && (n & (n - 1)) === 0; // `&` works on int32: valid for n ≤ 2^31
+}
+```
+
 ### Count bits (Brian Kernighan / built-ins)
 
 Clear lowest set bit repeatedly: `n &= n - 1` until zero — loops once per set bit.
 
+**Kotlin**
+
+```kotlin
+fun hammingWeight(n: Int): Int {
+    var c = 0
+    var x = n
+    while (x != 0) {
+        x = x and (x - 1)
+        c++
+    }
+    return c
+}
+```
+
+**Swift**
+
+```swift
+func hammingWeight(_ n: Int) -> Int {
+    var x = UInt32(truncatingIfNeeded: n) // 32-bit view, same as Kotlin Int / TS `>>> 0`
+    var c = 0
+    while x != 0 {
+        x &= x - 1
+        c += 1
+    }
+    return c
+}
+```
+
+**Dart**
+
 ```dart
 int hammingWeight(int n) {
   var c = 0;
-  var x = n;
+  var x = n & 0xFFFFFFFF; // count as 32-bit, like Kotlin Int (-1 -> 32)
   while (x != 0) {
     x &= x - 1;
     c++;
@@ -95,6 +194,8 @@ int hammingWeight(int n) {
   return c;
 }
 ```
+
+**TypeScript**
 
 ```typescript
 function hammingWeight(n: number): number {
@@ -159,6 +260,67 @@ fun numIslands(grid: Array<CharArray>): Int {
 }
 ```
 
+### Swift — islands
+
+```swift
+func numIslands(_ grid: inout [[Character]]) -> Int {
+    let rows = grid.count, cols = grid.first?.count ?? 0
+    var count = 0
+    func dfs(_ r: Int, _ c: Int) {
+        guard r >= 0, c >= 0, r < rows, c < cols, grid[r][c] == "1" else { return }
+        grid[r][c] = "0"
+        dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1)
+    }
+    for r in 0..<rows {
+        for c in 0..<cols where grid[r][c] == "1" {
+            count += 1
+            dfs(r, c)
+        }
+    }
+    return count
+}
+```
+
+### Dart — islands
+
+```dart
+int numIslands(List<List<String>> grid) {
+  final rows = grid.length, cols = grid.isEmpty ? 0 : grid[0].length;
+  var count = 0;
+  void dfs(int r, int c) {
+    if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] != '1') return;
+    grid[r][c] = '0';
+    dfs(r + 1, c);
+    dfs(r - 1, c);
+    dfs(r, c + 1);
+    dfs(r, c - 1);
+  }
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      if (grid[r][c] == '1') {
+        count++;
+        dfs(r, c);
+      }
+    }
+  }
+  return count;
+}
+```
+
+### Kotlin — rotate 90°
+
+```kotlin
+fun rotate(matrix: Array<IntArray>) {
+    val n = matrix.size
+    for (i in 0 until n) for (j in i until n) {
+        val t = matrix[i][j]
+        matrix[i][j] = matrix[j][i]
+        matrix[j][i] = t
+    }
+    for (row in matrix) row.reverse()
+}
+```
+
 ### Swift — rotate 90°
 
 ```swift
@@ -177,6 +339,68 @@ func rotate(_ matrix: inout [[Int]]) {
 }
 ```
 
+### Dart — rotate 90°
+
+```dart
+void rotate(List<List<int>> matrix) {
+  final n = matrix.length;
+  for (var i = 0; i < n; i++) {
+    for (var j = i; j < n; j++) {
+      final t = matrix[i][j];
+      matrix[i][j] = matrix[j][i];
+      matrix[j][i] = t;
+    }
+  }
+  for (var i = 0; i < n; i++) {
+    matrix[i] = matrix[i].reversed.toList();
+  }
+}
+```
+
+### TypeScript — rotate 90°
+
+```typescript
+function rotate(matrix: number[][]): void {
+  const n = matrix.length;
+  for (let i = 0; i < n; i++) {
+    for (let j = i; j < n; j++) {
+      [matrix[i][j], matrix[j][i]] = [matrix[j][i], matrix[i][j]];
+    }
+  }
+  for (const row of matrix) row.reverse();
+}
+```
+
+### Kotlin — flood fill
+
+```kotlin
+fun floodFill(image: Array<IntArray>, sr: Int, sc: Int, newColor: Int) {
+    val old = image[sr][sc]
+    if (old == newColor) return
+    fun dfs(r: Int, c: Int) {
+        if (r !in image.indices || c !in image[0].indices || image[r][c] != old) return
+        image[r][c] = newColor
+        dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1)
+    }
+    dfs(sr, sc)
+}
+```
+
+### Swift — flood fill
+
+```swift
+func floodFill(_ image: inout [[Int]], _ sr: Int, _ sc: Int, _ newColor: Int) {
+    let old = image[sr][sc]
+    if old == newColor { return }
+    func dfs(_ r: Int, _ c: Int) {
+        guard r >= 0, c >= 0, r < image.count, c < image[0].count, image[r][c] == old else { return }
+        image[r][c] = newColor
+        dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1)
+    }
+    dfs(sr, sc)
+}
+```
+
 ### Dart — flood fill
 
 ```dart
@@ -192,6 +416,22 @@ void floodFill(List<List<int>> image, int sr, int sc, int newColor) {
     dfs(r, c + 1);
     dfs(r, c - 1);
   }
+  dfs(sr, sc);
+}
+```
+
+### TypeScript — flood fill
+
+```typescript
+function floodFill(image: number[][], sr: number, sc: number, newColor: number): void {
+  const old = image[sr][sc];
+  if (old === newColor) return;
+  const dfs = (r: number, c: number) => {
+    if (r < 0 || c < 0 || r >= image.length || c >= image[0].length) return;
+    if (image[r][c] !== old) return;
+    image[r][c] = newColor;
+    dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);
+  };
   dfs(sr, sc);
 }
 ```

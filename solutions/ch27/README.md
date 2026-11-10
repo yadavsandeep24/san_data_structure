@@ -1,6 +1,6 @@
 # Chapter 27 — Solution Index & Extra Ports
 
-Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/27-hard-drill-bank.md`](../../book/part-viii/27-hard-drill-bank.md). This file adds a timed-review index plus **Swift/Dart** ports for the longest / most interview-heavy problems.
+Full **Kotlin, Swift, Dart and TypeScript** solutions for all 20 problems live inline in [`book/part-viii/27-hard-drill-bank.md`](../../book/part-viii/27-hard-drill-bank.md). This file adds a timed-review index, a binary-heap TypeScript variant for Q14, and keeps the **Swift/Dart** ports of the longest problems for quick review.
 
 | # | Title | Topic | One-line approach |
 |---|-------|-------|-------------------|
@@ -8,12 +8,12 @@ Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/27-hard-d
 | [Q2](../../book/part-viii/27-hard-drill-bank.md#q2-trapping-rain-water-price-spike-wells) | Trapping Rain Water | Two pointers | Advance shorter side; water = sideMax − height |
 | [Q3](../../book/part-viii/27-hard-drill-bank.md#q3-longest-consecutive-sequence) | Longest Consecutive Sequence | Hash set | Only start streaks at values with no `x-1` |
 | [Q4](../../book/part-viii/27-hard-drill-bank.md#q4-word-break) | Word Break | DP | `dp[i]` if prefix segments; try dict words from true indices |
-| [Q5](../../book/part-viii/27-hard-drill-bank.md#q5-serialize--deserialize-binary-tree) | Serialize / Deserialize Tree | BFS | Level-order with `#` null markers |
+| [Q5](../../book/part-viii/27-hard-drill-bank.md#q5-serialize-deserialize-binary-tree) | Serialize / Deserialize Tree | BFS | Level-order with `#` null markers |
 | [Q6](../../book/part-viii/27-hard-drill-bank.md#q6-course-schedule-ii-return-order) | Course Schedule II | Kahn topo | Indegree queue; emit order; empty if cycle |
 | [Q7](../../book/part-viii/27-hard-drill-bank.md#q7-alien-dictionary-harder-graph-variant) | Alien Dictionary | Topo edges | Adjacent word diffs → edges; Kahn; reject bad prefixes |
-| [Q8](../../book/part-viii/27-hard-drill-bank.md#q8-merge-intervals--insert-interval-combo) | Merge + Insert Intervals | Intervals | Sort+sweep merge; insert: before / overlap / after |
+| [Q8](../../book/part-viii/27-hard-drill-bank.md#q8-merge-intervals-insert-interval-combo) | Merge + Insert Intervals | Intervals | Sort+sweep merge; insert: before / overlap / after |
 | [Q9](../../book/part-viii/27-hard-drill-bank.md#q9-lfu-cache) | LFU Cache | Design | key→node; freq→LRU set; bump freq; evict minFreq LRU |
-| [Q10](../../book/part-viii/27-hard-drill-bank.md#q10-design-tweet--timeline-simplified) | Design Twitter | Heap merge | Per-user tweets + follow set; max-heap merge top 10 |
+| [Q10](../../book/part-viii/27-hard-drill-bank.md#q10-design-tweet-timeline-simplified) | Design Twitter | Heap merge | Per-user tweets + follow set; max-heap merge top 10 |
 | [Q11](../../book/part-viii/27-hard-drill-bank.md#q11-longest-substring-with-at-most-k-distinct-characters) | Longest Substring ≤ K Distinct | Sliding window | Expand right; shrink while distinct > k |
 | [Q12](../../book/part-viii/27-hard-drill-bank.md#q12-edit-distance) | Edit Distance | DP | Levenshtein; roll 2 rows |
 | [Q13](../../book/part-viii/27-hard-drill-bank.md#q13-binary-tree-maximum-path-sum) | Max Path Sum | Tree DP | Return upward gain; global = bend through node |
@@ -21,7 +21,7 @@ Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/27-hard-d
 | [Q15](../../book/part-viii/27-hard-drill-bank.md#q15-accounts-merge-union-find-hard) | Accounts Merge | Union-Find | Union emails in an account; group by root; sort |
 | [Q16](../../book/part-viii/27-hard-drill-bank.md#q16-regular-expression-matching) | Regex Matching | DP | `dp[i][j]` with `*` = empty or extend match |
 | [Q17](../../book/part-viii/27-hard-drill-bank.md#q17-bus-routes-hard-bfs) | Bus Routes | Hard BFS | BFS stops; expand via unused buses; count bus hops |
-| [Q18](../../book/part-viii/27-hard-drill-bank.md#q18-parallel-courses--minimum-semesters) | Parallel Courses | Layered topo | Kahn by layers; each layer = one semester |
+| [Q18](../../book/part-viii/27-hard-drill-bank.md#q18-parallel-courses-minimum-semesters) | Parallel Courses | Layered topo | Kahn by layers; each layer = one semester |
 | [Q19](../../book/part-viii/27-hard-drill-bank.md#q19-design-hit-counter-rate-limit-window) | Hit Counter | Queue | Push timestamps; pop older than window |
 | [Q20](../../book/part-viii/27-hard-drill-bank.md#q20-currency-conversion-arbitrage-bellman-ford) | FX Arbitrage | Bellman-Ford | Edge weight `-ln(rate)`; negative cycle ⇒ arbitrage |
 
@@ -59,6 +59,8 @@ func findMedianSortedArrays(_ a: [Int], _ b: [Int]) -> Double {
 ### Dart
 
 ```dart
+import 'dart:math';
+
 double findMedianSortedArrays(List<int> a, List<int> b) {
   if (a.length > b.length) return findMedianSortedArrays(b, a);
   final m = a.length, n = b.length;
@@ -67,10 +69,10 @@ double findMedianSortedArrays(List<int> a, List<int> b) {
   while (lo <= hi) {
     final i = (lo + hi) ~/ 2;
     final j = half - i;
-    final aLeft = i == 0 ? -0x7fffffff : a[i - 1];
-    final aRight = i == m ? 0x7fffffff : a[i];
-    final bLeft = j == 0 ? -0x7fffffff : b[j - 1];
-    final bRight = j == n ? 0x7fffffff : b[j];
+    final num aLeft = i == 0 ? double.negativeInfinity : a[i - 1];
+    final num aRight = i == m ? double.infinity : a[i];
+    final num bLeft = j == 0 ? double.negativeInfinity : b[j - 1];
+    final num bRight = j == n ? double.infinity : b[j];
     if (aLeft <= bRight && bLeft <= aRight) {
       if ((m + n) % 2 == 1) return max(aLeft, bLeft).toDouble();
       return (max(aLeft, bLeft) + min(aRight, bRight)) / 2.0;
@@ -91,10 +93,34 @@ double findMedianSortedArrays(List<int> a, List<int> b) {
 ### Swift
 
 ```swift
+/// Insertion-ordered key set: O(1) append / remove / first (doubly linked list over dictionaries).
+struct OrderedKeySet {
+    private var prev: [Int: Int] = [:]
+    private var next: [Int: Int] = [:]
+    private(set) var first: Int?
+    private var last: Int?
+    private(set) var count = 0
+    var isEmpty: Bool { count == 0 }
+
+    mutating func append(_ k: Int) {
+        if let l = last { next[l] = k; prev[k] = l } else { first = k }
+        last = k
+        count += 1
+    }
+
+    /// Precondition: `k` is in the set.
+    mutating func remove(_ k: Int) {
+        let p = prev.removeValue(forKey: k), n = next.removeValue(forKey: k)
+        if let p { next[p] = n } else { first = n }
+        if let n { prev[n] = p } else { last = p }
+        count -= 1
+    }
+}
+
 final class LFUCache {
     private let cap: Int
     private var keyNode: [Int: (value: Int, freq: Int)] = [:]
-    private var freqList: [Int: [Int]] = [:] // freq -> keys, MRU at end
+    private var freqList: [Int: OrderedKeySet] = [:] // freq -> keys, LRU first
     private var minFreq = 0
 
     init(_ capacity: Int) { cap = capacity }
@@ -113,27 +139,24 @@ final class LFUCache {
             touch(key, n)
             return
         }
-        if keyNode.count >= cap {
-            var list = freqList[minFreq]!
-            let evict = list.removeFirst()
+        if keyNode.count >= cap, let evict = freqList[minFreq]?.first {
+            freqList[minFreq]?.remove(evict)
             keyNode.removeValue(forKey: evict)
-            freqList[minFreq] = list
         }
         keyNode[key] = (value, 1)
-        freqList[1, default: []].append(key)
+        freqList[1, default: OrderedKeySet()].append(key)
         minFreq = 1
     }
 
     private func touch(_ key: Int, _ n: (value: Int, freq: Int)) {
         let f = n.freq
-        freqList[f]?.removeAll { $0 == key }
+        freqList[f]?.remove(key)
         if freqList[f]?.isEmpty == true {
             freqList.removeValue(forKey: f)
             if minFreq == f { minFreq += 1 }
         }
-        let nf = f + 1
-        keyNode[key] = (n.value, nf)
-        freqList[nf, default: []].append(key)
+        keyNode[key] = (n.value, f + 1)
+        freqList[f + 1, default: OrderedKeySet()].append(key)
     }
 }
 ```
@@ -145,7 +168,7 @@ class LFUCache {
   LFUCache(this.capacity);
   final int capacity;
   final _keyNode = <int, (int value, int freq)>{};
-  final _freqList = <int, List<int>>{};
+  final _freqList = <int, Set<int>>{}; // LinkedHashSet: insertion order = LRU first
   var _minFreq = 0;
 
   int get(int key) {
@@ -164,12 +187,13 @@ class LFUCache {
       return;
     }
     if (_keyNode.length >= capacity) {
-      final list = _freqList[_minFreq]!;
-      final evict = list.removeAt(0);
+      final set = _freqList[_minFreq]!;
+      final evict = set.first;
+      set.remove(evict);
       _keyNode.remove(evict);
     }
     _keyNode[key] = (value, 1);
-    (_freqList[1] ??= []).add(key);
+    (_freqList[1] ??= {}).add(key);
     _minFreq = 1;
   }
 
@@ -182,7 +206,7 @@ class LFUCache {
     }
     final nf = f + 1;
     _keyNode[key] = (n.$1, nf);
-    (_freqList[nf] ??= []).add(key);
+    (_freqList[nf] ??= {}).add(key);
   }
 }
 ```
@@ -259,7 +283,7 @@ final class MedianFinder {
 
     func addNum(_ num: Int) {
         low.append(num); low.sort(by: >)
-        high.append(low.removeLast()); high.sort()
+        high.append(low.removeFirst()); high.sort()
         if high.count > low.count {
             low.append(high.removeFirst()); low.sort(by: >)
         }
@@ -284,7 +308,7 @@ class MedianFinder {
   void addNum(int num) {
     _low.add(num);
     _low.sort((a, b) => b.compareTo(a));
-    _high.add(_low.removeLast());
+    _high.add(_low.removeAt(0));
     _high.sort();
     if (_high.length > _low.length) {
       _low.add(_high.removeAt(0));
@@ -311,13 +335,11 @@ func isMatch(_ s: String, _ p: String) -> Bool {
     let m = s.count, n = p.count
     var dp = Array(repeating: Array(repeating: false, count: n + 1), count: m + 1)
     dp[0][0] = true
-    if n >= 2 {
-        for j in stride(from: 2, through: n, by: 2) where p[j - 1] == "*" {
-            dp[0][j] = dp[0][j - 2]
-        }
+    for j in stride(from: 2, through: n, by: 1) where p[j - 1] == "*" && dp[0][j - 2] {
+        dp[0][j] = true
     }
-    for i in 1...m {
-        for j in 1...n {
+    for i in stride(from: 1, through: m, by: 1) {
+        for j in stride(from: 1, through: n, by: 1) {
             if p[j - 1] == "*" {
                 dp[i][j] = dp[i][j - 2] ||
                     ((p[j - 2] == "." || p[j - 2] == s[i - 1]) && dp[i - 1][j])
@@ -361,6 +383,8 @@ bool isMatch(String s, String p) {
 ### Swift
 
 ```swift
+import Foundation
+
 func hasArbitrage(_ pairs: [(String, String, Double)]) -> Bool {
     var nodes = Set<String>()
     for (a, b, _) in pairs { nodes.insert(a); nodes.insert(b) }
@@ -369,7 +393,7 @@ func hasArbitrage(_ pairs: [(String, String, Double)]) -> Bool {
     let n = list.count
     let edges = pairs.map { (a, b, rate) in (idx[a]!, idx[b]!, -log(rate)) }
     var dist = Array(repeating: 0.0, count: n)
-    for _ in 0..<(n - 1) {
+    for _ in 0..<max(0, n - 1) {
         for (u, v, w) in edges where dist[v] > dist[u] + w { dist[v] = dist[u] + w }
     }
     for (u, v, w) in edges where dist[v] > dist[u] + w + 1e-12 { return true }
@@ -411,7 +435,7 @@ bool hasArbitrage(List<(String, String, double)> pairs) {
 
 ## Counts
 
-- **20** hard drills — Kotlin + TS in chapter  
+- **20** hard drills — Kotlin, Swift, Dart and TS in chapter  
 - **6** problems with extra Swift/Dart ports here (Q1, Q9, Q14, Q16, Q20 + TS heap Q14)  
 - Timed protocol: **45–55 min**, complexity spoken first  
 

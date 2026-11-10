@@ -9,7 +9,7 @@ Full worked solutions live inline in [`book/part-vii/24-interview-questions.md`]
 | [Q3](../../book/part-vii/24-interview-questions.md#q3-group-anagrams-facet-grouping) | Group Anagrams | Hashing | 4 | Sorted / count key |
 | [Q4](../../book/part-vii/24-interview-questions.md#q4-top-k-frequent-elements) | Top K Frequent | Hash + buckets | 4 | Bucket by freq |
 | [Q5](../../book/part-vii/24-interview-questions.md#q5-subarray-sum-equals-k) | Subarray Sum = K | Prefix + hash | 4 | `count[p-k]` |
-| [Q6](../../book/part-vii/24-interview-questions.md#q6-valid-parentheses-schema--deep-link-path) | Valid Parentheses | Stack | 4 | Match on pop |
+| [Q6](../../book/part-vii/24-interview-questions.md#q6-valid-parentheses-schema-deep-link-path) | Valid Parentheses | Stack | 4 | Match on pop |
 | [Q7](../../book/part-vii/24-interview-questions.md#q7-min-stack-debug-overlay) | Min Stack | Stack | 4 | Store minSoFar |
 | [Q8](../../book/part-vii/24-interview-questions.md#q8-sliding-window-maximum-scroll-velocity) | Sliding Window Max | Deque | 4 | Monotonic deque |
 | [Q9](../../book/part-vii/24-interview-questions.md#q9-recent-searches-ring-buffer) | Recent Searches | Queue + set | 4 | Bounded unique ring |
@@ -30,7 +30,7 @@ Full worked solutions live inline in [`book/part-vii/24-interview-questions.md`]
 | [Q24](../../book/part-vii/24-interview-questions.md#q24-shortest-path-in-unweighted-graph) | Shortest Path | Graphs | Dart+TS | BFS layers |
 | [Q25](../../book/part-vii/24-interview-questions.md#q25-kth-largest-element) | Kth Largest | Heaps | Kotlin+Swift | Size-k min-heap |
 | [Q26](../../book/part-vii/24-interview-questions.md#q26-merge-k-sorted-lists-feed-merge) | Merge K Lists | Heaps | Dart+TS | Pairwise / heap |
-| [Q27](../../book/part-vii/24-interview-questions.md#q27-meeting-rooms--min-platforms-heap) | Meeting Rooms | Heaps | Kotlin+Swift | Ends min-heap |
+| [Q27](../../book/part-vii/24-interview-questions.md#q27-meeting-rooms-min-platforms-heap) | Meeting Rooms | Heaps | Kotlin+Swift | Ends min-heap |
 | [Q28](../../book/part-vii/24-interview-questions.md#q28-climbing-stairs) | Climbing Stairs | DP | Dart+TS | Fibonacci roll |
 | [Q29](../../book/part-vii/24-interview-questions.md#q29-house-robber) | House Robber | DP | Kotlin+Swift | Adjacent skip |
 | [Q30](../../book/part-vii/24-interview-questions.md#q30-coin-change) | Coin Change | DP | Dart+TS | Unbounded knapsack |

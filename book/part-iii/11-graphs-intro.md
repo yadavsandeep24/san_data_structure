@@ -32,12 +32,49 @@ Undirected:    1 — 2 — 3        Directed:    1 → 2 → 3
 
 For each vertex, store a list (or set) of neighbors. Sparse graphs (most social / navigation graphs) love this.
 
+**Kotlin**
+
 ```kotlin
 // Undirected: add both ways
 val g = HashMap<Int, MutableList<Int>>()
 fun addEdge(u: Int, v: Int) {
     g.getOrPut(u) { mutableListOf() }.add(v)
     g.getOrPut(v) { mutableListOf() }.add(u)
+}
+```
+
+**Swift**
+
+```swift
+// Undirected: add both ways
+var g: [Int: [Int]] = [:]
+func addEdge(_ u: Int, _ v: Int) {
+    g[u, default: []].append(v)
+    g[v, default: []].append(u)
+}
+```
+
+**Dart**
+
+```dart
+// Undirected: add both ways
+final g = <int, List<int>>{};
+void addEdge(int u, int v) {
+  g.putIfAbsent(u, () => []).add(v);
+  g.putIfAbsent(v, () => []).add(u);
+}
+```
+
+**TypeScript**
+
+```typescript
+// Undirected: add both ways
+const g = new Map<number, number[]>();
+function addEdge(u: number, v: number): void {
+  if (!g.has(u)) g.set(u, []);
+  if (!g.has(v)) g.set(v, []);
+  g.get(u)!.push(v);
+  g.get(v)!.push(u);
 }
 ```
 
@@ -66,6 +103,65 @@ Both visit every reachable vertex from a source (on an undirected connected grap
 
 ### BFS template
 
+**Kotlin**
+
+```kotlin
+fun bfs(graph: Map<Int, List<Int>>, start: Int): List<Int> {
+    val seen = hashSetOf(start)
+    val q = ArrayDeque(listOf(start))
+    val order = mutableListOf<Int>()
+    while (q.isNotEmpty()) {
+        val u = q.removeFirst()
+        order += u
+        for (v in graph[u].orEmpty()) {
+            if (seen.add(v)) q.addLast(v)   // mark when enqueued
+        }
+    }
+    return order
+}
+```
+
+**Swift**
+
+```swift
+func bfs(_ graph: [Int: [Int]], start: Int) -> [Int] {
+    var seen: Set = [start]
+    var q = [start]
+    var order: [Int] = []
+    var head = 0
+    while head < q.count {
+        let u = q[head]; head += 1
+        order.append(u)
+        for v in graph[u] ?? [] where seen.insert(v).inserted {
+            q.append(v)                    // mark when enqueued
+        }
+    }
+    return order
+}
+```
+
+**Dart**
+
+```dart
+import 'dart:collection';
+
+List<int> bfs(Map<int, List<int>> graph, int start) {
+  final seen = <int>{start};
+  final q = Queue<int>()..add(start);
+  final order = <int>[];
+  while (q.isNotEmpty) {
+    final u = q.removeFirst();
+    order.add(u);
+    for (final v in graph[u] ?? const <int>[]) {
+      if (seen.add(v)) q.addLast(v); // mark when enqueued
+    }
+  }
+  return order;
+}
+```
+
+**TypeScript**
+
 ```typescript
 function bfs(graph: Map<number, number[]>, start: number): number[] {
   const seen = new Set<number>([start]);
@@ -90,6 +186,24 @@ Mark **seen when enqueued** (not when dequeued) to avoid duplicate queue entries
 
 ### DFS template
 
+**Kotlin**
+
+```kotlin
+fun dfs(graph: Map<Int, List<Int>>, start: Int): List<Int> {
+    val seen = HashSet<Int>()
+    val order = mutableListOf<Int>()
+    fun go(u: Int) {
+        seen += u
+        order += u
+        for (v in graph[u].orEmpty()) if (v !in seen) go(v)
+    }
+    go(start)
+    return order
+}
+```
+
+**Swift**
+
 ```swift
 func dfs(_ graph: [Int: [Int]], start: Int) -> [Int] {
     var seen = Set<Int>()
@@ -103,6 +217,42 @@ func dfs(_ graph: [Int: [Int]], start: Int) -> [Int] {
     }
     go(start)
     return order
+}
+```
+
+**Dart**
+
+```dart
+List<int> dfs(Map<int, List<int>> graph, int start) {
+  final seen = <int>{};
+  final order = <int>[];
+  void go(int u) {
+    seen.add(u);
+    order.add(u);
+    for (final v in graph[u] ?? const <int>[]) {
+      if (!seen.contains(v)) go(v);
+    }
+  }
+  go(start);
+  return order;
+}
+```
+
+**TypeScript**
+
+```typescript
+function dfs(graph: Map<number, number[]>, start: number): number[] {
+  const seen = new Set<number>();
+  const order: number[] = [];
+  function go(u: number): void {
+    seen.add(u);
+    order.push(u);
+    for (const v of graph.get(u) ?? []) {
+      if (!seen.has(v)) go(v);
+    }
+  }
+  go(start);
+  return order;
 }
 ```
 
@@ -124,6 +274,32 @@ Queries:
 
 Treat each route as a vertex: `Home`, `Product`, `Cart`, `Checkout`, `Login`. Edges are legal transitions (including deeplinks).
 
+**Kotlin**
+
+```kotlin
+val nav = mapOf(
+    "Home" to listOf("Product", "Login", "Cart"),
+    "Product" to listOf("Cart", "Home"),
+    "Cart" to listOf("Checkout", "Home"),
+    "Checkout" to listOf("Home"),
+    "Login" to listOf("Home"),
+)
+```
+
+**Swift**
+
+```swift
+let nav: [String: [String]] = [
+    "Home": ["Product", "Login", "Cart"],
+    "Product": ["Cart", "Home"],
+    "Cart": ["Checkout", "Home"],
+    "Checkout": ["Home"],
+    "Login": ["Home"],
+]
+```
+
+**Dart**
+
 ```dart
 final nav = <String, List<String>>{
   'Home': ['Product', 'Login', 'Cart'],
@@ -132,6 +308,18 @@ final nav = <String, List<String>>{
   'Checkout': ['Home'],
   'Login': ['Home'],
 };
+```
+
+**TypeScript**
+
+```typescript
+const nav = new Map<string, string[]>([
+  ['Home', ['Product', 'Login', 'Cart']],
+  ['Product', ['Cart', 'Home']],
+  ['Cart', ['Checkout', 'Home']],
+  ['Checkout', ['Home']],
+  ['Login', ['Home']],
+]);
 ```
 
 - **BFS from Home** — minimum hops to Checkout (unweighted “how many screens?”).
@@ -252,6 +440,50 @@ function findCircleNum(isConnected: number[][]): number {
 
 BFS layers = distance. Store `dist[v]` or parent pointers to reconstruct the path.
 
+**Kotlin**
+
+```kotlin
+fun shortestHops(g: Map<String, List<String>>, src: String, dst: String): Int? {
+    if (src == dst) return 0
+    val dist = hashMapOf(src to 0)
+    val q = ArrayDeque(listOf(src))
+    while (q.isNotEmpty()) {
+        val u = q.removeFirst()
+        for (v in g[u].orEmpty()) {
+            if (v !in dist) {
+                dist[v] = dist.getValue(u) + 1
+                if (v == dst) return dist[v]
+                q.addLast(v)
+            }
+        }
+    }
+    return null // unreachable
+}
+```
+
+**Swift**
+
+```swift
+func shortestHops(_ g: [String: [String]], _ src: String, _ dst: String) -> Int? {
+    if src == dst { return 0 }
+    var dist = [src: 0]
+    var q = [src]
+    var head = 0
+    while head < q.count {
+        let u = q[head]; head += 1
+        let du = dist[u] ?? 0
+        for v in g[u] ?? [] where dist[v] == nil {
+            dist[v] = du + 1
+            if v == dst { return du + 1 }
+            q.append(v)
+        }
+    }
+    return nil // unreachable
+}
+```
+
+**Dart**
+
 ```dart
 import 'dart:collection';
 
@@ -266,6 +498,28 @@ int? shortestHops(Map<String, List<String>> g, String src, String dst) {
         dist[v] = dist[u]! + 1;
         if (v == dst) return dist[v];
         q.addLast(v);
+      }
+    }
+  }
+  return null; // unreachable
+}
+```
+
+**TypeScript**
+
+```typescript
+function shortestHops(g: Map<string, string[]>, src: string, dst: string): number | null {
+  if (src === dst) return 0;
+  const dist = new Map<string, number>([[src, 0]]);
+  const q = [src];
+  let head = 0;
+  while (head < q.length) {
+    const u = q[head++];
+    for (const v of g.get(u) ?? []) {
+      if (!dist.has(v)) {
+        dist.set(v, dist.get(u)! + 1);
+        if (v === dst) return dist.get(v)!;
+        q.push(v);
       }
     }
   }

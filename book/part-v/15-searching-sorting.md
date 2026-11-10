@@ -157,11 +157,42 @@ Implementing merge sort from scratch belongs in interviews and course homework �
 5. **Unstable expectations** — if two rows share a key and you need deterministic UI order, add a tie-breaker (`id`) to the comparator.
 6. **Sorting on the main thread every keystroke** — debounce; keep a sorted copy; or use a structure that supports ordered inserts if updates are frequent and small.
 
-### Safe multi-key compare sketch (Kotlin)
+### Safe multi-key compare sketch
+
+**Kotlin**
 
 ```kotlin
 val byTimeThenId = compareBy<Message>({ it.sentAt }, { it.id })
 messages.sortWith(byTimeThenId)
+```
+
+**Swift**
+
+```swift
+messages.sort { a, b in
+    a.sentAt != b.sentAt ? a.sentAt < b.sentAt : a.id < b.id
+}
+```
+
+**Dart**
+
+```dart
+int byTimeThenId(Message a, Message b) {
+  final t = a.sentAt.compareTo(b.sentAt);
+  return t != 0 ? t : a.id.compareTo(b.id);
+}
+
+messages.sort(byTimeThenId);
+```
+
+**TypeScript** — explicit branches, no subtraction
+
+```typescript
+const byTimeThenId = (a: Message, b: Message): number =>
+  a.sentAt !== b.sentAt
+    ? (a.sentAt < b.sentAt ? -1 : 1)
+    : (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+messages.sort(byTimeThenId);
 ```
 
 ## Merge of two sorted arrays (offline sync mental model)

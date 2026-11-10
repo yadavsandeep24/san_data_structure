@@ -82,10 +82,38 @@ Three patterns you will ship constantly:
 2. **Dedup** — `seen.add(id)` / `if (id in map) skip` while merging paginated pages.
 3. **Memo / cache** — `key → expensiveResult` with size cap or TTL (pair with Chapter 12).
 
+**Kotlin**
+
 ```kotlin
 // Normalize API list once
 fun indexById(posts: List<Post>): Map<String, Post> =
     posts.associateBy { it.id }
+```
+
+**Swift**
+
+```swift
+// Normalize API list once
+func indexById(_ posts: [Post]) -> [String: Post] {
+    Dictionary(posts.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+}
+```
+
+**Dart**
+
+```dart
+// Normalize API list once
+Map<String, Post> indexById(List<Post> posts) =>
+    {for (final p in posts) p.id: p};
+```
+
+**TypeScript**
+
+```typescript
+// Normalize API list once
+function indexById(posts: Post[]): Map<string, Post> {
+  return new Map(posts.map((p) => [p.id, p] as const));
+}
 ```
 
 ## Worked code: HashMap / Dictionary / Map
@@ -176,6 +204,8 @@ const byId: Record<string, Post> = Object.create(null);
 
 Count occurrences in one pass — building block for anagrams, majority element, and “first unique”.
 
+**Kotlin**
+
 ```kotlin
 fun freq(s: String): Map<Char, Int> {
     val m = HashMap<Char, Int>()
@@ -184,7 +214,35 @@ fun freq(s: String): Map<Char, Int> {
 }
 ```
 
-Same idea in Swift (`[Character: Int]`), Dart (`Map<String, int>` for graphemes carefully), and TS (`Map<string, number>`).
+**Swift**
+
+```swift
+func freq(_ s: String) -> [Character: Int] {
+    var m: [Character: Int] = [:]
+    for c in s { m[c, default: 0] += 1 }
+    return m
+}
+```
+
+**Dart**
+
+```dart
+Map<String, int> freq(String s) {
+  final m = <String, int>{};
+  for (final c in s.split('')) m[c] = (m[c] ?? 0) + 1; // UTF-16 units
+  return m;
+}
+```
+
+**TypeScript**
+
+```typescript
+function freq(s: string): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const c of s) m.set(c, (m.get(c) ?? 0) + 1); // code points
+  return m;
+}
+```
 
 ## Pattern: two-sum with a map
 
@@ -257,6 +315,8 @@ When product requirements say “settings appear in the order we registered them
 | Keys sorted alphabetically | TreeMap / SplayTreeMap / sort keys |
 | Evict least recently used | LinkedHashMap access-order (Java), or explicit LRU list + map |
 
+**Kotlin**
+
 ```kotlin
 // Sketch: id → node, plus doubly linked list for LRU order (Chapter 12 expands this)
 class LruSketch<K, V>(private val capacity: Int) {
@@ -269,6 +329,84 @@ class LruSketch<K, V>(private val capacity: Int) {
             map.remove(eldest.key)
         }
     }
+}
+```
+
+**Swift**
+
+```swift
+// Sketch: Dictionary has no access order — keep keys in recency order
+// (O(n) reorder here; Chapter 12's map + linked list makes it O(1))
+final class LruSketch<K: Hashable, V> {
+    private let capacity: Int
+    private var map: [K: V] = [:]
+    private var order: [K] = []           // least recent first
+    init(_ capacity: Int) { self.capacity = capacity }
+    func get(_ key: K) -> V? {
+        guard let v = map[key] else { return nil }
+        touch(key)
+        return v
+    }
+    func put(_ key: K, _ value: V) {
+        map[key] = value
+        touch(key)
+        if map.count > capacity {
+            let eldest = order.removeFirst()
+            map.removeValue(forKey: eldest)
+        }
+    }
+    private func touch(_ key: K) {
+        if let i = order.firstIndex(of: key) { order.remove(at: i) }
+        order.append(key)
+    }
+}
+```
+
+**Dart**
+
+```dart
+// Default Map is insertion-ordered: remove + re-insert on access = access order
+class LruSketch<K, V> {
+  LruSketch(this.capacity);
+  final int capacity;
+  final _map = <K, V>{};
+  V? get(K key) {
+    if (!_map.containsKey(key)) return null;
+    final v = _map.remove(key) as V;
+    _map[key] = v; // move to most-recent end
+    return v;
+  }
+  void put(K key, V value) {
+    _map.remove(key);
+    _map[key] = value;
+    if (_map.length > capacity) _map.remove(_map.keys.first); // eldest
+  }
+}
+```
+
+**TypeScript**
+
+```typescript
+// Map iterates in insertion order: delete + set on access = access order
+class LruSketch<K, V> {
+  private map = new Map<K, V>();
+  private capacity: number;
+  constructor(capacity: number) { this.capacity = capacity; }
+  get(key: K): V | undefined {
+    if (!this.map.has(key)) return undefined;
+    const v = this.map.get(key) as V;
+    this.map.delete(key);
+    this.map.set(key, v); // move to most-recent end
+    return v;
+  }
+  put(key: K, value: V): void {
+    this.map.delete(key);
+    this.map.set(key, value);
+    if (this.map.size > this.capacity) {
+      const eldest = this.map.keys().next().value as K;
+      this.map.delete(eldest);
+    }
+  }
 }
 ```
 
@@ -299,7 +437,7 @@ class LruSketch<K, V>(private val capacity: Int) {
 ## Practice
 
 1. **Two Sum** — return indices of two numbers that add to `target` — [solutions/ch07](../../solutions/ch07/README.md#p1-two-sum)
-2. **Group by key / frequency** — group anagrams or count frequencies then emit groups — [solutions/ch07](../../solutions/ch07/README.md#p2-group-by-key--frequency)
+2. **Group by key / frequency** — group anagrams or count frequencies then emit groups — [solutions/ch07](../../solutions/ch07/README.md#p2-group-by-key-frequency)
 3. **First unique character** — first index whose character appears once — [solutions/ch07](../../solutions/ch07/README.md#p3-first-unique-character)
 
 Back: [Chapter 6 — Queues](../part-ii/06-queues-deques.md) · Next: [Chapter 8 — Sets](08-sets.md)

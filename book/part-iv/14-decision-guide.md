@@ -202,6 +202,88 @@ class Cart {
 
 Keep the last *k* unique queries for a search screen. Re-adding a term bumps it to newest; dequeue from the front when over capacity. Use a set for membership. `list()` returns **most-recent-first** for chip UI. Prefer a head-index queue so front removal stays O(1) amortized (Chapter 6); duplicate bump via `indexOf`/`splice` is O(k) — production uses doubly linked list + map.
 
+**Kotlin**
+
+```kotlin
+class RecentSearches(private val k: Int) {
+    private val q = mutableListOf<String>()
+    private var head = 0
+    private val seen = HashSet<String>()
+
+    fun add(term: String) {
+        if (term in seen) {
+            val i = q.subList(head, q.size).indexOf(term)
+            if (i >= 0) q.removeAt(head + i)
+        } else {
+            seen += term
+        }
+        q += term
+        while (q.size - head > k) {
+            seen -= q[head++]
+        }
+    }
+
+    fun list(): List<String> = q.subList(head, q.size).reversed()
+}
+```
+
+**Swift**
+
+```swift
+final class RecentSearches {
+    private var q: [String] = []
+    private var head = 0
+    private var seen = Set<String>()
+    private let k: Int
+
+    init(k: Int) { self.k = k }
+
+    func add(_ term: String) {
+        if seen.contains(term) {
+            if let i = q[head...].firstIndex(of: term) { q.remove(at: i) }
+        } else {
+            seen.insert(term)
+        }
+        q.append(term)
+        while q.count - head > k {
+            seen.remove(q[head])
+            head += 1
+        }
+    }
+
+    func list() -> [String] { Array(q[head...].reversed()) }
+}
+```
+
+**Dart**
+
+```dart
+class RecentSearches {
+  RecentSearches(this.k);
+  final int k;
+  final _q = <String>[];
+  var _head = 0;
+  final _seen = <String>{};
+
+  void add(String term) {
+    if (_seen.contains(term)) {
+      final i = _q.indexOf(term, _head);
+      if (i >= 0) _q.removeAt(i);
+    } else {
+      _seen.add(term);
+    }
+    _q.add(term);
+    while (_q.length - _head > k) {
+      _seen.remove(_q[_head++]);
+    }
+  }
+
+  List<String> list() => _q.sublist(_head).reversed.toList();
+}
+```
+
+**TypeScript**
+
 ```typescript
 class RecentSearches {
   private q: string[] = [];
@@ -297,11 +379,44 @@ Full model solutions:
 
 ### Fix-this-code prompt
 
+**Kotlin (Views)**
+
 ```kotlin
 // CartActivity.bindRow — called for every visible row during scroll
 fun bindRow(sku: String, cartSkus: List<String>, check: CheckBox) {
     check.isChecked = cartSkus.contains(sku) // ???
 }
+```
+
+**Swift (UIKit)**
+
+```swift
+// CartViewController.configure — called for every visible cell during scroll
+func configure(_ cell: UITableViewCell, sku: String, cartSkus: [String]) {
+    cell.accessoryType = cartSkus.contains(sku) ? .checkmark : .none // ???
+}
+```
+
+**Dart (Flutter)**
+
+```dart
+// Cart list itemBuilder — runs for every visible row during scroll
+Widget buildRow(String sku, List<String> cartSkus) {
+  return CheckboxListTile(
+    title: Text(sku),
+    value: cartSkus.contains(sku), // ???
+    onChanged: (_) {},
+  );
+}
+```
+
+**TypeScript (React Native)**
+
+```tsx
+// FlatList renderItem — runs for every visible row during scroll
+const renderRow = (sku: string, cartSkus: string[]) => (
+  <Switch value={cartSkus.includes(sku)} /> // ???
+);
 ```
 
 The Jetpack Compose version of the same bug is `Checkbox(checked = cartSkus.contains(sku), …)` inside a `LazyColumn` item — it runs on every recomposition of every visible row.

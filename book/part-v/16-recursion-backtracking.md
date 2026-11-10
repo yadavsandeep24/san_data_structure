@@ -27,9 +27,33 @@ fun f(state):
 
 ### Tiny example — factorial (teaching only)
 
+**Kotlin**
+
 ```kotlin
 fun fact(n: Int): Long =
     if (n <= 1) 1L else n * fact(n - 1)
+```
+
+**Swift**
+
+```swift
+func fact(_ n: Int) -> Int {
+    n <= 1 ? 1 : n * fact(n - 1)
+}
+```
+
+**Dart**
+
+```dart
+int fact(int n) => n <= 1 ? 1 : n * fact(n - 1);
+```
+
+**TypeScript**
+
+```typescript
+function fact(n: number): number {
+  return n <= 1 ? 1 : n * fact(n - 1); // exact through 22!, but past 18! it exceeds MAX_SAFE_INTEGER — use bigint
+}
 ```
 
 Prefer a loop for real factorial; the point is the shape: base `n <= 1`, recursive `n - 1`.
@@ -182,6 +206,77 @@ fun letterCombinations(digits: String): List<String> {
     }
     dfs(0)
     return out
+}
+```
+
+**Swift** — `wholeNumberValue` instead of force-unwrapping `asciiValue`
+
+```swift
+func letterCombinations(_ digits: String) -> [String] {
+    if digits.isEmpty { return [] }
+    let map = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"]
+    let ds = digits.compactMap(\.wholeNumberValue)
+    var out: [String] = []
+    var path = ""
+    func dfs(_ i: Int) {
+        if i == ds.count { out.append(path); return }
+        for c in map[ds[i]] {
+            path.append(c)
+            dfs(i + 1)
+            path.removeLast()
+        }
+    }
+    dfs(0)
+    return out
+}
+```
+
+**Dart**
+
+```dart
+List<String> letterCombinations(String digits) {
+  if (digits.isEmpty) return [];
+  const map = ['', '', 'abc', 'def', 'ghi', 'jkl', 'mno', 'pqrs', 'tuv', 'wxyz'];
+  final out = <String>[];
+  final path = <String>[];
+  void dfs(int i) {
+    if (i == digits.length) {
+      out.add(path.join());
+      return;
+    }
+    final letters = map[digits.codeUnitAt(i) - 48];
+    for (var k = 0; k < letters.length; k++) {
+      path.add(letters[k]);
+      dfs(i + 1);
+      path.removeLast();
+    }
+  }
+  dfs(0);
+  return out;
+}
+```
+
+**TypeScript**
+
+```typescript
+function letterCombinations(digits: string): string[] {
+  if (!digits) return [];
+  const map = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"];
+  const out: string[] = [];
+  const path: string[] = [];
+  const dfs = (i: number) => {
+    if (i === digits.length) {
+      out.push(path.join(""));
+      return;
+    }
+    for (const c of map[digits.charCodeAt(i) - 48]) {
+      path.push(c);
+      dfs(i + 1);
+      path.pop();
+    }
+  };
+  dfs(0);
+  return out;
 }
 ```
 

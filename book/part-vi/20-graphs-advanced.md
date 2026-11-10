@@ -478,6 +478,6 @@ class UnionFind {
 
 1. **Course schedule** — [solutions/ch20](../../solutions/ch20/README.md#p1-course-schedule)
 2. **Network delay time (Dijkstra)** — [solutions/ch20](../../solutions/ch20/README.md#p2-network-delay-time)
-3. **Number of connected components / redundant connection** — [solutions/ch20](../../solutions/ch20/README.md#p3-connected-components--redundant-connection)
+3. **Number of connected components / redundant connection** — [solutions/ch20](../../solutions/ch20/README.md#p3-connected-components-redundant-connection)
 
 Next: [Chapter 21 — Strings](21-strings.md) — anagrams, palindromes, and string cost realities across Kotlin, Swift, Dart, and TypeScript.

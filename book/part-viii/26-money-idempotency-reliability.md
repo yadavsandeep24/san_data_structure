@@ -504,8 +504,8 @@ Do not use device clock as the source of truth for settlement time or idempotenc
 
 ## Practice
 
-1. **Money value object + safe parse/format** — [solutions/ch26](../../solutions/ch26/README.md#p1-money-value-object--safe-parseformat)
-2. **Idempotent client with coalescing + persisted key** — [solutions/ch26](../../solutions/ch26/README.md#p2-idempotent-client-with-coalescing--persisted-key)
+1. **Money value object + safe parse/format** — [solutions/ch26](../../solutions/ch26/README.md#p1-money-value-object-safe-parseformat)
+2. **Idempotent client with coalescing + persisted key** — [solutions/ch26](../../solutions/ch26/README.md#p2-idempotent-client-with-coalescing-persisted-key)
 3. **Offline intent queue flush without double-charge** — [solutions/ch26](../../solutions/ch26/README.md#p3-offline-intent-queue-flush-without-double-charge)
 
 Next: [Chapter 27 — Hard Drill Bank](27-hard-drill-bank.md) — top-company pace after the medium bank in Chapter 24. India UPI rails: [Appendix E](../appendices/E-upi-india-rails.md).

@@ -64,12 +64,44 @@ Think Venn diagrams. These show up when merging permission lists, tag filters, a
 | **Intersection** `A ∩ B` | In both | Selected IDs that still exist in the album |
 | **Difference** `A − B` | In A but not B | Stale cache IDs to evict |
 
+**Kotlin**
+
 ```kotlin
 val a = setOf(1, 2, 3)
 val b = setOf(2, 3, 4)
 val union = a union b              // 1,2,3,4
 val inter = a intersect b          // 2,3
 val diff = a subtract b            // 1
+```
+
+**Swift**
+
+```swift
+let a: Set = [1, 2, 3]
+let b: Set = [2, 3, 4]
+let union = a.union(b)             // 1,2,3,4
+let inter = a.intersection(b)      // 2,3
+let diff = a.subtracting(b)        // 1
+```
+
+**Dart**
+
+```dart
+final a = {1, 2, 3};
+final b = {2, 3, 4};
+final union = a.union(b);          // 1,2,3,4
+final inter = a.intersection(b);   // 2,3
+final diff = a.difference(b);      // 1
+```
+
+**TypeScript**
+
+```typescript
+const a = new Set([1, 2, 3]);
+const b = new Set([2, 3, 4]);
+const union = new Set([...a, ...b]);                 // 1,2,3,4
+const inter = new Set([...a].filter((x) => b.has(x))); // 2,3
+const diff = new Set([...a].filter((x) => !b.has(x))); // 1
 ```
 
 Same ideas:
@@ -99,6 +131,8 @@ Iterate the **smaller** set when intersecting for fewer lookups.
 
 ### Selected IDs pattern
 
+**Kotlin**
+
 ```kotlin
 class SelectionTracker {
     private val selected = LinkedHashSet<String>() // order = tap order
@@ -109,6 +143,58 @@ class SelectionTracker {
 
     fun isSelected(id: String) = id in selected
     fun snapshot(): List<String> = selected.toList()
+}
+```
+
+**Swift**
+
+```swift
+final class SelectionTracker {
+    private var order: [String] = []     // tap order
+    private var selected: Set<String> = []
+
+    func toggle(_ id: String) {
+        if selected.insert(id).inserted {
+            order.append(id)
+        } else {
+            selected.remove(id)
+            order.removeAll { $0 == id }  // O(n) only on deselect
+        }
+    }
+
+    func isSelected(_ id: String) -> Bool { selected.contains(id) }
+    func snapshot() -> [String] { order }
+}
+```
+
+**Dart**
+
+```dart
+class SelectionTracker {
+  final _selected = <String>{}; // LinkedHashSet: order = tap order
+
+  void toggle(String id) {
+    if (!_selected.add(id)) _selected.remove(id);
+  }
+
+  bool isSelected(String id) => _selected.contains(id);
+  List<String> snapshot() => _selected.toList();
+}
+```
+
+**TypeScript**
+
+```typescript
+class SelectionTracker {
+  private selected = new Set<string>(); // insertion order = tap order
+
+  toggle(id: string): void {
+    if (this.selected.has(id)) this.selected.delete(id);
+    else this.selected.add(id);
+  }
+
+  isSelected(id: string): boolean { return this.selected.has(id); }
+  snapshot(): string[] { return [...this.selected]; }
 }
 ```
 
@@ -177,6 +263,32 @@ console.log([...ordered]);     // ['first', 'second']
 
 If you ever see the same element twice while scanning, return true. A set of seen values is the textbook approach.
 
+**Kotlin**
+
+```kotlin
+fun containsDuplicate(nums: IntArray): Boolean {
+    val seen = HashSet<Int>()
+    for (x in nums) {
+        if (!seen.add(x)) return true // add returns false if already present
+    }
+    return false
+}
+```
+
+**Swift**
+
+```swift
+func containsDuplicate(_ nums: [Int]) -> Bool {
+    var seen = Set<Int>()
+    for x in nums {
+        if !seen.insert(x).inserted { return true } // inserted == false if already present
+    }
+    return false
+}
+```
+
+**Dart**
+
 ```dart
 bool containsDuplicate(List<int> nums) {
   final seen = <int>{};
@@ -187,9 +299,44 @@ bool containsDuplicate(List<int> nums) {
 }
 ```
 
+**TypeScript**
+
+```typescript
+function containsDuplicate(nums: number[]): boolean {
+  const seen = new Set<number>();
+  for (const x of nums) {
+    if (seen.has(x)) return true;
+    seen.add(x);
+  }
+  return false;
+}
+```
+
 ## Pattern: longest consecutive sequence
 
 Given unsorted ints, find the length of the longest run of consecutive numbers (`1,2,3,4` length 4). Put all values in a set. Only start counting from numbers where `x-1` is **absent** — that means `x` is the start of a run. Average O(n).
+
+**Kotlin**
+
+```kotlin
+fun longestConsecutive(nums: IntArray): Int {
+    val set = nums.toHashSet()
+    var best = 0
+    for (x in set) {
+        if (x - 1 in set) continue
+        var y = x
+        var len = 1
+        while (y + 1 in set) {
+            y++
+            len++
+        }
+        best = maxOf(best, len)
+    }
+    return best
+}
+```
+
+**Swift**
 
 ```swift
 func longestConsecutive(_ nums: [Int]) -> Int {
@@ -205,6 +352,46 @@ func longestConsecutive(_ nums: [Int]) -> Int {
         best = max(best, len)
     }
     return best
+}
+```
+
+**Dart**
+
+```dart
+int longestConsecutive(List<int> nums) {
+  final set = nums.toSet();
+  var best = 0;
+  for (final x in set) {
+    if (set.contains(x - 1)) continue;
+    var y = x;
+    var len = 1;
+    while (set.contains(y + 1)) {
+      y++;
+      len++;
+    }
+    if (len > best) best = len;
+  }
+  return best;
+}
+```
+
+**TypeScript**
+
+```typescript
+function longestConsecutive(nums: number[]): number {
+  const set = new Set(nums);
+  let best = 0;
+  for (const x of set) {
+    if (set.has(x - 1)) continue;
+    let y = x;
+    let len = 1;
+    while (set.has(y + 1)) {
+      y++;
+      len++;
+    }
+    best = Math.max(best, len);
+  }
+  return best;
 }
 ```
 

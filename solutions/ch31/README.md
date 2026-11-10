@@ -1,6 +1,6 @@
 # Chapter 31 — Solution Index & Extra Ports
 
-Full **Kotlin + TypeScript** solutions live inline in [`book/part-ix/31-math-and-number-drills.md`](../../book/part-ix/31-math-and-number-drills.md). This file adds a timed-review index plus **Swift/Dart** ports for the most interview-heavy problems.
+Full **Kotlin, Swift, Dart and TypeScript** solutions live inline in [`book/part-ix/31-math-and-number-drills.md`](../../book/part-ix/31-math-and-number-drills.md). This file adds a timed-review index, plus notes on the Swift/Dart ports of the most interview-heavy problems (the same code is also inline in the chapter).
 
 | # | Title | Topic | One-line approach |
 |---|-------|-------|-------------------|
@@ -196,6 +196,8 @@ func reservoirSample<T, S: Sequence, G: RandomNumberGenerator>(
 ### Dart
 
 ```dart
+import 'dart:math';
+
 List<T> reservoirSample<T>(Iterable<T> items, int k, [Random? random]) {
   final rng = random ?? Random();
   final reservoir = <T>[];
@@ -217,8 +219,8 @@ List<T> reservoirSample<T>(Iterable<T> items, int k, [Random? random]) {
 
 ## Counts
 
-- **12** math & number drills — Kotlin + TS in chapter  
-- **4** problems with extra Swift/Dart ports here (Q2, Q5, Q6, Q12)  
+- **12** math & number drills — Kotlin, Swift, Dart, TS in chapter  
+- **4** Swift/Dart ports repeated here with porting notes (Q2, Q5, Q6, Q12)  
 - Timed protocol: **15–25 min**, complexity and overflow plan spoken first  
 
 Back: [Chapter 31](../../book/part-ix/31-math-and-number-drills.md)

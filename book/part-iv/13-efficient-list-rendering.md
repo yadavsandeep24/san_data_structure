@@ -168,6 +168,32 @@ List(feed) { item in
 
 Diffing then tracks `id`, not array index. Mutating `title` for the same `id` updates in place; changing `id` is treated as remove+insert.
 
+**Flutter** — `ListView.builder` is lazy too. Give each row a `ValueKey` from the model id so element and `State` reuse follow identity, not position (add `findChildIndexCallback` when rows can reorder):
+
+```dart
+Widget feedList(List<FeedItem> feed) => ListView.builder(
+      itemCount: feed.length,
+      itemBuilder: (context, i) {
+        final item = feed[i];
+        return FeedRow(key: ValueKey(item.id), item: item);
+      },
+    );
+```
+
+**React Native** — `FlatList` / `FlashList` take `keyExtractor`; return the model id, never the index:
+
+```tsx
+function FeedList({ feed }: { feed: FeedItem[] }) {
+  return (
+    <FlatList
+      data={feed}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => <FeedRow item={item} />}
+    />
+  );
+}
+```
+
 ---
 
 ## Android: RecyclerView (Views) vs LazyColumn (Compose)
@@ -273,6 +299,8 @@ const keyExtractor = (item: FeedItem) => item.id; // FlatList
 
 Sketch: map old IDs → items; walk new list; collect removals for IDs not in new; updates when identity matches but contents differ.
 
+**Kotlin**
+
 ```kotlin
 sealed class ListEdit {
     data class Insert(val index: Int, val id: String) : ListEdit()
@@ -298,9 +326,162 @@ fun diff(old: List<Item>, new: List<Item>): List<ListEdit> {
 }
 ```
 
+**Swift**
+
+```swift
+enum ListEdit: Equatable {
+    case insert(index: Int, id: String)
+    case remove(id: String)
+    case update(id: String)
+}
+
+struct Item {
+    let id: String
+    let body: String
+}
+
+func diff(_ old: [Item], _ new: [Item]) -> [ListEdit] {
+    let oldMap = Dictionary(old.map { ($0.id, $0) }, uniquingKeysWith: { _, last in last })
+    let newIds = Set(new.map(\.id))
+    var edits: [ListEdit] = []
+    for o in old where !newIds.contains(o.id) { edits.append(.remove(id: o.id)) }
+    for (index, n) in new.enumerated() {
+        if let prev = oldMap[n.id] {
+            if prev.body != n.body { edits.append(.update(id: n.id)) }
+        } else {
+            edits.append(.insert(index: index, id: n.id))
+        }
+    }
+    return edits
+}
+```
+
+**Dart** — `new` is reserved, so the second list is `next`
+
+```dart
+sealed class ListEdit {}
+
+class Insert extends ListEdit {
+  Insert(this.index, this.id);
+  final int index;
+  final String id;
+}
+
+class Remove extends ListEdit {
+  Remove(this.id);
+  final String id;
+}
+
+class Update extends ListEdit {
+  Update(this.id);
+  final String id;
+}
+
+class Item {
+  const Item(this.id, this.body);
+  final String id;
+  final String body;
+}
+
+List<ListEdit> diff(List<Item> old, List<Item> next) {
+  final oldMap = {for (final o in old) o.id: o};
+  final newIds = {for (final n in next) n.id};
+  final edits = <ListEdit>[];
+  for (final o in old) {
+    if (!newIds.contains(o.id)) edits.add(Remove(o.id));
+  }
+  for (var index = 0; index < next.length; index++) {
+    final n = next[index];
+    final prev = oldMap[n.id];
+    if (prev == null) {
+      edits.add(Insert(index, n.id));
+    } else if (prev.body != n.body) {
+      edits.add(Update(n.id));
+    }
+  }
+  return edits;
+}
+```
+
+**TypeScript** — a discriminated union instead of a sealed class
+
+```typescript
+type ListEdit =
+  | { kind: "insert"; index: number; id: string }
+  | { kind: "remove"; id: string }
+  | { kind: "update"; id: string };
+
+type Item = { id: string; body: string };
+
+function diff(old: Item[], next: Item[]): ListEdit[] {
+  const oldMap = new Map(old.map((o) => [o.id, o]));
+  const newIds = new Set(next.map((n) => n.id));
+  const edits: ListEdit[] = [];
+  for (const o of old) if (!newIds.has(o.id)) edits.push({ kind: "remove", id: o.id });
+  next.forEach((n, index) => {
+    const prev = oldMap.get(n.id);
+    if (!prev) edits.push({ kind: "insert", index, id: n.id });
+    else if (prev.body !== n.body) edits.push({ kind: "update", id: n.id });
+  });
+  return edits;
+}
+```
+
 Ports appear in the solutions for Practice 1.
 
 ### Append page without duplicates
+
+**Kotlin**
+
+```kotlin
+fun appendPage(
+    buffer: List<FeedItem>,
+    seen: MutableSet<String>,
+    page: List<FeedItem>,
+): List<FeedItem> {
+    val next = buffer.toMutableList()
+    for (item in page) {
+        if (!seen.add(item.id)) continue // add returns false if already present
+        next += item
+    }
+    return next
+}
+```
+
+**Swift**
+
+```swift
+func appendPage(
+    _ buffer: [FeedItem],
+    _ seen: inout Set<String>,
+    _ page: [FeedItem]
+) -> [FeedItem] {
+    var next = buffer
+    for item in page where seen.insert(item.id).inserted {
+        next.append(item)
+    }
+    return next
+}
+```
+
+**Dart**
+
+```dart
+List<FeedItem> appendPage(
+  List<FeedItem> buffer,
+  Set<String> seen,
+  List<FeedItem> page,
+) {
+  final next = [...buffer];
+  for (final item in page) {
+    if (!seen.add(item.id)) continue; // add returns false if already present
+    next.add(item);
+  }
+  return next;
+}
+```
+
+**TypeScript**
 
 ```typescript
 function appendPage(

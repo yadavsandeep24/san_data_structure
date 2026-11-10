@@ -255,6 +255,155 @@ class IdempotentPaymentClient(
 }
 ```
 
+### Swift
+
+```swift
+import Foundation
+
+struct PaymentIntent: Codable, Equatable {
+    let intentId: String
+    let amountMinor: Int64
+    let currencyCode: String
+    let idempotencyKey: String
+    var status: String = "pending" // pending | succeeded | failed
+}
+
+protocol IntentStore: Sendable {
+    func load(_ intentId: String) async -> PaymentIntent?
+    func save(_ intent: PaymentIntent) async
+}
+
+struct MissingIntent: Error {}
+
+actor IdempotentPaymentClient {
+    typealias Poster = @Sendable (_ headers: [String: String], _ body: String) async throws -> String
+    private let store: any IntentStore
+    private let post: Poster
+    private var inFlight: [String: Task<String, Error>] = [:]
+
+    init(store: any IntentStore, post: @escaping Poster) {
+        self.store = store
+        self.post = post
+    }
+
+    /// Call once when user confirms Pay.
+    func beginIntent(_ intentId: String, amountMinor: Int64, currencyCode: String) async -> PaymentIntent {
+        if let existing = await store.load(intentId) { return existing }
+        let intent = PaymentIntent(
+            intentId: intentId,
+            amountMinor: amountMinor,
+            currencyCode: currencyCode,
+            idempotencyKey: UUID().uuidString
+        )
+        await store.save(intent)
+        return intent
+    }
+
+    func createPayment(_ intentId: String) async throws -> String {
+        guard var intent = await store.load(intentId) else { throw MissingIntent() }
+        let key = intent.idempotencyKey
+        // No `await` between this check and the insert below, so the actor cannot interleave.
+        if let existing = inFlight[key] { return try await existing.value }
+
+        let body =
+            "{\"intentId\":\"\(intentId)\",\"amountMinor\":\(intent.amountMinor),\"currency\":\"\(intent.currencyCode)\"}"
+        let post = self.post
+        let task = Task<String, Error> { try await post(["Idempotency-Key": key], body) }
+        inFlight[key] = task
+        defer { inFlight[key] = nil }
+
+        let result = try await task.value
+        intent.status = "succeeded"
+        await store.save(intent)
+        return result
+    }
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+class PaymentIntent {
+  PaymentIntent({
+    required this.intentId,
+    required this.amountMinor,
+    required this.currencyCode,
+    required this.idempotencyKey,
+    this.status = 'pending',
+  });
+  final String intentId;
+  final int amountMinor;
+  final String currencyCode;
+  final String idempotencyKey;
+  String status; // pending | succeeded | failed
+}
+
+abstract interface class IntentStore {
+  Future<PaymentIntent?> load(String intentId);
+  Future<void> save(PaymentIntent intent);
+}
+
+typedef Poster = Future<String> Function(Map<String, String> headers, String body);
+
+class IdempotentPaymentClient {
+  IdempotentPaymentClient(this.store, this.post);
+  final IntentStore store;
+  final Poster post;
+  final _inFlight = <String, Future<String>>{};
+
+  /// Call once when user confirms Pay.
+  Future<PaymentIntent> beginIntent(String intentId, int amountMinor, String currencyCode) async {
+    final existing = await store.load(intentId);
+    if (existing != null) return existing;
+    final intent = PaymentIntent(
+      intentId: intentId,
+      amountMinor: amountMinor,
+      currencyCode: currencyCode,
+      idempotencyKey: _uuidV4(),
+    );
+    await store.save(intent);
+    return intent;
+  }
+
+  Future<String> createPayment(String intentId) async {
+    final intent = await store.load(intentId);
+    if (intent == null) throw StateError('missing intent');
+    final key = intent.idempotencyKey;
+    // Single isolate: no await between lookup and insert, so this is atomic.
+    final existing = _inFlight[key];
+    if (existing != null) return existing;
+
+    final body =
+        '{"intentId":"$intentId","amountMinor":${intent.amountMinor},"currency":"${intent.currencyCode}"}';
+    // Future.sync turns a synchronous throw from `post` into a failed future,
+    // so the cleanup below always runs *after* the insert, never before it.
+    final f = Future.sync(() => post({'Idempotency-Key': key}, body)).then((result) async {
+      intent.status = 'succeeded';
+      await store.save(intent);
+      return result;
+    });
+    _inFlight[key] = f;
+    f.whenComplete(() {
+      if (identical(_inFlight[key], f)) _inFlight.remove(key);
+    }).ignore();
+    return f;
+  }
+}
+
+/// RFC 4122 v4 UUID from a CSPRNG (dart:core has none; apps usually use `package:uuid`).
+String _uuidV4() {
+  final rnd = Random.secure();
+  final b = List<int>.generate(16, (_) => rnd.nextInt(256));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  final h = b.map((x) => x.toRadixString(16).padLeft(2, '0')).join();
+  return '${h.substring(0, 8)}-${h.substring(8, 12)}-${h.substring(12, 16)}-'
+      '${h.substring(16, 20)}-${h.substring(20)}';
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -275,7 +424,13 @@ type Poster = (headers: Record<string, string>, body: string) => Promise<string>
 
 export class IdempotentPaymentClient {
   private inFlight = new Map<string, Promise<string>>();
-  constructor(private store: IntentStore, private post: Poster) {}
+  private store: IntentStore;
+  private post: Poster;
+
+  constructor(store: IntentStore, post: Poster) {
+    this.store = store;
+    this.post = post;
+  }
 
   async beginIntent(
     intentId: string,
@@ -307,25 +462,23 @@ export class IdempotentPaymentClient {
       amountMinor: intent.amountMinor,
       currency: intent.currencyCode,
     });
-    const p = (async () => {
-      try {
-        const result = await this.post({ "Idempotency-Key": key }, body);
+    // Start inside .then so a synchronous throw from `post` becomes a rejection
+    // *after* the insert below — cleanup can never run before the map holds `p`.
+    const p = Promise.resolve()
+      .then(() => this.post({ "Idempotency-Key": key }, body))
+      .then(async (result) => {
         intent.status = "succeeded";
         await this.store.save(intent);
         return result;
-      } finally {
-        this.inFlight.delete(key);
-      }
-    })();
+      });
     this.inFlight.set(key, p);
+    p.finally(() => {
+      if (this.inFlight.get(key) === p) this.inFlight.delete(key);
+    }).catch(() => {}); // the caller handles the rejection via `p`
     return p;
   }
 }
 ```
-
-### Swift / Dart
-
-Same structure: actor/`Map` of in-flight `Task`/`Future`, key loaded from persisted intent. Ports mirror Chapter 26 worked code (b).
 
 ---
 
@@ -417,16 +570,150 @@ interface PendingListStore {
 }
 ```
 
+### Swift
+
+```swift
+enum PaymentFailure: Error {
+    case permanent(String)
+    case transient(String)
+}
+
+protocol PendingListStore: Sendable {
+    func loadAll() async -> [String]
+    func saveAll(_ ids: [String]) async
+}
+
+final class OfflinePaymentQueue {
+    private let store: any IntentStore
+    private let listStore: any PendingListStore // loadAll / saveAll of intentIds
+    private let client: IdempotentPaymentClient
+    private let statusGet: (String) async -> String? // nil if unsupported
+
+    init(
+        store: any IntentStore,
+        listStore: any PendingListStore,
+        client: IdempotentPaymentClient,
+        statusGet: @escaping (String) async -> String?
+    ) {
+        self.store = store
+        self.listStore = listStore
+        self.client = client
+        self.statusGet = statusGet
+    }
+
+    func enqueue(_ intent: PaymentIntent) async {
+        await store.save(intent)
+        var ids = await listStore.loadAll()
+        if !ids.contains(intent.intentId) {
+            ids.append(intent.intentId)
+            await listStore.saveAll(ids)
+        }
+    }
+
+    func flush() async {
+        for id in await listStore.loadAll() {
+            guard var intent = await store.load(id), intent.status == "pending" else { continue }
+
+            if let remote = await statusGet(id), remote == "succeeded" || remote == "failed" {
+                intent.status = remote
+                await store.save(intent)
+                continue
+            }
+
+            do {
+                _ = try await client.createPayment(id)
+            } catch PaymentFailure.permanent {
+                intent.status = "failed"
+                await store.save(intent)
+            } catch {
+                // transient / unknown — leave pending; same key next flush
+            }
+        }
+    }
+}
+```
+
+### Dart
+
+```dart
+class PermanentPaymentException implements Exception {
+  PermanentPaymentException(this.message);
+  final String message;
+}
+
+class TransientPaymentException implements Exception {
+  TransientPaymentException(this.message);
+  final String message;
+}
+
+abstract interface class PendingListStore {
+  Future<List<String>> loadAll();
+  Future<void> saveAll(List<String> ids);
+}
+
+class OfflinePaymentQueue {
+  OfflinePaymentQueue(this.store, this.listStore, this.client, this.statusGet);
+  final IntentStore store;
+  final PendingListStore listStore; // loadAll / saveAll of intentIds
+  final IdempotentPaymentClient client;
+  final Future<String?> Function(String intentId) statusGet; // null if unsupported
+
+  Future<void> enqueue(PaymentIntent intent) async {
+    await store.save(intent);
+    final ids = await listStore.loadAll();
+    if (!ids.contains(intent.intentId)) {
+      await listStore.saveAll([...ids, intent.intentId]);
+    }
+  }
+
+  Future<void> flush() async {
+    for (final id in await listStore.loadAll()) {
+      final intent = await store.load(id);
+      if (intent == null || intent.status != 'pending') continue;
+
+      final remote = await statusGet(id);
+      if (remote != null && (remote == 'succeeded' || remote == 'failed')) {
+        intent.status = remote;
+        await store.save(intent);
+        continue;
+      }
+
+      try {
+        await client.createPayment(id);
+      } on PermanentPaymentException {
+        intent.status = 'failed';
+        await store.save(intent);
+      } on TransientPaymentException {
+        // leave pending — same key next flush
+      }
+    }
+  }
+}
+```
+
 ### TypeScript
 
 ```typescript
+type PendingListStore = { loadAll(): Promise<string[]>; saveAll(ids: string[]): Promise<void> };
+type StatusGet = (intentId: string) => Promise<"succeeded" | "failed" | "unknown" | null>;
+
 export class OfflinePaymentQueue {
+  private store: IntentStore;
+  private listStore: PendingListStore;
+  private client: IdempotentPaymentClient;
+  private statusGet: StatusGet;
+
   constructor(
-    private store: IntentStore,
-    private listStore: { loadAll(): Promise<string[]>; saveAll(ids: string[]): Promise<void> },
-    private client: IdempotentPaymentClient,
-    private statusGet: (intentId: string) => Promise<"succeeded" | "failed" | "unknown" | null>,
-  ) {}
+    store: IntentStore,
+    listStore: PendingListStore,
+    client: IdempotentPaymentClient,
+    statusGet: StatusGet,
+  ) {
+    this.store = store;
+    this.listStore = listStore;
+    this.client = client;
+    this.statusGet = statusGet;
+  }
 
   async enqueue(intent: PaymentIntent): Promise<void> {
     await this.store.save(intent);

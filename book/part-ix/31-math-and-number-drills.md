@@ -14,7 +14,7 @@ Companion index: [`solutions/ch31/README.md`](../../solutions/ch31/README.md)
 | **Open** | Restate, one example, then name the edge: 0, negative, the type's limit |
 | **Speak first** | Brute force in one line, then the better idea + **time/space complexity before code** |
 | **Overflow** | Say out loud which type you use and why (`Long`, `BigInteger`, `BigInt`) before you write it |
-| **Languages** | Chapter shows **Kotlin + TypeScript** fully; Swift/Dart for Q2, Q5, Q6, Q12 in `solutions/ch31` |
+| **Languages** | Every problem in **Kotlin, Swift, Dart, TypeScript** (Android, iOS, Flutter, React Native) — same algorithm, same names, same examples |
 | **Mobile tell** | One sentence: user input, page coordinates, link security, or memory on a long stream |
 
 Pair this chapter with [Chapter 22 — Bits & Matrix](../part-vi/22-bits-matrix.md) for the bit tricks, and with [Chapter 27](../part-viii/27-hard-drill-bank.md) once these feel easy.
@@ -25,6 +25,10 @@ Pair this chapter with [Chapter 22 — Bits & Matrix](../part-vi/22-bits-matrix.
 |------|-----|---------------------|
 | Kotlin `Int` | 2,147,483,647 (about 2.1 × 10⁹) | Q5 page numbers, Q8 labels, Q9 box width |
 | Kotlin `Long` | about 9.2 × 10¹⁸ | Q1 `lcm`, Q2 squares, Q4 squares, Q7 powers of 5, Q11 decode |
+| Swift `Int` | 64-bit, same as `Long` — but overflow **traps** (crash) | `multipliedReportingOverflow` / `addingReportingOverflow`, return `nil` (Q1, Q11); 32-bit limits where Kotlin uses `Int` (Q5, Q8, Q9); `UInt` + 128-bit multiply in Q6 |
+| Dart `int` (VM) | 64-bit, same as `Long` — overflow **wraps silently** | `BigInt` + `isValidInt` (Q1, Q11), `BigInt` in Q6; compare before multiplying (Q7, and the 32-bit limit in Q5, Q8) |
+
+The Dart snippets also compile for Flutter web, but there `int` is a JS double (exact only up to 2⁵³). Q2 and Q4 square 64-bit values, so on web use `BigInt` (`BigInt.modPow`, or the TypeScript versions).
 | JS `number` | exact only up to 2⁵³ − 1 (about 9 × 10¹⁵) | anything that needs the full `Long` range → `BigInt` |
 
 ---
@@ -51,6 +55,31 @@ tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
 fun lcm(a: Long, b: Long): Long {
     require(a > 0 && b > 0)
     return Math.multiplyExact(a / gcd(a, b), b)        // divide first; throw if it still overflows
+}
+```
+
+### Swift
+
+```swift
+func gcd(_ a: Int, _ b: Int) -> Int { b == 0 ? a : gcd(b, a % b) }
+
+func lcm(_ a: Int, _ b: Int) -> Int? {
+    precondition(a > 0 && b > 0)
+    let (result, overflow) = (a / gcd(a, b)).multipliedReportingOverflow(by: b)   // divide first
+    return overflow ? nil : result                      // nil instead of trapping past Int.max
+}
+```
+
+### Dart
+
+```dart
+int gcd(int a, int b) => b == 0 ? a : gcd(b, a % b);
+
+int lcm(int a, int b) {
+  if (a <= 0 || b <= 0) throw ArgumentError('need positive inputs');
+  final result = BigInt.from(a ~/ gcd(a, b)) * BigInt.from(b);   // divide first; BigInt can't wrap
+  if (!result.isValidInt) throw RangeError('lcm does not fit in an int');
+  return result.toInt();
 }
 ```
 
@@ -103,6 +132,40 @@ fun modPow(base: Long, exponent: Long, mod: Long): Long {
 }
 ```
 
+### Swift
+
+```swift
+func modPow(_ base: Int, _ exponent: Int, _ mod: Int) -> Int {
+    precondition(exponent >= 0 && (1...3_037_000_499).contains(mod))  // (mod - 1)^2 fits in Int64
+    var result = 1 % mod
+    var b = ((base % mod) + mod) % mod
+    var e = exponent
+    while e > 0 {
+        if e & 1 == 1 { result = result * b % mod }
+        b = b * b % mod
+        e >>= 1
+    }
+    return result
+}
+```
+
+### Dart
+
+```dart
+int modPow(int base, int exponent, int mod) {
+  if (exponent < 0 || mod < 1 || mod > 3037000499) throw ArgumentError('bad input');
+  var result = 1 % mod;
+  var b = ((base % mod) + mod) % mod;
+  var e = exponent;
+  while (e > 0) {
+    if (e & 1 == 1) result = result * b % mod;
+    b = b * b % mod;                                 // fits: (mod - 1)^2 < 2^63 on the Dart VM
+    e >>= 1;
+  }
+  return result;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -120,8 +183,6 @@ function modPow(base: bigint, exponent: bigint, mod: bigint): bigint {
   return result;
 }
 ```
-
-*(Swift/Dart: same loop — see solutions/ch31.)*
 
 ---
 
@@ -157,6 +218,39 @@ fun primesUpTo(n: Int): List<Int> {
         p++
     }
     return (2..n).filter { !composite[it] }
+}
+```
+
+### Swift
+
+```swift
+func primesUpTo(_ n: Int) -> [Int] {
+    if n < 2 { return [] }
+    var composite = [Bool](repeating: false, count: n + 1)
+    var p = 2
+    while p * p <= n {                                  // Int is 64-bit, so p * p fits
+        if !composite[p] {
+            for multiple in stride(from: p * p, through: n, by: p) { composite[multiple] = true }
+        }
+        p += 1
+    }
+    return (2...n).filter { !composite[$0] }
+}
+```
+
+### Dart
+
+```dart
+List<int> primesUpTo(int n) {
+  if (n < 2) return [];
+  final composite = List<bool>.filled(n + 1, false);
+  for (var p = 2; p * p <= n; p++) {                 // int is 64-bit, so p * p fits
+    if (composite[p]) continue;
+    for (var m = p * p; m <= n; m += p) {
+      composite[m] = true;                           // start at p², smaller ones are done
+    }
+  }
+  return [for (var x = 2; x <= n; x++) if (!composite[x]) x];
 }
 ```
 
@@ -204,6 +298,40 @@ fun isqrt(x: Long): Long {
         if (mid <= x / mid) lo = mid else hi = mid - 1  // mid * mid <= x, without overflow
     }
     return lo
+}
+```
+
+### Swift
+
+```swift
+func isqrt(_ x: Int) -> Int {
+    precondition(x >= 0)
+    var lo = 0
+    var hi = min(x, 3_037_000_499)                      // largest r whose square fits in Int64
+    while lo < hi {
+        let mid = lo + (hi - lo + 1) / 2                // round up so the loop always shrinks
+        if mid <= x / mid { lo = mid } else { hi = mid - 1 }   // mid * mid <= x, without overflow
+    }
+    return lo
+}
+```
+
+### Dart
+
+```dart
+int isqrt(int x) {
+  if (x < 0) throw ArgumentError('negative');
+  var lo = 0;
+  var hi = x < 3037000499 ? x : 3037000499;          // largest r whose square fits in 64 bits
+  while (lo < hi) {
+    final mid = lo + (hi - lo + 1) ~/ 2;             // round up so the loop always shrinks
+    if (mid <= x ~/ mid) {
+      lo = mid;                                      // mid * mid <= x, without overflow
+    } else {
+      hi = mid - 1;
+    }
+  }
+  return lo;
 }
 ```
 
@@ -258,6 +386,49 @@ fun parseIntStrict(s: String): Int? {
 }
 ```
 
+### Swift
+
+```swift
+func parseIntStrict(_ s: String) -> Int32? {
+    let chars = Array(s.utf8)
+    guard let first = chars.first else { return nil }
+    let negative = first == UInt8(ascii: "-")
+    let start = (first == UInt8(ascii: "-") || first == UInt8(ascii: "+")) ? 1 : 0
+    if start == chars.count { return nil }
+    var value: Int32 = 0                                // built as a negative, like the Kotlin version
+    for c in chars[start...] {
+        guard c >= UInt8(ascii: "0") && c <= UInt8(ascii: "9") else { return nil }
+        let digit = Int32(c - UInt8(ascii: "0"))
+        if value < (Int32.min + digit) / 10 { return nil }  // value * 10 - digit would overflow
+        value = value * 10 - digit
+    }
+    if negative { return value }
+    return value == Int32.min ? nil : -value
+}
+```
+
+### Dart
+
+```dart
+const int intMin = -2147483648;                      // 32-bit limits; Dart's own int is 64-bit
+
+int? parseIntStrict(String s) {
+  if (s.isEmpty) return null;
+  final negative = s[0] == '-';
+  final start = (s[0] == '-' || s[0] == '+') ? 1 : 0;
+  if (start == s.length) return null;
+  var value = 0;                                     // built as a negative, like the Kotlin version
+  for (var i = start; i < s.length; i++) {
+    final digit = s.codeUnitAt(i) - 48;
+    if (digit < 0 || digit > 9) return null;
+    if (value < (intMin + digit) ~/ 10) return null; // value * 10 - digit would overflow
+    value = value * 10 - digit;
+  }
+  if (negative) return value;
+  return value == intMin ? null : -value;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -279,8 +450,6 @@ function parseIntStrict(s: string): number | null {
   return value === INT_MIN ? null : 0 - value;      // 0 - value, not -value: "0" must give 0, not -0
 }
 ```
-
-*(Swift/Dart: same negative-accumulator idea — see solutions/ch31.)*
 
 ---
 
@@ -327,6 +496,62 @@ fun fractionToDecimal(numerator: Long, denominator: Long): String {
 }
 ```
 
+### Swift
+
+```swift
+func fractionToDecimal(_ numerator: Int, _ denominator: Int) -> String {
+    precondition(denominator != 0)
+    if numerator == 0 { return "0" }
+    var out = (numerator < 0) != (denominator < 0) ? "-" : ""
+    let n = numerator.magnitude, d = denominator.magnitude   // UInt: |Int.min| fits
+    out += String(n / d)
+    var remainder = n % d
+    if remainder == 0 { return out }
+    out += "."
+    var digits: [Character] = []
+    var seenAt: [UInt: Int] = [:]                       // remainder -> index in digits
+    while remainder != 0 {
+        if let start = seenAt[remainder] {
+            return out + String(digits[..<start]) + "(" + String(digits[start...]) + ")"
+        }
+        seenAt[remainder] = digits.count
+        // remainder * 10 can pass UInt64.max, so use the full 128-bit product
+        let (q, r) = d.dividingFullWidth(remainder.multipliedFullWidth(by: 10))
+        digits.append(Character(String(q)))
+        remainder = r
+    }
+    return out + String(digits)
+}
+```
+
+### Dart
+
+```dart
+String fractionToDecimal(int numerator, int denominator) {
+  if (denominator == 0) throw ArgumentError('divide by zero');
+  if (numerator == 0) return '0';
+  final sb = StringBuffer();
+  if ((numerator < 0) != (denominator < 0)) sb.write('-');
+  final n = BigInt.from(numerator).abs();            // abs of the min 64-bit int needs BigInt
+  final d = BigInt.from(denominator).abs();
+  sb.write(n ~/ d);
+  var remainder = n % d;
+  if (remainder == BigInt.zero) return sb.toString();
+  sb.write('.');
+  var out = sb.toString();
+  final seenAt = <BigInt, int>{};                    // remainder -> where its digit was written
+  while (remainder != BigInt.zero) {
+    final start = seenAt[remainder];
+    if (start != null) return '${out.substring(0, start)}(${out.substring(start)})';
+    seenAt[remainder] = out.length;
+    remainder *= BigInt.from(10);
+    out += (remainder ~/ d).toString();
+    remainder %= d;
+  }
+  return out;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -353,8 +578,6 @@ function fractionToDecimal(numerator: bigint, denominator: bigint): string {
   return out;
 }
 ```
-
-*(Swift/Dart: Swift uses `UInt` magnitudes and a 128-bit multiply; Dart uses `BigInt` — see solutions/ch31.)*
 
 ---
 
@@ -387,6 +610,36 @@ fun trailingZerosOfFactorial(n: Long): Long {
 }
 ```
 
+### Swift
+
+```swift
+func trailingZerosOfFactorial(_ n: Int) -> Int {
+    var count = 0
+    var power = 5
+    while power <= n {
+        count += n / power                              // multiples of 5, then extra 5s from 25, 125, ...
+        if power > Int.max / 5 { break }                // next power would trap on overflow
+        power *= 5
+    }
+    return count
+}
+```
+
+### Dart
+
+```dart
+int trailingZerosOfFactorial(int n) {
+  var count = 0;
+  var power = 5;
+  while (power <= n) {
+    count += n ~/ power;                             // multiples of 5, then extra 5s from 25, 125, ...
+    if (power > n ~/ 5) break;                       // next power is past n; stopping here also avoids overflow
+    power *= 5;
+  }
+  return count;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -410,7 +663,7 @@ Legal exhibits in a contract packet are labelled A, B, …, Z, AA, AB, …, like
 
 **Approach**
 
-It is base 26, but the digits are 1..26 instead of 0..25 — there is no zero. Subtract 1 before each step and it becomes normal base 26: last letter is `'A' + n % 26`, then `n /= 26`, then reverse. Going back: `value = value × 26 + (letter − 'A' + 1)`. Without the `n--`, 26 comes out wrong. **Overflow:** `Int.MAX_VALUE` is `"FXSHRXW"`; one letter more wraps an `Int`, so decoding uses `Math.multiplyExact` / `Math.addExact`. Reject anything that is not `A..Z`.
+It is base 26, but the digits are 1..26 instead of 0..25 — there is no zero. Subtract 1 before each step and it becomes normal base 26: last letter is `'A' + n % 26`, then `n /= 26`, then reverse. Going back: `value = value × 26 + (letter − 'A' + 1)`. Without the `n--`, 26 comes out wrong. **Overflow:** `Int.MAX_VALUE` is `"FXSHRXW"`; one letter more wraps an `Int`, so decoding uses `Math.multiplyExact` / `Math.addExact`. Swift and Dart ints are 64-bit, so they check the same 32-bit limit by hand: `"FXSHRXX"` and `"FXSHRXWA"` fail in all four languages. Reject anything that is not `A..Z`.
 
 **Complexity:** Time O(log₂₆ n) both ways, Space O(length)
 
@@ -438,11 +691,71 @@ fun columnNumber(title: String): Int {
 }
 ```
 
+### Swift
+
+```swift
+func columnTitle(_ number: Int) -> String {
+    precondition(number > 0 && number <= Int(Int32.max))   // same range as Kotlin's Int
+    var letters: [Character] = []
+    var n = number
+    while n > 0 {
+        n -= 1                                          // shift to 0-based: A..Z is 0..25 in each position
+        letters.append(Character(Unicode.Scalar(UInt8(65 + n % 26))))
+        n /= 26
+    }
+    return String(letters.reversed())
+}
+
+func columnNumber(_ title: String) -> Int? {
+    guard !title.isEmpty else { return nil }
+    var value = 0
+    for c in title.utf8 {
+        guard c >= 65 && c <= 90 else { return nil }    // only A..Z
+        let digit = Int(c) - 64
+        if value > (Int(Int32.max) - digit) / 26 { return nil }   // past Int32.max, like Kotlin's Int
+        value = value * 26 + digit
+    }
+    return value
+}
+```
+
+### Dart
+
+```dart
+const int int32Max = 2147483647;                     // same limit as Kotlin's Int
+
+String columnTitle(int number) {
+  if (number <= 0 || number > int32Max) throw ArgumentError('need 1..$int32Max');
+  final codes = <int>[];
+  var n = number;
+  while (n > 0) {
+    n--;                                             // shift to 0-based: A..Z is 0..25 in each position
+    codes.add(65 + n % 26);
+    n ~/= 26;
+  }
+  return String.fromCharCodes(codes.reversed);
+}
+
+int columnNumber(String title) {
+  if (title.isEmpty) throw ArgumentError('empty label');
+  var value = 0;
+  for (final c in title.codeUnits) {
+    if (c < 65 || c > 90) throw ArgumentError('not a label: $title');
+    final digit = c - 64;
+    if (value > (int32Max - digit) ~/ 26) throw RangeError('label past $int32Max');
+    value = value * 26 + digit;
+  }
+  return value;
+}
+```
+
 ### TypeScript
 
 ```typescript
+const INT32_MAX = 2147483647;                       // same limit as Kotlin's Int
+
 function columnTitle(num: number): string {
-  if (!Number.isInteger(num) || num <= 0) throw new RangeError("need a positive integer");
+  if (!Number.isInteger(num) || num <= 0 || num > INT32_MAX) throw new RangeError("need 1.." + INT32_MAX);
   let s = "";
   let n = num;
   while (n > 0) {
@@ -459,9 +772,10 @@ function columnNumber(title: string): number {
   for (const c of title) {
     const code = c.charCodeAt(0);
     if (code < 65 || code > 90) throw new RangeError("not a label: " + title);
-    value = value * 26 + (code - 64);
+    const digit = code - 64;
+    if (value > Math.floor((INT32_MAX - digit) / 26)) throw new RangeError("label past " + INT32_MAX);
+    value = value * 26 + digit;
   }
-  if (!Number.isSafeInteger(value)) throw new RangeError("label too long");
   return value;
 }
 ```
@@ -491,6 +805,35 @@ fun overlapArea(a: Box, b: Box): Long {
     val width = minOf(a.right, b.right).toLong() - maxOf(a.left, b.left)
     val height = minOf(a.bottom, b.bottom).toLong() - maxOf(a.top, b.top)
     return if (width > 0 && height > 0) width * height else 0L   // touching edges don't overlap
+}
+```
+
+### Swift
+
+```swift
+struct Box { let left: Int32; let top: Int32; let right: Int32; let bottom: Int32 }
+
+func overlapArea(_ a: Box, _ b: Box) -> Int {
+    let width = Int(min(a.right, b.right)) - Int(max(a.left, b.left))     // widen first: Int32 math traps
+    let height = Int(min(a.bottom, b.bottom)) - Int(max(a.top, b.top))
+    return width > 0 && height > 0 ? width * height : 0  // touching edges don't overlap
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+class Box {
+  final int left, top, right, bottom;
+  const Box(this.left, this.top, this.right, this.bottom);
+}
+
+int overlapArea(Box a, Box b) {
+  final int width = min(a.right, b.right) - max(a.left, b.left);     // int is 64-bit: no 32-bit overflow
+  final int height = min(a.bottom, b.bottom) - max(a.top, b.top);
+  return width > 0 && height > 0 ? width * height : 0;          // touching edges don't overlap
 }
 ```
 
@@ -534,6 +877,44 @@ data class PageMapping(val pageWidthPt: Double, val pageHeightPt: Double, val vi
 
     fun screenToPdf(xPx: Double, yPx: Double): Pair<Double, Double> =
         xPx / scale to pageHeightPt - yPx / scale       // undo: unscale, then flip
+}
+```
+
+### Swift
+
+```swift
+// PDF: points (1/72 inch), origin bottom-left, y grows up. Screen: pixels, origin top-left, y grows down.
+struct PageMapping {
+    let pageWidthPt: Double
+    let pageHeightPt: Double
+    let viewWidthPx: Double
+    var scale: Double { viewWidthPx / pageWidthPt }     // pixels per point; fit the page to the view's width
+
+    func pdfToScreen(_ xPt: Double, _ yPt: Double) -> (x: Double, y: Double) {
+        (xPt * scale, (pageHeightPt - yPt) * scale)     // flip y, then scale
+    }
+
+    func screenToPdf(_ xPx: Double, _ yPx: Double) -> (x: Double, y: Double) {
+        (xPx / scale, pageHeightPt - yPx / scale)       // undo: unscale, then flip
+    }
+}
+```
+
+### Dart
+
+```dart
+// PDF: points (1/72 inch), origin bottom-left, y grows up. Screen: pixels, origin top-left, y grows down.
+class PageMapping {
+  final double pageWidthPt, pageHeightPt, viewWidthPx;
+  const PageMapping(this.pageWidthPt, this.pageHeightPt, this.viewWidthPx);
+
+  double get scale => viewWidthPx / pageWidthPt;     // pixels per point; fit the page to the view's width
+
+  (double, double) pdfToScreen(double xPt, double yPt) =>
+      (xPt * scale, (pageHeightPt - yPt) * scale);   // flip y, then scale
+
+  (double, double) screenToPdf(double xPx, double yPx) =>
+      (xPx / scale, pageHeightPt - yPx / scale);     // undo: unscale, then flip
 }
 ```
 
@@ -605,6 +986,65 @@ fun fromBase62(text: String): Long {
 }
 ```
 
+### Swift
+
+```swift
+private let alphabet = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+
+func toBase62(_ value: Int) -> String {
+    precondition(value >= 0)
+    if value == 0 { return "0" }
+    var out: [Character] = []
+    var v = value
+    while v > 0 {
+        out.append(alphabet[v % 62])
+        v /= 62
+    }
+    return String(out.reversed())
+}
+
+func fromBase62(_ text: String) -> Int? {
+    guard !text.isEmpty else { return nil }
+    var value = 0
+    for c in text {
+        guard let digit = alphabet.firstIndex(of: c) else { return nil }   // reject unknown characters
+        let (times62, o1) = value.multipliedReportingOverflow(by: 62)
+        let (next, o2) = times62.addingReportingOverflow(digit)
+        if o1 || o2 { return nil }                      // nil instead of trapping past Int.max
+        value = next
+    }
+    return value
+}
+```
+
+### Dart
+
+```dart
+const String alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+String toBase62(int value) {
+  if (value < 0) throw ArgumentError('negative');
+  if (value == 0) return '0';
+  final sb = <String>[];
+  for (var v = value; v > 0; v ~/= 62) {
+    sb.add(alphabet[v % 62]);
+  }
+  return sb.reversed.join();
+}
+
+int fromBase62(String text) {
+  if (text.isEmpty) throw ArgumentError('empty code');
+  var value = BigInt.zero;                           // BigInt can't wrap; check the range each step
+  for (final c in text.split('')) {
+    final digit = alphabet.indexOf(c);
+    if (digit < 0) throw ArgumentError('not base62: $c');
+    value = value * BigInt.from(62) + BigInt.from(digit);
+    if (!value.isValidInt) throw RangeError('code too large');
+  }
+  return value.toInt();
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -665,6 +1105,47 @@ fun <T> reservoirSample(items: Sequence<T>, k: Int, random: Random = Random.Defa
 }
 ```
 
+### Swift
+
+```swift
+func reservoirSample<T, S: Sequence, G: RandomNumberGenerator>(
+    _ items: S, _ k: Int, using rng: inout G
+) -> [T] where S.Element == T {
+    var reservoir: [T] = []
+    reservoir.reserveCapacity(k)
+    for (i, item) in items.enumerated() {
+        if i < k { reservoir.append(item) }
+        else {
+            let j = Int.random(in: 0...i, using: &rng)  // keep item i with probability k / (i + 1)
+            if j < k { reservoir[j] = item }
+        }
+    }
+    return reservoir
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+List<T> reservoirSample<T>(Iterable<T> items, int k, [Random? random]) {
+  final rng = random ?? Random();
+  final reservoir = <T>[];
+  var i = 0;
+  for (final item in items) {
+    if (i < k) {
+      reservoir.add(item);
+    } else {
+      final j = rng.nextInt(i + 1);                  // keep item i with probability k / (i + 1)
+      if (j < k) reservoir[j] = item;
+    }
+    i++;
+  }
+  return reservoir;
+}
+```
+
 ### TypeScript
 
 ```typescript
@@ -683,8 +1164,6 @@ function reservoirSample<T>(items: Iterable<T>, k: number, rand: () => number = 
   return reservoir;
 }
 ```
-
-*(Swift/Dart: same loop with an injected generator — see solutions/ch31.)*
 
 ---
 

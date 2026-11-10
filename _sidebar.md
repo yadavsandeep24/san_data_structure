@@ -52,6 +52,14 @@
   - [30. Document & Signing Drills](/book/part-ix/30-document-signing-drill-bank.md)
   - [31. Math & Number Drills](/book/part-ix/31-math-and-number-drills.md)
 
+- **Part X — 12-Day Plan Gap-Closer**
+  - [32. Arrays, Hashing & Matrix](/book/part-x/32-arrays-hashing-matrix.md)
+  - [33. Two Pointers, Windows & Intervals](/book/part-x/33-two-pointers-windows-intervals.md)
+  - [34. Stacks & Binary Search](/book/part-x/34-stacks-binary-search.md)
+  - [35. Linked Lists & Trees](/book/part-x/35-linked-lists-trees.md)
+  - [36. Heaps, Tries & Greedy](/book/part-x/36-heaps-tries-greedy.md)
+  - [37. Graphs & Dynamic Programming](/book/part-x/37-graphs-dynamic-programming.md)
+
 - **Appendices**
   - [A. 12-Week Roadmap](/book/appendices/A-12-week-roadmap.md)
   - [B. Big-O Cheat Sheet](/book/appendices/B-big-o-cheat-sheet.md)
@@ -59,6 +67,7 @@
   - [D. Self-Check Answers](/book/appendices/D-self-check-answer-key.md)
   - [E. UPI & India Rails](/book/appendices/E-upi-india-rails.md)
   - [F. Execution Checklist](/book/appendices/F-execution-and-optional-polish.md)
+  - [G. 12-Day DSA Plan Map](/book/appendices/G-12-day-dsa-plan-map.md)
 
 - **Solutions**
   - [Ch 03](/solutions/ch03/README.md)
@@ -90,3 +99,9 @@
   - [Ch 29](/solutions/ch29/README.md)
   - [Ch 30](/solutions/ch30/README.md)
   - [Ch 31](/solutions/ch31/README.md)
+  - [Ch 32](/solutions/ch32/README.md)
+  - [Ch 33](/solutions/ch33/README.md)
+  - [Ch 34](/solutions/ch34/README.md)
+  - [Ch 35](/solutions/ch35/README.md)
+  - [Ch 36](/solutions/ch36/README.md)
+  - [Ch 37](/solutions/ch37/README.md)

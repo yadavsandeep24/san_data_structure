@@ -371,6 +371,8 @@ class LruCache<K, V> {
 
 ### TTL check on read
 
+**Kotlin**
+
 ```kotlin
 data class Entry<V>(val value: V, val expiresAtMillis: Long)
 
@@ -381,7 +383,52 @@ fun <V> getIfFresh(map: Map<String, Entry<V>>, key: String, now: Long): V? {
 }
 ```
 
-Same idea in Swift/Dart/TS: store `expiresAt`; on `get`, compare to `now` before returning.
+**Swift**
+
+```swift
+struct Entry<V> {
+    let value: V
+    let expiresAtMillis: Int64
+}
+
+func getIfFresh<V>(_ map: [String: Entry<V>], _ key: String, now: Int64) -> V? {
+    guard let e = map[key] else { return nil }
+    if now >= e.expiresAtMillis { return nil } // treat as miss
+    return e.value
+}
+```
+
+**Dart**
+
+```dart
+class Entry<V> {
+  const Entry(this.value, this.expiresAtMillis);
+  final V value;
+  final int expiresAtMillis;
+}
+
+V? getIfFresh<V>(Map<String, Entry<V>> map, String key, int now) {
+  final e = map[key];
+  if (e == null) return null;
+  if (now >= e.expiresAtMillis) return null; // treat as miss
+  return e.value;
+}
+```
+
+**TypeScript**
+
+```typescript
+type Entry<V> = { value: V; expiresAtMillis: number };
+
+function getIfFresh<V>(map: Map<string, Entry<V>>, key: string, now: number): V | undefined {
+  const e = map.get(key);
+  if (!e) return undefined;
+  if (now >= e.expiresAtMillis) return undefined; // treat as miss
+  return e.value;
+}
+```
+
+Same idea in all four: store `expiresAt` next to the value; on `get`, compare to `now` (passed in, so tests control the clock) before returning.
 
 ---
 

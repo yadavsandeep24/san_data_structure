@@ -102,10 +102,45 @@ fun ParallaxHeader(scroll: ScrollState) {
 
 A **binary tree** gives each node at most two children: `left` and `right`. Many interview problems use binary trees because the API is small and recursion is natural.
 
+**Kotlin**
+
 ```kotlin
 class TreeNode(var value: Int) {
     var left: TreeNode? = null
     var right: TreeNode? = null
+}
+```
+
+**Swift**
+
+```swift
+final class TreeNode {
+    var value: Int
+    var left: TreeNode?
+    var right: TreeNode?
+    init(_ value: Int) { self.value = value }
+}
+```
+
+**Dart**
+
+```dart
+class TreeNode {
+  TreeNode(this.value);
+  int value;
+  TreeNode? left;
+  TreeNode? right;
+}
+```
+
+**TypeScript**
+
+```typescript
+class TreeNode {
+  value: number;
+  left: TreeNode | null = null;
+  right: TreeNode | null = null;
+  constructor(value: number) { this.value = value; }
 }
 ```
 
@@ -133,6 +168,83 @@ Visiting every node exactly once. Four classics:
 
 ### Recursive templates
 
+**Kotlin**
+
+```kotlin
+fun preorder(n: TreeNode?, visit: (Int) -> Unit) {
+    if (n == null) return
+    visit(n.value)
+    preorder(n.left, visit)
+    preorder(n.right, visit)
+}
+
+fun inorder(n: TreeNode?, visit: (Int) -> Unit) {
+    if (n == null) return
+    inorder(n.left, visit)
+    visit(n.value)
+    inorder(n.right, visit)
+}
+
+fun postorder(n: TreeNode?, visit: (Int) -> Unit) {
+    if (n == null) return
+    postorder(n.left, visit)
+    postorder(n.right, visit)
+    visit(n.value)
+}
+```
+
+**Swift**
+
+```swift
+func preorder(_ n: TreeNode?, _ visit: (Int) -> Void) {
+    guard let n else { return }
+    visit(n.value)
+    preorder(n.left, visit)
+    preorder(n.right, visit)
+}
+
+func inorder(_ n: TreeNode?, _ visit: (Int) -> Void) {
+    guard let n else { return }
+    inorder(n.left, visit)
+    visit(n.value)
+    inorder(n.right, visit)
+}
+
+func postorder(_ n: TreeNode?, _ visit: (Int) -> Void) {
+    guard let n else { return }
+    postorder(n.left, visit)
+    postorder(n.right, visit)
+    visit(n.value)
+}
+```
+
+**Dart**
+
+```dart
+void preorder(TreeNode? n, void Function(int) visit) {
+  if (n == null) return;
+  visit(n.value);
+  preorder(n.left, visit);
+  preorder(n.right, visit);
+}
+
+void inorder(TreeNode? n, void Function(int) visit) {
+  if (n == null) return;
+  inorder(n.left, visit);
+  visit(n.value);
+  inorder(n.right, visit);
+}
+
+void postorder(TreeNode? n, void Function(int) visit) {
+  if (n == null) return;
+  postorder(n.left, visit);
+  postorder(n.right, visit);
+  visit(n.value);
+}
+```
+
+**TypeScript**
+
 ```typescript
 function preorder(n: TreeNode | null, visit: (v: number) => void): void {
   if (!n) return;
@@ -158,6 +270,8 @@ function postorder(n: TreeNode | null, visit: (v: number) => void): void {
 
 ### Level-order with a queue
 
+**Kotlin**
+
 ```kotlin
 fun levelOrder(root: TreeNode?): List<List<Int>> {
     if (root == null) return emptyList()
@@ -178,6 +292,75 @@ fun levelOrder(root: TreeNode?): List<List<Int>> {
 }
 ```
 
+**Swift**
+
+```swift
+func levelOrder(_ root: TreeNode?) -> [[Int]] {
+    guard let root else { return [] }
+    var res: [[Int]] = []
+    var q = [root]
+    var head = 0                      // index-as-queue: O(1) dequeue
+    while head < q.count {
+        let end = q.count
+        var level: [Int] = []
+        while head < end {
+            let node = q[head]; head += 1
+            level.append(node.value)
+            if let l = node.left { q.append(l) }
+            if let r = node.right { q.append(r) }
+        }
+        res.append(level)
+    }
+    return res
+}
+```
+
+**Dart**
+
+```dart
+import 'dart:collection';
+
+List<List<int>> levelOrder(TreeNode? root) {
+  if (root == null) return [];
+  final res = <List<int>>[];
+  final q = Queue<TreeNode>()..add(root);
+  while (q.isNotEmpty) {
+    final level = <int>[];
+    for (var i = q.length; i > 0; i--) {
+      final node = q.removeFirst();
+      level.add(node.value);
+      if (node.left != null) q.add(node.left!);
+      if (node.right != null) q.add(node.right!);
+    }
+    res.add(level);
+  }
+  return res;
+}
+```
+
+**TypeScript**
+
+```typescript
+function levelOrder(root: TreeNode | null): number[][] {
+  if (!root) return [];
+  const res: number[][] = [];
+  const q: TreeNode[] = [root];
+  let head = 0; // index-as-queue: shift() is O(n)
+  while (head < q.length) {
+    const end = q.length;
+    const level: number[] = [];
+    while (head < end) {
+      const node = q[head++];
+      level.push(node.value);
+      if (node.left) q.push(node.left);
+      if (node.right) q.push(node.right);
+    }
+    res.push(level);
+  }
+  return res;
+}
+```
+
 ## Complexity at a glance
 
 | Algorithm | Time | Extra space |
@@ -192,6 +375,41 @@ There is no free lunch: without ordering invariants (BST), finding a value may r
 
 Directories are nodes; files are usually leaves (or nodes with metadata only). “List all `.kt` files under `src/`” is a tree walk — typically DFS recursion or an explicit stack; “show this folder’s immediate children” is one level.
 
+**Kotlin**
+
+```kotlin
+class FsNode(
+    val name: String,
+    val isDirectory: Boolean = false,
+    val children: List<FsNode> = emptyList(),
+) {
+    val isFile: Boolean get() = !isDirectory
+}
+
+fun walk(n: FsNode, visit: (FsNode) -> Unit) {
+    visit(n)
+    for (c in n.children) walk(c, visit)
+}
+```
+
+**Swift**
+
+```swift
+struct FsNode {
+    let name: String
+    var isDirectory = false
+    var children: [FsNode] = []
+    var isFile: Bool { !isDirectory }
+}
+
+func walk(_ n: FsNode, _ visit: (FsNode) -> Void) {
+    visit(n)
+    for c in n.children { walk(c, visit) }
+}
+```
+
+**Dart**
+
 ```dart
 class FsNode {
   FsNode(this.name, {this.isDirectory = false, this.children = const []});
@@ -204,6 +422,21 @@ class FsNode {
 void walk(FsNode n, void Function(FsNode) visit) {
   visit(n);
   for (final c in n.children) walk(c, visit);
+}
+```
+
+**TypeScript**
+
+```typescript
+type FsNode = {
+  name: string;
+  isDirectory: boolean;
+  children: FsNode[];
+};
+
+function walk(n: FsNode, visit: (n: FsNode) => void): void {
+  visit(n);
+  for (const c of n.children) walk(c, visit);
 }
 ```
 
@@ -265,6 +498,20 @@ function maxDepth(root: TreeNode | null): number {
 
 Swap left and right at every node (mirror). Pre-order or post-order both work; BFS works too.
 
+**Kotlin**
+
+```kotlin
+fun invertTree(root: TreeNode?): TreeNode? {
+    if (root == null) return null
+    val tmp = root.left
+    root.left = invertTree(root.right)
+    root.right = invertTree(tmp)
+    return root
+}
+```
+
+**Swift**
+
 ```swift
 func invertTree(_ root: TreeNode?) -> TreeNode? {
     guard let root else { return nil }
@@ -275,9 +522,35 @@ func invertTree(_ root: TreeNode?) -> TreeNode? {
 }
 ```
 
+**Dart**
+
+```dart
+TreeNode? invertTree(TreeNode? root) {
+  if (root == null) return null;
+  final tmp = root.left;
+  root.left = invertTree(root.right);
+  root.right = invertTree(tmp);
+  return root;
+}
+```
+
+**TypeScript**
+
+```typescript
+function invertTree(root: TreeNode | null): TreeNode | null {
+  if (!root) return null;
+  const tmp = root.left;
+  root.left = invertTree(root.right);
+  root.right = invertTree(tmp);
+  return root;
+}
+```
+
 ## Pattern: same tree
 
 Two trees are the same if structure and values match. Recurse on pairs of nodes.
+
+**Kotlin**
 
 ```kotlin
 fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
@@ -285,6 +558,42 @@ fun isSameTree(p: TreeNode?, q: TreeNode?): Boolean {
     if (p == null || q == null) return false
     if (p.value != q.value) return false
     return isSameTree(p.left, q.left) && isSameTree(p.right, q.right)
+}
+```
+
+**Swift**
+
+```swift
+func isSameTree(_ p: TreeNode?, _ q: TreeNode?) -> Bool {
+    switch (p, q) {
+    case (nil, nil): return true
+    case let (p?, q?):
+        return p.value == q.value
+            && isSameTree(p.left, q.left) && isSameTree(p.right, q.right)
+    default: return false
+    }
+}
+```
+
+**Dart**
+
+```dart
+bool isSameTree(TreeNode? p, TreeNode? q) {
+  if (p == null && q == null) return true;
+  if (p == null || q == null) return false;
+  if (p.value != q.value) return false;
+  return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+}
+```
+
+**TypeScript**
+
+```typescript
+function isSameTree(p: TreeNode | null, q: TreeNode | null): boolean {
+  if (!p && !q) return true;
+  if (!p || !q) return false;
+  if (p.value !== q.value) return false;
+  return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
 }
 ```
 

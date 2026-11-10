@@ -2,7 +2,7 @@
 
 Quick reference for **Indian fintech mobile interviews** — vocabulary, client flows, and failure modes. This is not legal or NPCI compliance documentation; it is engineering fluency at the altitude mobile hires are expected to show.
 
-Related chapters: [26 — Money & Idempotency](../part-viii/26-money-idempotency-reliability.md), [28 — System Design](../part-viii/28-mobile-fintech-system-design.md), [practice outline](../../solutions/ch28/README.md#practice-1--upi-collect--intent-return).
+Related chapters: [26 — Money & Idempotency](../part-viii/26-money-idempotency-reliability.md), [28 — System Design](../part-viii/28-mobile-fintech-system-design.md), [practice outline](../../solutions/ch28/README.md#practice-1-upi-collect-intent-return).
 
 ---
 

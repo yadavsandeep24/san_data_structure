@@ -218,6 +218,8 @@ Strings are often **immutable**. Building a result with `s = s + chunk` in a loo
 | **Dart** | `StringBuffer` | `s = s + x` in tight loops |
 | **TypeScript** | Array of parts + `join("")` | Repeated `s +=` on huge outputs (engines optimize some cases; don’t rely on it for megabyte builders) |
 
+**Kotlin**
+
 ```kotlin
 fun joinCsv(parts: List<String>): String = buildString {
     parts.forEachIndexed { i, p ->
@@ -226,6 +228,16 @@ fun joinCsv(parts: List<String>): String = buildString {
     }
 }
 ```
+
+**Swift**
+
+```swift
+func joinCsv(_ parts: [String]) -> String {
+    parts.joined(separator: ",") // one allocation sized for the result
+}
+```
+
+**Dart**
 
 ```dart
 String joinCsv(List<String> parts) {
@@ -237,6 +249,8 @@ String joinCsv(List<String> parts) {
   return buf.toString();
 }
 ```
+
+**TypeScript**
 
 ```typescript
 function joinCsv(parts: string[]): string {
@@ -263,7 +277,27 @@ Array(flag.utf16).count    // 4  (UTF-16 code units)
 
 **Indexing:** `String` is not randomly accessible by `Int` index in O(1). Prefer `String.Index` or convert to `[Character]` when you need repeated random access (palindrome expand on ASCII interview input).
 
-## Dart and TypeScript string notes
+## Kotlin, Dart and TypeScript string notes
+
+### Kotlin
+
+- JVM/Android `String` is UTF-16; `length` and `s[i]` are **code units**.
+- `codePointCount` / `codePoints()` count code points; user-perceived characters need `BreakIterator` (`android.icu.text.BreakIterator` on Android; `java.text.BreakIterator` only clusters flags/ZWJ correctly on JDK 20+).
+
+```kotlin
+fun graphemeCount(s: String): Int {
+    val it = java.text.BreakIterator.getCharacterInstance()
+    it.setText(s)
+    var n = 0
+    while (it.next() != java.text.BreakIterator.DONE) n++
+    return n
+}
+
+val flag = "🇺🇸"
+val units = flag.length                              // 4 (UTF-16 code units)
+val codePoints = flag.codePointCount(0, flag.length) // 2 (code points)
+val graphemes = graphemeCount(flag)                  // 1 (JDK 20+; Android: android.icu.text.BreakIterator)
+```
 
 ### Dart
 
@@ -342,6 +376,6 @@ Product copy: “username max 20 characters.” If you use `length` / UTF-16 cou
 
 1. **Group anagrams** — [solutions/ch21](../../solutions/ch21/README.md#p1-group-anagrams)
 2. **Longest palindromic substring** — [solutions/ch21](../../solutions/ch21/README.md#p2-longest-palindromic-substring)
-3. **Valid anagram / first unique character** — [solutions/ch21](../../solutions/ch21/README.md#p3-valid-anagram--first-unique-character)
+3. **Valid anagram / first unique character** — [solutions/ch21](../../solutions/ch21/README.md#p3-valid-anagram-first-unique-character)
 
 Next: [Chapter 22 — Bits & Matrix](22-bits-matrix.md) — flags, XOR tricks, and grid DFS patterns.
