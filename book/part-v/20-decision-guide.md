@@ -432,7 +432,7 @@ Explain why this hurts, then provide a fixed version (and Swift/Dart/TS equivale
 
 ## What to remember
 
-Choose by **dominant operation**, not by habit. Lookup → hash; sequence → array; ends → stack/queue; hierarchy → tree; relations → graph; bounded reuse → cache; UI lists → array + stable IDs + diff. Hybrids are normal. The costliest mobile bugs are often “right idea, wrong structure on the UI thread.” Part V moves from structures to algorithmic thinking — searching, sorting, recursion — with the same frame-budget discipline.
+Choose by **dominant operation**, not by habit. Lookup → hash; sequence → array; ends → stack/queue; hierarchy → tree; relations → graph; bounded reuse → cache; UI lists → array + stable IDs + diff. Hybrids are normal. The costliest mobile bugs are often “right idea, wrong structure on the UI thread.” Part VI moves from structures to algorithmic thinking — searching, sorting, recursion — with the same frame-budget discipline.
 
 ---
 
