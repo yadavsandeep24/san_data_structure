@@ -13,7 +13,7 @@ A popular 12-day plan lists 120 interview problems ([Ishant, Medium](https://med
 | # | Problem | Where | Solved in |
 |---|---------|-------|-----------|
 | 1 | Contains Duplicate | Ch 29 | [Q2. Contains Duplicate](../part-viii/29-interview-questions-q01-q10.md#q2-contains-duplicate-dedupe-guard) |
-| 2 | Valid Anagram | Solutions ch26 | [P3: Valid anagram / first unique character](../../solutions/ch26/README.md#p3-valid-anagram--first-unique-character) |
+| 2 | Valid Anagram | Solutions ch26 | [P3: Valid anagram / first unique character](../../solutions/ch26/README.md#p3-valid-anagram-or-first-unique-character) |
 | 3 | Two Sum | Ch 29 | [Q1. Two Sum](../part-viii/29-interview-questions-q01-q10.md#q1-two-sum-cart-sku-pair) |
 | 4 | Group Anagrams | Ch 29 | [Q3. Group Anagrams](../part-viii/29-interview-questions-q01-q10.md#q3-group-anagrams-facet-grouping) |
 | 5 | Top K Frequent Elements | Ch 29 | [Q4. Top K Frequent Elements](../part-viii/29-interview-questions-q01-q10.md#q4-top-k-frequent-elements) |
@@ -33,8 +33,8 @@ A popular 12-day plan lists 120 interview problems ([Ishant, Medium](https://med
 | 4 | Search a 2D Matrix | Pattern drills (new) | [Q7. Search a 2D Matrix](../part-viii/33-stacks-binary-search.md#q7-search-a-2d-matrix-paged-sorted-catalogue) |
 | 5 | Set Matrix Zeroes | Pattern drills (new) | [Q7. Set Matrix Zeroes](../part-viii/31-arrays-hashing-matrix.md#q7-set-matrix-zeroes-invalidate-grid-rows-and-columns) |
 | 6 | Spiral Matrix | Pattern drills (new) | [Q8. Spiral Matrix](../part-viii/31-arrays-hashing-matrix.md#q8-spiral-matrix-onboarding-tile-reveal-order) |
-| 7 | Rotate Image | Solutions ch27 | [P3: Rotate image 90°](../../solutions/ch27/README.md#p3-rotate-image-90) |
-| 8 | Range Sum Query — Immutable | Pattern drills (new) | [Q9. Range Sum Query — Immutable](../part-viii/31-arrays-hashing-matrix.md#q9-range-sum-query--immutable-statement-range-totals) |
+| 7 | Rotate Image | Solutions ch27 | [P3: Rotate image 90°](../../solutions/ch27/README.md#p3-rotate-image-90-degrees) |
+| 8 | Range Sum Query — Immutable | Pattern drills (new) | [Q9. Range Sum Query — Immutable](../part-viii/31-arrays-hashing-matrix.md#q9-range-sum-query-immutable-statement-range-totals) |
 | 9 | Subarray Sum Equals K | Ch 29 | [Q5. Subarray Sum Equals K](../part-viii/29-interview-questions-q01-q10.md#q5-subarray-sum-equals-k) |
 | 10 | First Missing Positive | Pattern drills (new) | [Q10. First Missing Positive](../part-viii/31-arrays-hashing-matrix.md#q10-first-missing-positive-next-free-ticket-number) |
 
@@ -43,7 +43,7 @@ A popular 12-day plan lists 120 interview problems ([Ishant, Medium](https://med
 | # | Problem | Where | Solved in |
 |---|---------|-------|-----------|
 | 1 | Valid Palindrome | Pattern drills (new) | [Q1. Valid Palindrome](../part-viii/32-two-pointers-windows-intervals.md#q1-valid-palindrome-coupon-code-check) |
-| 2 | Two Sum II — Input Array Is Sorted | Pattern drills (new) | [Q2. Two Sum II — Input Array Is Sorted](../part-viii/32-two-pointers-windows-intervals.md#q2-two-sum-ii--input-array-is-sorted-sorted-price-pair) |
+| 2 | Two Sum II — Input Array Is Sorted | Pattern drills (new) | [Q2. Two Sum II — Input Array Is Sorted](../part-viii/32-two-pointers-windows-intervals.md#q2-two-sum-ii-input-array-is-sorted-sorted-price-pair) |
 | 3 | 3Sum | Pattern drills (new) | [Q3. 3Sum](../part-viii/32-two-pointers-windows-intervals.md#q3-3sum-zero-net-settlement-triples) |
 | 4 | Container With Most Water | Pattern drills (new) | [Q4. Container With Most Water](../part-viii/32-two-pointers-windows-intervals.md#q4-container-with-most-water-widest-chart-band) |
 | 5 | Trapping Rain Water | Ch 30 | [Q2. Trapping Rain Water](../part-viii/30-hard-drill-bank-q01-q10.md#q2-trapping-rain-water-price-spike-wells) |
@@ -60,11 +60,11 @@ A popular 12-day plan lists 120 interview problems ([Ishant, Medium](https://med
 | 1 | Sliding Window Maximum | Ch 29 | [Q8. Sliding Window Maximum](../part-viii/29-interview-questions-q01-q10.md#q8-sliding-window-maximum-scroll-velocity) |
 | 2 | Minimum Size Subarray Sum | Pattern drills (new) | [Q9. Minimum Size Subarray Sum](../part-viii/32-two-pointers-windows-intervals.md#q9-minimum-size-subarray-sum-shortest-run-to-reach-a-spend-goal) |
 | 3 | Find All Anagrams in a String | Pattern drills (new) | [Q10. Find All Anagrams in a String](../part-viii/32-two-pointers-windows-intervals.md#q10-find-all-anagrams-in-a-string-every-scrambled-match) |
-| 4 | Merge Intervals | Ch 30 | [Q8. Merge Intervals + Insert Interval Combo](../part-viii/30-hard-drill-bank-q01-q10.md#q8-merge-intervals--insert-interval-combo) |
-| 5 | Insert Interval | Ch 30 | [Q8. Merge Intervals + Insert Interval Combo](../part-viii/30-hard-drill-bank-q01-q10.md#q8-merge-intervals--insert-interval-combo) |
+| 4 | Merge Intervals | Ch 30 | [Q8. Merge Intervals + Insert Interval Combo](../part-viii/30-hard-drill-bank-q01-q10.md#q8-merge-intervals-and-insert-interval-combo) |
+| 5 | Insert Interval | Ch 30 | [Q8. Merge Intervals + Insert Interval Combo](../part-viii/30-hard-drill-bank-q01-q10.md#q8-merge-intervals-and-insert-interval-combo) |
 | 6 | Non-overlapping Intervals | Solutions ch23 | [P2: Non-overlapping intervals](../../solutions/ch23/README.md#p2-non-overlapping-intervals) |
-| 7 | Meeting Rooms | Ch 29 | [Q27. Meeting Rooms / Min Platforms](../part-viii/29-interview-questions-q21-q30.md#q27-meeting-rooms--min-platforms-heap) — "can attend all" is the same sort: true when no meeting starts before the previous one ends (min rooms = 1); background in [Ch 23](../part-vi/23-greedy-thinking.md#interval-scheduling-calendar--meeting-rooms-lite) |
-| 8 | Meeting Rooms II | Ch 29 | [Q27. Meeting Rooms / Min Platforms](../part-viii/29-interview-questions-q21-q30.md#q27-meeting-rooms--min-platforms-heap) |
+| 7 | Meeting Rooms | Ch 29 | [Q27. Meeting Rooms / Min Platforms](../part-viii/29-interview-questions-q21-q30.md#q27-meeting-rooms-or-min-platforms-heap) — "can attend all" is the same sort: true when no meeting starts before the previous one ends (min rooms = 1); background in [Ch 23](../part-vi/23-greedy-thinking.md#interval-scheduling-calendar-or-meeting-rooms-lite) |
+| 8 | Meeting Rooms II | Ch 29 | [Q27. Meeting Rooms / Min Platforms](../part-viii/29-interview-questions-q21-q30.md#q27-meeting-rooms-or-min-platforms-heap) |
 | 9 | Minimum Number of Arrows to Burst Balloons | Pattern drills (new) | [Q11. Minimum Number of Arrows to Burst Balloons](../part-viii/32-two-pointers-windows-intervals.md#q11-minimum-number-of-arrows-to-burst-balloons-fewest-sync-ticks) |
 | 10 | Interval List Intersections | Pattern drills (new) | [Q12. Interval List Intersections](../part-viii/32-two-pointers-windows-intervals.md#q12-interval-list-intersections-shared-free-slots) |
 
@@ -72,7 +72,7 @@ A popular 12-day plan lists 120 interview problems ([Ishant, Medium](https://med
 
 | # | Problem | Where | Solved in |
 |---|---------|-------|-----------|
-| 1 | Valid Parentheses | Ch 29 | [Q6. Valid Parentheses](../part-viii/29-interview-questions-q01-q10.md#q6-valid-parentheses-schema--deep-link-path) |
+| 1 | Valid Parentheses | Ch 29 | [Q6. Valid Parentheses](../part-viii/29-interview-questions-q01-q10.md#q6-valid-parentheses-schema-or-deep-link-path) |
 | 2 | Min Stack | Ch 29 | [Q7. Min Stack](../part-viii/29-interview-questions-q01-q10.md#q7-min-stack-debug-overlay) |
 | 3 | Evaluate Reverse Polish Notation | Pattern drills (new) | [Q1. Evaluate Reverse Polish Notation](../part-viii/33-stacks-binary-search.md#q1-evaluate-reverse-polish-notation-calculator-keypad-engine) |
 | 4 | Daily Temperatures | Pattern drills (new) | [Q2. Daily Temperatures](../part-viii/33-stacks-binary-search.md#q2-daily-temperatures-warmer-day-countdown) |
@@ -133,7 +133,7 @@ A popular 12-day plan lists 120 interview problems ([Ishant, Medium](https://med
 | # | Problem | Where | Solved in |
 |---|---------|-------|-----------|
 | 1 | Task Scheduler | Pattern drills (new) | [Q3. Task Scheduler](../part-viii/35-heaps-tries-greedy.md#q3-task-scheduler-notification-cooldown-slots) |
-| 2 | Design Twitter | Ch 30 | [Q10. Design Tweet / Timeline](../part-viii/30-hard-drill-bank-q01-q10.md#q10-design-tweet--timeline-simplified) |
+| 2 | Design Twitter | Ch 30 | [Q10. Design Tweet / Timeline](../part-viii/30-hard-drill-bank-q01-q10.md#q10-design-tweet-or-timeline-simplified) |
 | 3 | Implement Trie | Ch 29 | [Q35. Implement Trie](../part-viii/29-interview-questions-q31-q40.md#q35-implement-trie-autocomplete-core) |
 | 4 | Design Add and Search Words Data Structure | Pattern drills (new) | [Q4. Design Add and Search Words Data Structure](../part-viii/35-heaps-tries-greedy.md#q4-design-add-and-search-words-data-structure-wildcard-contact-search) |
 | 5 | Word Search II | Pattern drills (new) | [Q5. Word Search II](../part-viii/35-heaps-tries-greedy.md#q5-word-search-ii-word-game-board-scan) |
@@ -163,8 +163,8 @@ A popular 12-day plan lists 120 interview problems ([Ishant, Medium](https://med
 | # | Problem | Where | Solved in |
 |---|---------|-------|-----------|
 | 1 | Course Schedule II | Ch 30 | [Q6. Course Schedule II](../part-viii/30-hard-drill-bank-q01-q10.md#q6-course-schedule-ii-return-order) |
-| 2 | Redundant Connection | Solutions ch25 | [P3: Connected components / redundant connection](../../solutions/ch25/README.md#p3-connected-components--redundant-connection) |
-| 3 | Number of Connected Components in an Undirected Graph | Solutions ch25 | [P3: Connected components / redundant connection](../../solutions/ch25/README.md#p3-connected-components--redundant-connection) |
+| 2 | Redundant Connection | Solutions ch25 | [P3: Connected components / redundant connection](../../solutions/ch25/README.md#p3-connected-components-or-redundant-connection) |
+| 3 | Number of Connected Components in an Undirected Graph | Solutions ch25 | [P3: Connected components / redundant connection](../../solutions/ch25/README.md#p3-connected-components-or-redundant-connection) |
 | 4 | Graph Valid Tree | Pattern drills (new) | [Q5. Graph Valid Tree](../part-viii/36-graphs-dynamic-programming.md#q5-graph-valid-tree-folder-hierarchy-sanity-check) |
 | 5 | Climbing Stairs | Ch 29 | [Q28. Climbing Stairs](../part-viii/29-interview-questions-q21-q30.md#q28-climbing-stairs) |
 | 6 | Min Cost Climbing Stairs | Pattern drills (new) | [Q6. Min Cost Climbing Stairs](../part-viii/36-graphs-dynamic-programming.md#q6-min-cost-climbing-stairs-cheapest-onboarding-path) |

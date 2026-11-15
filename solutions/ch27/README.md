@@ -192,7 +192,7 @@ function numIslands(grid: string[][]): number {
 
 ---
 
-## P3: Rotate image 90°
+## P3: Rotate image 90 degrees
 
 ### Approach
 

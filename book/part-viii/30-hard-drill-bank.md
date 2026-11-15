@@ -25,8 +25,8 @@ Do **not** skim all 20 in one sitting. Rotate: 2 hard / day in Appendix A weeks 
 
 | Set | Questions |
 |-----|-----------|
-| [Q1–Q10](30-hard-drill-bank-q01-q10.md) | Median of Two Sorted Arrays (Fee Tier Cut) · Trapping Rain Water (Price Spike Wells) · Longest Consecutive Sequence · Word Break · Serialize / Deserialize Binary Tree · Course Schedule II (Return Order) · Alien Dictionary (Harder Graph Variant) · Merge Intervals + Insert Interval Combo · LFU Cache · Design Tweet / Timeline (Simplified) |
-| [Q11–Q20](30-hard-drill-bank-q11-q20.md) | Longest Substring with At Most K Distinct Characters · Edit Distance · Binary Tree Maximum Path Sum · Find Median from Data Stream · Accounts Merge (Union-Find Hard) · Regular Expression Matching · Bus Routes (Hard BFS) · Parallel Courses / Minimum Semesters · Design Hit Counter (Rate Limit Window) · Currency Conversion Arbitrage (Bellman-Ford) |
+| [Q1–Q10](30-hard-drill-bank-q01-q10.md) | Median of Two Sorted Arrays (Fee Tier Cut) · Trapping Rain Water (Price Spike Wells) · Longest Consecutive Sequence · Word Break · Serialize or Deserialize Binary Tree · Course Schedule II (Return Order) · Alien Dictionary (Harder Graph Variant) · Merge Intervals and Insert Interval Combo · LFU Cache · Design Tweet or Timeline (Simplified) |
+| [Q11–Q20](30-hard-drill-bank-q11-q20.md) | Longest Substring with At Most K Distinct Characters · Edit Distance · Binary Tree Maximum Path Sum · Find Median from Data Stream · Accounts Merge (Union-Find Hard) · Regular Expression Matching · Bus Routes (Hard BFS) · Parallel Courses or Minimum Semesters · Design Hit Counter (Rate Limit Window) · Currency Conversion Arbitrage (Bellman-Ford) |
 
 ---
 

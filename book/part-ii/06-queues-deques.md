@@ -271,7 +271,7 @@ A queue drives breadth-first traversal: enqueue root; while not empty, dequeue, 
 ## Practice
 
 1. **Implement a queue with two stacks** — [solutions/ch06](../../solutions/ch06/README.md#p1-queue-with-two-stacks)
-2. **Sliding window maximum** *(or binary tree level-order as BFS preview)* — [solutions/ch06](../../solutions/ch06/README.md#p2-sliding-window-maximum--level-order)
+2. **Sliding window maximum** *(or binary tree level-order as BFS preview)* — [solutions/ch06](../../solutions/ch06/README.md#p2-sliding-window-maximum-or-level-order)
 3. **Design a bounded request queue with a drop policy** — [solutions/ch06](../../solutions/ch06/README.md#p3-bounded-request-queue-with-drop-policy)
 
 ### More practice

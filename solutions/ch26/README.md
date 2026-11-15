@@ -238,7 +238,7 @@ function longestPalindrome(s: string): string {
 
 ---
 
-## P3: Valid anagram / first unique character
+## P3: Valid anagram or first unique character
 
 ### Approach
 

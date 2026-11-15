@@ -47,7 +47,7 @@ optimal: 3 + 3     → 2 coins
 
 US coins happen to be **canonical** — greedy works. Do not generalize. Fewest coins for arbitrary sets → DP (Chapter 24) or BFS on remainders.
 
-## Interval scheduling (calendar / meeting rooms lite)
+## Interval scheduling (calendar or meeting rooms lite)
 
 **Maximum number of non-overlapping meetings** (keep as many as possible):
 

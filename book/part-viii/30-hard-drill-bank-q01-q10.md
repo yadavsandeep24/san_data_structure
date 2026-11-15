@@ -418,7 +418,7 @@ function wordBreak(s: string, wordDict: string[]): boolean {
 
 ---
 
-## Q5. Serialize / Deserialize Binary Tree
+## Q5. Serialize or Deserialize Binary Tree
 
 **Topic:** Trees / BFS or preorder
 
@@ -912,7 +912,7 @@ function alienOrder(words: string[]): string {
 
 ---
 
-## Q8. Merge Intervals + Insert Interval Combo
+## Q8. Merge Intervals and Insert Interval Combo
 
 **Topic:** Intervals
 
@@ -1311,7 +1311,7 @@ class LFUCache {
 
 ---
 
-## Q10. Design Tweet / Timeline (Simplified)
+## Q10. Design Tweet or Timeline (Simplified)
 
 **Topic:** Design / hash + heap merge
 

@@ -5,7 +5,7 @@ Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/32-two-po
 | # | Title | Topic | One-line approach |
 |---|-------|-------|-------------------|
 | [Q1](../../book/part-viii/32-two-pointers-windows-intervals.md#q1-valid-palindrome-coupon-code-check) | Valid Palindrome | Two pointers | Skip non-alphanumerics from both ends; compare lowercased |
-| [Q2](../../book/part-viii/32-two-pointers-windows-intervals.md#q2-two-sum-ii--input-array-is-sorted-sorted-price-pair) | Two Sum II — Input Array Is Sorted | Two pointers | Ends inward; sum small → left++, big → right--; Long sum; 1-based |
+| [Q2](../../book/part-viii/32-two-pointers-windows-intervals.md#q2-two-sum-ii-input-array-is-sorted-sorted-price-pair) | Two Sum II — Input Array Is Sorted | Two pointers | Ends inward; sum small → left++, big → right--; Long sum; 1-based |
 | [Q3](../../book/part-viii/32-two-pointers-windows-intervals.md#q3-3sum-zero-net-settlement-triples) | 3Sum | Sort + two pointers | Sort; fix a[i] (skip dups, stop at > 0); Two Sum II on the rest; skip dup lefts |
 | [Q4](../../book/part-viii/32-two-pointers-windows-intervals.md#q4-container-with-most-water-widest-chart-band) | Container With Most Water | Two pointers | Start widest; area = width × shorter; move the shorter side |
 | [Q5](../../book/part-viii/32-two-pointers-windows-intervals.md#q5-best-time-to-buy-and-sell-stock-one-trade-profit) | Best Time to Buy and Sell Stock | Running min | Track min so far; best = max(price − min) |

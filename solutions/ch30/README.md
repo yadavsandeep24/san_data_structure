@@ -8,12 +8,12 @@ Full **Kotlin, Swift, Dart and TypeScript** solutions for all 20 problems live i
 | [Q2](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q2-trapping-rain-water-price-spike-wells) | Trapping Rain Water | Two pointers | Advance shorter side; water = sideMax − height |
 | [Q3](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q3-longest-consecutive-sequence) | Longest Consecutive Sequence | Hash set | Only start streaks at values with no `x-1` |
 | [Q4](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q4-word-break) | Word Break | DP | `dp[i]` if prefix segments; try dict words from true indices |
-| [Q5](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q5-serialize--deserialize-binary-tree) | Serialize / Deserialize Tree | BFS | Level-order with `#` null markers |
+| [Q5](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q5-serialize-or-deserialize-binary-tree) | Serialize / Deserialize Tree | BFS | Level-order with `#` null markers |
 | [Q6](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q6-course-schedule-ii-return-order) | Course Schedule II | Kahn topo | Indegree queue; emit order; empty if cycle |
 | [Q7](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q7-alien-dictionary-harder-graph-variant) | Alien Dictionary | Topo edges | Adjacent word diffs → edges; Kahn; reject bad prefixes |
-| [Q8](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q8-merge-intervals--insert-interval-combo) | Merge + Insert Intervals | Intervals | Sort+sweep merge; insert: before / overlap / after |
+| [Q8](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q8-merge-intervals-and-insert-interval-combo) | Merge + Insert Intervals | Intervals | Sort+sweep merge; insert: before / overlap / after |
 | [Q9](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q9-lfu-cache) | LFU Cache | Design | key→node; freq→LRU set; bump freq; evict minFreq LRU |
-| [Q10](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q10-design-tweet--timeline-simplified) | Design Twitter | Heap merge | Per-user tweets + follow set; max-heap merge top 10 |
+| [Q10](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q10-design-tweet-or-timeline-simplified) | Design Twitter | Heap merge | Per-user tweets + follow set; max-heap merge top 10 |
 | [Q11](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q11-longest-substring-with-at-most-k-distinct-characters) | Longest Substring ≤ K Distinct | Sliding window | Expand right; shrink while distinct > k |
 | [Q12](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q12-edit-distance) | Edit Distance | DP | Levenshtein; roll 2 rows |
 | [Q13](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q13-binary-tree-maximum-path-sum) | Max Path Sum | Tree DP | Return upward gain; global = bend through node |
@@ -21,7 +21,7 @@ Full **Kotlin, Swift, Dart and TypeScript** solutions for all 20 problems live i
 | [Q15](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q15-accounts-merge-union-find-hard) | Accounts Merge | Union-Find | Union emails in an account; group by root; sort |
 | [Q16](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q16-regular-expression-matching) | Regex Matching | DP | `dp[i][j]` with `*` = empty or extend match |
 | [Q17](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q17-bus-routes-hard-bfs) | Bus Routes | Hard BFS | BFS stops; expand via unused buses; count bus hops |
-| [Q18](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q18-parallel-courses--minimum-semesters) | Parallel Courses | Layered topo | Kahn by layers; each layer = one semester |
+| [Q18](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q18-parallel-courses-or-minimum-semesters) | Parallel Courses | Layered topo | Kahn by layers; each layer = one semester |
 | [Q19](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q19-design-hit-counter-rate-limit-window) | Hit Counter | Queue | Push timestamps; pop older than window |
 | [Q20](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q20-currency-conversion-arbitrage-bellman-ford) | FX Arbitrage | Bellman-Ford | Edge weight `-ln(rate)`; negative cycle ⇒ arbitrage |
 
@@ -213,7 +213,7 @@ class LFUCache {
 
 ---
 
-## Q14 — Find median from data stream (TypeScript two-heap / Swift / Dart)
+## Q14: Find median from data stream (TypeScript two-heap or Swift or Dart)
 
 ### TypeScript (binary heap sketch)
 

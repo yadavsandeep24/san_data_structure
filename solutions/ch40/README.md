@@ -16,7 +16,7 @@ Scored outlines for the practice prompts in [`book/part-ix/40-mobile-fintech-sys
 
 ---
 
-## Practice 1 — UPI collect / intent return
+## Practice 1: UPI collect or intent return
 
 ### Prompt (restated)
 

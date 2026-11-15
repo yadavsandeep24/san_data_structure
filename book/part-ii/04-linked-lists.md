@@ -219,7 +219,7 @@ function hasCycle(head: ListNode | null): boolean {
 }
 ```
 
-## LRU cache: HashMap + doubly linked list
+## LRU cache: HashMap and doubly linked list
 
 **Idea:** Map `key → node` for O(1) lookup. Doubly linked list orders by recency: head = most recent, tail = least recent. On `get`/`put` hit, splice the node to head. On capacity overflow, drop the tail and remove it from the map.
 

@@ -12,7 +12,7 @@ Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/31-arrays
 | [Q6](../../book/part-viii/31-arrays-hashing-matrix.md#q6-maximum-product-subarray-compounded-multiplier-streak) | Maximum Product Subarray | Max + min DP | Track max and min ending here; new = max/min of x, max·x, min·x |
 | [Q7](../../book/part-viii/31-arrays-hashing-matrix.md#q7-set-matrix-zeroes-invalidate-grid-rows-and-columns) | Set Matrix Zeroes | In-place markers | Remember row 0 / col 0 zeros; mark in row 0 / col 0; clear inner; then row 0 / col 0 |
 | [Q8](../../book/part-viii/31-arrays-hashing-matrix.md#q8-spiral-matrix-onboarding-tile-reveal-order) | Spiral Matrix | Boundaries | Top row, right col, bottom row (if rows left), left col (if cols left); shrink each |
-| [Q9](../../book/part-viii/31-arrays-hashing-matrix.md#q9-range-sum-query--immutable-statement-range-totals) | Range Sum Query — Immutable | Prefix sums | `prefix[i+1] = prefix[i] + nums[i]` in Long; query `prefix[r+1] − prefix[l]` |
+| [Q9](../../book/part-viii/31-arrays-hashing-matrix.md#q9-range-sum-query-immutable-statement-range-totals) | Range Sum Query — Immutable | Prefix sums | `prefix[i+1] = prefix[i] + nums[i]` in Long; query `prefix[r+1] − prefix[l]` |
 | [Q10](../../book/part-viii/31-arrays-hashing-matrix.md#q10-first-missing-positive-next-free-ticket-number) | First Missing Positive | Index as hash | Swap v in 1..n into slot v−1; first slot i without i+1 → answer, else n+1 |
 
 ---

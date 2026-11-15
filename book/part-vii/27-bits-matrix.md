@@ -508,7 +508,7 @@ function numIslands(grid: string[][]): number {
 
 1. **Single number** — [solutions/ch27](../../solutions/ch27/README.md#p1-single-number)
 2. **Number of islands** — [solutions/ch27](../../solutions/ch27/README.md#p2-number-of-islands)
-3. **Rotate image 90°** — [solutions/ch27](../../solutions/ch27/README.md#p3-rotate-image-90)
+3. **Rotate image 90°** — [solutions/ch27](../../solutions/ch27/README.md#p3-rotate-image-90-degrees)
 
 ### More practice
 

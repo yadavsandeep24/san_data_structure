@@ -871,7 +871,7 @@ function spiralOrder(matrix: number[][]): number[] {
 
 ---
 
-## Q9. Range Sum Query — Immutable (Statement Range Totals)
+## Q9. Range Sum Query: Immutable (Statement Range Totals)
 
 **Topic:** Prefix sums
 

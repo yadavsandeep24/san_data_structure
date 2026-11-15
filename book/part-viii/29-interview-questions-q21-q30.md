@@ -612,7 +612,7 @@ function mergeKLists(lists: (ListNode | null)[]): ListNode | null {
 }
 ```
 
-## Q27. Meeting Rooms / Min Platforms (Heap)
+## Q27. Meeting Rooms or Min Platforms (Heap)
 
 **Topic:** Heaps
 

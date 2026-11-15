@@ -478,7 +478,7 @@ class UnionFind {
 
 1. **Course schedule** — [solutions/ch25](../../solutions/ch25/README.md#p1-course-schedule)
 2. **Network delay time (Dijkstra)** — [solutions/ch25](../../solutions/ch25/README.md#p2-network-delay-time)
-3. **Number of connected components / redundant connection** — [solutions/ch25](../../solutions/ch25/README.md#p3-connected-components--redundant-connection)
+3. **Number of connected components / redundant connection** — [solutions/ch25](../../solutions/ch25/README.md#p3-connected-components-or-redundant-connection)
 
 ### More practice
 

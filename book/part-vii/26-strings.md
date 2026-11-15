@@ -376,7 +376,7 @@ Product copy: “username max 20 characters.” If you use `length` / UTF-16 cou
 
 1. **Group anagrams** — [solutions/ch26](../../solutions/ch26/README.md#p1-group-anagrams)
 2. **Longest palindromic substring** — [solutions/ch26](../../solutions/ch26/README.md#p2-longest-palindromic-substring)
-3. **Valid anagram / first unique character** — [solutions/ch26](../../solutions/ch26/README.md#p3-valid-anagram--first-unique-character)
+3. **Valid anagram / first unique character** — [solutions/ch26](../../solutions/ch26/README.md#p3-valid-anagram-or-first-unique-character)
 
 ### More practice
 

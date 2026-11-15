@@ -504,8 +504,8 @@ Do not use device clock as the source of truth for settlement time or idempotenc
 
 ## Practice
 
-1. **Money value object + safe parse/format** — [solutions/ch39](../../solutions/ch39/README.md#p1-money-value-object--safe-parseformat)
-2. **Idempotent client with coalescing + persisted key** — [solutions/ch39](../../solutions/ch39/README.md#p2-idempotent-client-with-coalescing--persisted-key)
+1. **Money value object + safe parse/format** — [solutions/ch39](../../solutions/ch39/README.md#p1-money-value-object-and-safe-parseformat)
+2. **Idempotent client with coalescing + persisted key** — [solutions/ch39](../../solutions/ch39/README.md#p2-idempotent-client-with-coalescing-and-persisted-key)
 3. **Offline intent queue flush without double-charge** — [solutions/ch39](../../solutions/ch39/README.md#p3-offline-intent-queue-flush-without-double-charge)
 
 ### More practice

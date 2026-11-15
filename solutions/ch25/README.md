@@ -341,7 +341,7 @@ function networkDelayTime(times: number[][], n: number, k: number): number {
 
 ---
 
-## P3: Connected components / redundant connection
+## P3: Connected components or redundant connection
 
 ### Approach
 

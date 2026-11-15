@@ -126,7 +126,7 @@ class SerialCounter {
 
 ---
 
-## P2: Bounded blocking queue / async channel
+## P2: Bounded blocking queue or async channel
 
 ### Approach
 

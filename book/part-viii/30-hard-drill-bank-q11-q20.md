@@ -404,7 +404,7 @@ class MedianFinder {
 }
 ```
 
-**Say in interview:** “Production code uses binary heaps for O(log n) `addNum`; Kotlin above uses `PriorityQueue`; the Swift/Dart/TS versions use sorted inserts for clarity.” Binary-heap TypeScript version: [`solutions/ch30`](../../solutions/ch30/README.md#q14--find-median-from-data-stream-typescript-two-heap--swift--dart).
+**Say in interview:** “Production code uses binary heaps for O(log n) `addNum`; Kotlin above uses `PriorityQueue`; the Swift/Dart/TS versions use sorted inserts for clarity.” Binary-heap TypeScript version: [`solutions/ch30`](../../solutions/ch30/README.md#q14-find-median-from-data-stream-typescript-two-heap-or-swift-or-dart).
 
 ---
 
@@ -811,7 +811,7 @@ function numBusesToDestination(routes: number[][], source: number, target: numbe
 
 ---
 
-## Q18. Parallel Courses / Minimum Semesters
+## Q18. Parallel Courses or Minimum Semesters
 
 **Topic:** Topo + levels
 

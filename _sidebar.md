@@ -81,6 +81,7 @@
   - [G. 12-Day DSA Plan Map](/book/appendices/G-12-day-dsa-plan-map.md)
 
 - **Solutions**
+  - [Index](/solutions/README.md)
   - [Ch 01 — Why Data Structures Matter for Mobile Developers](/solutions/ch01/README.md)
   - [Ch 02 — Big-O Notation — Understanding It Practically](/solutions/ch02/README.md)
   - [Ch 03 — Arrays and Dynamic Arrays](/solutions/ch03/README.md)

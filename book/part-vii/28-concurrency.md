@@ -429,7 +429,7 @@ class BoundedBuffer<T> {
 }
 ```
 
-Full four-language versions: [solutions/ch28](../../solutions/ch28/README.md#p2-bounded-blocking-queue--async-channel).
+Full four-language versions: [solutions/ch28](../../solutions/ch28/README.md#p2-bounded-blocking-queue-or-async-channel).
 
 Apply backpressure to image download pipelines, log shippers, and WebSocket fan-in — not only interview queues.
 
@@ -464,7 +464,7 @@ Someone claims “JS has no races.” **False** for `await` interleaving on shar
 ## Practice
 
 1. **Thread-safe counter** — [solutions/ch28](../../solutions/ch28/README.md#p1-thread-safe-counter)
-2. **Bounded blocking queue / async channel sketch** — [solutions/ch28](../../solutions/ch28/README.md#p2-bounded-blocking-queue--async-channel)
+2. **Bounded blocking queue / async channel sketch** — [solutions/ch28](../../solutions/ch28/README.md#p2-bounded-blocking-queue-or-async-channel)
 3. **Detect if a race explanation is correct** — [solutions/ch28](../../solutions/ch28/README.md#p3-detect-if-a-race-explanation-is-correct)
 
 ### More practice

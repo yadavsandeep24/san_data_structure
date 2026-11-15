@@ -73,9 +73,9 @@ Empty input · single element · duplicates · negatives · overflow · disconne
 
 | Set | Questions |
 |-----|-----------|
-| [Q1–Q10](29-interview-questions-q01-q10.md) | Two Sum (Cart SKU Pair) · Contains Duplicate (Dedupe Guard) · Group Anagrams (Facet Grouping) · Top K Frequent Elements · Subarray Sum Equals K · Valid Parentheses (Schema / Deep Link Path) · Min Stack (Debug Overlay) · Sliding Window Maximum (Scroll Velocity) · Recent Searches Ring Buffer · Reverse Linked List |
+| [Q1–Q10](29-interview-questions-q01-q10.md) | Two Sum (Cart SKU Pair) · Contains Duplicate (Dedupe Guard) · Group Anagrams (Facet Grouping) · Top K Frequent Elements · Subarray Sum Equals K · Valid Parentheses (Schema or Deep Link Path) · Min Stack (Debug Overlay) · Sliding Window Maximum (Scroll Velocity) · Recent Searches Ring Buffer · Reverse Linked List |
 | [Q11–Q20](29-interview-questions-q11-q20.md) | Linked List Cycle (Floyd) · Merge Two Sorted Lists · Maximum Depth of Binary Tree · Invert Binary Tree · Validate BST · Binary Tree Level Order · Lowest Common Ancestor of BST · Binary Search · Search Insert Position (Lower Bound) · Find Peak Element |
-| [Q21–Q30](29-interview-questions-q21-q30.md) | Number of Provinces (Connected Components) · Clone Graph · Course Schedule (Cycle Detect) · Shortest Path in Unweighted Graph · Kth Largest Element · Merge K Sorted Lists (Feed Merge) · Meeting Rooms / Min Platforms (Heap) · Climbing Stairs · House Robber · Coin Change |
+| [Q21–Q30](29-interview-questions-q21-q30.md) | Number of Provinces (Connected Components) · Clone Graph · Course Schedule (Cycle Detect) · Shortest Path in Unweighted Graph · Kth Largest Element · Merge K Sorted Lists (Feed Merge) · Meeting Rooms or Min Platforms (Heap) · Climbing Stairs · House Robber · Coin Change |
 | [Q31–Q40](29-interview-questions-q31-q40.md) | Unique Paths · First Unique Character · Longest Substring Without Repeating Characters · Reverse Words in a String · Implement Trie (Autocomplete Core) · LRU Cache · Thread-Safe Request Coalescer (Single-Flight) · Token Bucket Rate Limiter · Navigation Back Stack · Debounced Search Index Query |
 
 ---

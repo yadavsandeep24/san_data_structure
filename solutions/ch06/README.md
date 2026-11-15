@@ -142,7 +142,7 @@ class MyQueue {
 
 ---
 
-## P2: Sliding window maximum / level-order
+## P2: Sliding window maximum or level-order
 
 ### Approach (sliding window maximum)
 

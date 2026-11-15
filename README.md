@@ -109,7 +109,7 @@ Every teaching chapter follows the same shape: mobile motivation → concept wit
 
 ## Solutions
 
-Every chapter has a folder under [`solutions/`](solutions/) (`solutions/ch01` … `solutions/ch42`), linked from the chapter's footer.
+Every chapter has a folder under [`solutions/`](solutions/README.md) (`solutions/ch01` … `solutions/ch42`), linked from the chapter's footer.
 
 - Teaching chapters (1–28, 39–41): full model solutions for each practice problem — approach, complexity, edge cases, mobile note, and code in four languages for coding problems (reasoning answers for Chapters 1–2 and the design/behavioral Chapters 40–41).
 - Drill banks (29–37, 42): solutions are inline in the chapter; the `solutions/` folder is an index with condensed "remember this" notes.

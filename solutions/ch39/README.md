@@ -4,7 +4,7 @@ Model solutions for Chapter 39 practice problems. Problems are defined in [`book
 
 ---
 
-## P1: Money value object + safe parse/format
+## P1: Money value object and safe parse/format
 
 ### Approach
 
@@ -166,7 +166,7 @@ export function formatMoney(m: Money, locale = "en-IN"): string {
 
 ---
 
-## P2: Idempotent client with coalescing + persisted key
+## P2: Idempotent client with coalescing and persisted key
 
 ### Approach
 

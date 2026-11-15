@@ -367,7 +367,7 @@ function subarraySum(nums: number[], k: number): number {
 }
 ```
 
-## Q6. Valid Parentheses (Schema / Deep Link Path)
+## Q6. Valid Parentheses (Schema or Deep Link Path)
 
 **Topic:** Stacks / queues
 

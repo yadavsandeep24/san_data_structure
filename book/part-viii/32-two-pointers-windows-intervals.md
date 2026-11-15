@@ -145,7 +145,7 @@ function isPalindrome(s: string): boolean {
 
 ---
 
-## Q2. Two Sum II — Input Array Is Sorted (Sorted Price Pair)
+## Q2. Two Sum II: Input Array Is Sorted (Sorted Price Pair)
 
 **Topic:** Two pointers
 
