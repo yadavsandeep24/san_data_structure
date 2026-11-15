@@ -598,4 +598,21 @@ class Trie {
 2. **Implement Trie** (`insert` / `search` / `startsWith`) — [solutions/ch10](../../solutions/ch10/README.md#p2-implement-trie)
 3. **Flatten nested map keys** (JSON path style) — [solutions/ch10](../../solutions/ch10/README.md#p3-flatten-nested-map-keys)
 
-Back: [Chapter 9 — Trees Basics](09-trees-basics.md) · Next: [Chapter 11 — Graphs Intro](11-graphs-intro.md)
+### More practice
+
+- [Ch 29 — Interview Questions, Q11–Q20](../part-viii/29-interview-questions-q11-q20.md): Q15 Validate BST · Q17 Lowest Common Ancestor of BST
+- [Ch 29 — Interview Questions, Q31–Q40](../part-viii/29-interview-questions-q31-q40.md): Q35 Implement Trie
+- [Ch 34 — Linked Lists & Trees](../part-viii/34-linked-lists-trees.md): Q10 Kth Smallest Element in a BST · Q11 Construct Binary Tree from Preorder and Inorder
+- [Ch 35 — Heaps, Tries & Greedy](../part-viii/35-heaps-tries-greedy.md): Q4 Design Add and Search Words · Q5 Word Search II
+- [Ch 30 — Hard Drill Bank, Q1–Q10](../part-viii/30-hard-drill-bank-q01-q10.md): Q5 Serialize / Deserialize Binary Tree
+- [Ch 38 — Mini Projects](../part-viii/38-mini-projects.md): Project 2 Autocomplete Trie
+
+---
+
+## What to remember
+
+A BST keeps keys ordered for O(log n) search, but only while it stays balanced. In app code you use the platform's sorted map rather than writing one. Tries turn prefix search into O(length of prefix), which makes them the core of autocomplete. Validate a BST with min/max bounds, not by comparing only parent and child. Treat JSON as a tree you walk, ideally iteratively for untrusted input.
+
+---
+
+Previous: [Chapter 9 — Trees Basics](09-trees-basics.md) · Next: [Chapter 11 — Graphs Intro](11-graphs-intro.md) · Solutions: [`solutions/ch10`](../../solutions/ch10/README.md)

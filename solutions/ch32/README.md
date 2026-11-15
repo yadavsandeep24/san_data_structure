@@ -1,38 +1,47 @@
 # Chapter 32 — Solution Index & Extra Ports
 
-Full **Kotlin + TypeScript** solutions live inline in [`book/part-x/32-arrays-hashing-matrix.md`](../../book/part-x/32-arrays-hashing-matrix.md). All four languages (Kotlin, Swift, Dart, TypeScript) are inline in the chapter. This file adds a timed-review index and repeats the **Swift/Dart** ports for three problems.
+Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/32-two-pointers-windows-intervals.md`](../../book/part-viii/32-two-pointers-windows-intervals.md). All four languages (Kotlin, Swift, Dart, TypeScript) are inline in the chapter. This file adds a timed-review index and repeats the **Swift/Dart** ports for three problems.
 
 | # | Title | Topic | One-line approach |
 |---|-------|-------|-------------------|
-| [Q1](../../book/part-x/32-arrays-hashing-matrix.md#q1-product-of-array-except-self-basket-price-multipliers) | Product of Array Except Self | Prefix / suffix | Left pass writes product before i; right pass multiplies product after i; no division |
-| [Q2](../../book/part-x/32-arrays-hashing-matrix.md#q2-valid-sudoku-puzzle-board-check) | Valid Sudoku | Bitmasks | One pass; 9-bit mask per row, column, box `(r/3)*3 + c/3`; bit already set → invalid |
-| [Q3](../../book/part-x/32-arrays-hashing-matrix.md#q3-encode-and-decode-strings-offline-queue-serialization) | Encode and Decode Strings | Length prefix | Write `len#content`; decoder reads digits to `#`, then exactly len chars |
-| [Q4](../../book/part-x/32-arrays-hashing-matrix.md#q4-string-compression-run-length-log-packing) | String Compression | Read / write pointers | Read a run; write char, then count digits if run > 1; writer never passes reader |
-| [Q5](../../book/part-x/32-arrays-hashing-matrix.md#q5-maximum-subarray-best-trading-streak) | Maximum Subarray | Kadane | `cur = max(x, cur + x)`; best of cur; seed with nums[0] for all-negative |
-| [Q6](../../book/part-x/32-arrays-hashing-matrix.md#q6-maximum-product-subarray-compounded-multiplier-streak) | Maximum Product Subarray | Max + min DP | Track max and min ending here; new = max/min of x, max·x, min·x |
-| [Q7](../../book/part-x/32-arrays-hashing-matrix.md#q7-set-matrix-zeroes-invalidate-grid-rows-and-columns) | Set Matrix Zeroes | In-place markers | Remember row 0 / col 0 zeros; mark in row 0 / col 0; clear inner; then row 0 / col 0 |
-| [Q8](../../book/part-x/32-arrays-hashing-matrix.md#q8-spiral-matrix-onboarding-tile-reveal-order) | Spiral Matrix | Boundaries | Top row, right col, bottom row (if rows left), left col (if cols left); shrink each |
-| [Q9](../../book/part-x/32-arrays-hashing-matrix.md#q9-range-sum-query-immutable-statement-range-totals) | Range Sum Query — Immutable | Prefix sums | `prefix[i+1] = prefix[i] + nums[i]` in Long; query `prefix[r+1] − prefix[l]` |
-| [Q10](../../book/part-x/32-arrays-hashing-matrix.md#q10-first-missing-positive-next-free-ticket-number) | First Missing Positive | Index as hash | Swap v in 1..n into slot v−1; first slot i without i+1 → answer, else n+1 |
+| [Q1](../../book/part-viii/32-two-pointers-windows-intervals.md#q1-valid-palindrome-coupon-code-check) | Valid Palindrome | Two pointers | Skip non-alphanumerics from both ends; compare lowercased |
+| [Q2](../../book/part-viii/32-two-pointers-windows-intervals.md#q2-two-sum-ii--input-array-is-sorted-sorted-price-pair) | Two Sum II — Input Array Is Sorted | Two pointers | Ends inward; sum small → left++, big → right--; Long sum; 1-based |
+| [Q3](../../book/part-viii/32-two-pointers-windows-intervals.md#q3-3sum-zero-net-settlement-triples) | 3Sum | Sort + two pointers | Sort; fix a[i] (skip dups, stop at > 0); Two Sum II on the rest; skip dup lefts |
+| [Q4](../../book/part-viii/32-two-pointers-windows-intervals.md#q4-container-with-most-water-widest-chart-band) | Container With Most Water | Two pointers | Start widest; area = width × shorter; move the shorter side |
+| [Q5](../../book/part-viii/32-two-pointers-windows-intervals.md#q5-best-time-to-buy-and-sell-stock-one-trade-profit) | Best Time to Buy and Sell Stock | Running min | Track min so far; best = max(price − min) |
+| [Q6](../../book/part-viii/32-two-pointers-windows-intervals.md#q6-longest-repeating-character-replacement-fix-k-typos-in-a-streak) | Longest Repeating Character Replacement | Variable window | Grow right, track maxFreq; shrink while len − maxFreq > k |
+| [Q7](../../book/part-viii/32-two-pointers-windows-intervals.md#q7-permutation-in-string-scrambled-code-search) | Permutation in String | Fixed window | Window of `len(s1)` with need counts + missing counter; missing 0 → true |
+| [Q8](../../book/part-viii/32-two-pointers-windows-intervals.md#q8-minimum-window-substring-shortest-log-span-covering-all-events) | Minimum Window Substring | Variable window | Grow until missing 0; record; shrink until a needed char leaves |
+| [Q9](../../book/part-viii/32-two-pointers-windows-intervals.md#q9-minimum-size-subarray-sum-shortest-run-to-reach-a-spend-goal) | Minimum Size Subarray Sum | Variable window | Grow sum; while sum ≥ target record length and shrink; positives only |
+| [Q10](../../book/part-viii/32-two-pointers-windows-intervals.md#q10-find-all-anagrams-in-a-string-every-scrambled-match) | Find All Anagrams in a String | Fixed window | Q7 window; record start each time missing hits 0 |
+| [Q11](../../book/part-viii/32-two-pointers-windows-intervals.md#q11-minimum-number-of-arrows-to-burst-balloons-fewest-sync-ticks) | Minimum Number of Arrows to Burst Balloons | Intervals greedy | Sort by end; arrow at end; new arrow when start > arrow |
+| [Q12](../../book/part-viii/32-two-pointers-windows-intervals.md#q12-interval-list-intersections-shared-free-slots) | Interval List Intersections | Two pointers | Overlap = [max starts, min ends] if valid; advance the one ending first |
 
 ---
 
-## Q1 — Product of array except self (Swift / Dart)
+## Q3 — 3Sum (Swift / Dart)
 
 ### Swift
 
 ```swift
-func productExceptSelf(_ nums: [Int]) -> [Int] {
-    var out = [Int](repeating: 1, count: nums.count)
-    var prefix = 1
-    for i in 0..<nums.count {
-        out[i] = prefix
-        prefix *= nums[i]
-    }
-    var suffix = 1
-    for i in stride(from: nums.count - 1, through: 0, by: -1) {
-        out[i] *= suffix
-        suffix *= nums[i]
+func threeSum(_ nums: [Int]) -> [[Int]] {
+    let a = nums.sorted()
+    var out: [[Int]] = []
+    for i in 0..<a.count {
+        if a[i] > 0 { break }
+        if i > 0 && a[i] == a[i - 1] { continue }
+        var lo = i + 1, hi = a.count - 1
+        while lo < hi {
+            let sum = a[i] + a[lo] + a[hi]
+            if sum < 0 { lo += 1 }
+            else if sum > 0 { hi -= 1 }
+            else {
+                out.append([a[i], a[lo], a[hi]])
+                lo += 1
+                hi -= 1
+                while lo < hi && a[lo] == a[lo - 1] { lo += 1 }
+            }
+        }
     }
     return out
 }
@@ -41,17 +50,26 @@ func productExceptSelf(_ nums: [Int]) -> [Int] {
 ### Dart
 
 ```dart
-List<int> productExceptSelf(List<int> nums) {
-  final out = List<int>.filled(nums.length, 1);
-  var prefix = 1;
-  for (var i = 0; i < nums.length; i++) {
-    out[i] = prefix;
-    prefix *= nums[i];
-  }
-  var suffix = 1;
-  for (var i = nums.length - 1; i >= 0; i--) {
-    out[i] *= suffix;
-    suffix *= nums[i];
+List<List<int>> threeSum(List<int> nums) {
+  final a = List<int>.of(nums)..sort();
+  final out = <List<int>>[];
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] > 0) break;
+    if (i > 0 && a[i] == a[i - 1]) continue;
+    var lo = i + 1, hi = a.length - 1;
+    while (lo < hi) {
+      final sum = a[i] + a[lo] + a[hi];
+      if (sum < 0) {
+        lo++;
+      } else if (sum > 0) {
+        hi--;
+      } else {
+        out.add([a[i], a[lo], a[hi]]);
+        lo++;
+        hi--;
+        while (lo < hi && a[lo] == a[lo - 1]) lo++;
+      }
+    }
   }
   return out;
 }
@@ -59,20 +77,79 @@ List<int> productExceptSelf(List<int> nums) {
 
 ---
 
-## Q6 — Maximum product subarray (Swift / Dart)
+## Q8 — Minimum window substring (Swift / Dart)
+
+Swift works on UTF-8 bytes (O(1) indexing); Dart uses UTF-16 code units, hence the 65,536-slot table.
 
 ### Swift
 
 ```swift
-func maxProduct(_ nums: [Int]) -> Int {
-    var hi = nums[0], lo = nums[0], best = nums[0]
-    for x in nums.dropFirst() {
-        let a = hi * x, b = lo * x
-        hi = max(x, a, b)
-        lo = min(x, a, b)
-        best = max(best, hi)
+func minWindow(_ s: String, _ t: String) -> String {
+    let sa = Array(s.utf8), ta = Array(t.utf8)
+    if ta.isEmpty || ta.count > sa.count { return "" }
+    var need = [Int](repeating: 0, count: 256)
+    for c in ta { need[Int(c)] += 1 }
+    var missing = ta.count
+    var left = 0, bestStart = 0, bestLen = Int.max
+    for right in 0..<sa.count {
+        if need[Int(sa[right])] > 0 { missing -= 1 }
+        need[Int(sa[right])] -= 1
+        while missing == 0 {
+            if right - left + 1 < bestLen {
+                bestLen = right - left + 1
+                bestStart = left
+            }
+            need[Int(sa[left])] += 1
+            if need[Int(sa[left])] > 0 { missing += 1 }
+            left += 1
+        }
     }
-    return best
+    if bestLen == Int.max { return "" }
+    return String(decoding: sa[bestStart..<bestStart + bestLen], as: UTF8.self)
+}
+```
+
+### Dart
+
+```dart
+String minWindow(String s, String t) {
+  if (t.isEmpty || t.length > s.length) return '';
+  final need = List<int>.filled(65536, 0);
+  for (final c in t.codeUnits) need[c]++;
+  var missing = t.length;
+  var left = 0, bestStart = 0, bestLen = -1;
+  for (var right = 0; right < s.length; right++) {
+    if (need[s.codeUnitAt(right)]-- > 0) missing--;
+    while (missing == 0) {
+      if (bestLen == -1 || right - left + 1 < bestLen) {
+        bestLen = right - left + 1;
+        bestStart = left;
+      }
+      if (++need[s.codeUnitAt(left)] > 0) missing++;
+      left++;
+    }
+  }
+  return bestLen == -1 ? '' : s.substring(bestStart, bestStart + bestLen);
+}
+```
+
+---
+
+## Q12 — Interval list intersections (Swift / Dart)
+
+### Swift
+
+```swift
+func intervalIntersection(_ a: [[Int]], _ b: [[Int]]) -> [[Int]] {
+    var out: [[Int]] = []
+    var i = 0, j = 0
+    while i < a.count && j < b.count {
+        let lo = max(a[i][0], b[j][0])
+        let hi = min(a[i][1], b[j][1])
+        if lo <= hi { out.append([lo, hi]) }
+        if a[i][1] < b[j][1] { i += 1 } else { j += 1 }
+    }
+    return out
 }
 ```
 
@@ -81,63 +158,25 @@ func maxProduct(_ nums: [Int]) -> Int {
 ```dart
 import 'dart:math';
 
-int maxProduct(List<int> nums) {
-  var hi = nums[0], lo = nums[0], best = nums[0];
-  for (final x in nums.skip(1)) {
-    final a = hi * x, b = lo * x;
-    hi = max(x, max(a, b));
-    lo = min(x, min(a, b));
-    best = max(best, hi);
+List<List<int>> intervalIntersection(List<List<int>> a, List<List<int>> b) {
+  final out = <List<int>>[];
+  var i = 0, j = 0;
+  while (i < a.length && j < b.length) {
+    final lo = max(a[i][0], b[j][0]);
+    final hi = min(a[i][1], b[j][1]);
+    if (lo <= hi) out.add([lo, hi]);
+    if (a[i][1] < b[j][1]) {
+      i++;
+    } else {
+      j++;
+    }
   }
-  return best;
+  return out;
 }
 ```
 
 ---
 
-## Q10 — First missing positive (Swift / Dart)
+- Timed protocol: **20–30 min** (Q8: 40), complexity spoken first  
 
-Both ports copy the input first: Swift parameters are immutable, and in Dart the copy keeps the caller's list from being reordered.
-
-### Swift
-
-```swift
-func firstMissingPositive(_ input: [Int]) -> Int {
-    var nums = input
-    let n = nums.count
-    for i in 0..<n {
-        while nums[i] >= 1 && nums[i] <= n && nums[nums[i] - 1] != nums[i] {
-            nums.swapAt(i, nums[i] - 1)
-        }
-    }
-    for i in 0..<n where nums[i] != i + 1 { return i + 1 }
-    return n + 1
-}
-```
-
-### Dart
-
-```dart
-int firstMissingPositive(List<int> input) {
-  final nums = List<int>.of(input);
-  final n = nums.length;
-  for (var i = 0; i < n; i++) {
-    while (nums[i] >= 1 && nums[i] <= n && nums[nums[i] - 1] != nums[i]) {
-      final j = nums[i] - 1;
-      final tmp = nums[j];
-      nums[j] = nums[i];
-      nums[i] = tmp;
-    }
-  }
-  for (var i = 0; i < n; i++) {
-    if (nums[i] != i + 1) return i + 1;
-  }
-  return n + 1;
-}
-```
-
----
-
-- Timed protocol: **20–30 min**, complexity spoken first  
-
-Back: [Chapter 32](../../book/part-x/32-arrays-hashing-matrix.md)
+Back: [Chapter 32](../../book/part-viii/32-two-pointers-windows-intervals.md)

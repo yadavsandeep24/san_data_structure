@@ -78,7 +78,7 @@ How the four stacks actually grow, hash, and copy. Useful for interviews (“wha
 
 ---
 
-## Concurrency & sharing (preview of Ch 23)
+## Concurrency & sharing (preview of Ch 28)
 
 | Language | Collection thread-safety |
 |----------|--------------------------|

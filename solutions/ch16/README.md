@@ -2,360 +2,313 @@
 
 Model solutions for Chapter 16 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
 
-Problems are defined in [`book/part-v/16-recursion-backtracking.md`](../../book/part-v/16-recursion-backtracking.md).
+Problems are defined in [`book/part-iv/16-monotonic-stack-deque.md`](../../book/part-iv/16-monotonic-stack-deque.md).
 
 ---
 
-## P1: Subsets
+## P1: Next greater element, circular
+
+For each element, return the next strictly greater value when walking right and wrapping around to the start, or `-1`.
 
 ### Approach
 
-Backtracking over indices: at position `i`, either skip `nums[i]` or include it. Record a **copy** of the current path at every call (including the start) so the power set is complete. Undo the include branch with `removeLast` / `pop`.
+Monotonic decreasing stack of indices, walked **twice** (`i` from `0` to `2n - 1`, using `i % n`). The first lap resolves the normal "to the right" answers. The second lap lets items near the end find a greater value near the start. Only push indices during the first lap, because on the second lap they are already on the stack or already answered.
 
 ### Complexity
 
-- Time: O(n · 2ⁿ) — 2ⁿ subsets, each copied in O(n)
-- Space: O(n) recursion depth + O(n · 2ⁿ) for output
+- Time: O(n) (2n iterations, each index pushed and popped at most once)
+- Space: O(n)
 
 ### Edge cases
 
-- Empty input → `[[]]`
-- Duplicates in input — this solution assumes distinct elements; sort + skip-equal siblings if duplicates appear
-- Large n (>20) — output size explodes; not for production feeds
+- All equal → all `-1`
+- The maximum element → always `-1`
+- Single element → `[-1]`
 
 ### Mobile note
 
-Interview staple. In apps, “all subsets of user-selected filters” is only sane for tiny n (e.g. ≤ 12 toggles). Prefer explicit product rules over generating 2ⁿ UI states.
+Carousels and looping playlists wrap around. "Next item with a higher rating" has to look past the end and back to the start.
 
 ### Kotlin
 
 ```kotlin
-fun subsets(nums: IntArray): List<List<Int>> {
-    val out = mutableListOf<List<Int>>()
-    val path = mutableListOf<Int>()
-    fun dfs(i: Int) {
-        if (i == nums.size) {
-            out += path.toList()
-            return
-        }
-        dfs(i + 1)                 // skip
-        path += nums[i]            // take
-        dfs(i + 1)
-        path.removeAt(path.lastIndex)
+fun nextGreaterCircular(a: IntArray): IntArray {
+    val n = a.size
+    val ans = IntArray(n) { -1 }
+    val stack = ArrayDeque<Int>()
+    for (i in 0 until 2 * n) {
+        val x = a[i % n]
+        while (stack.isNotEmpty() && a[stack.last()] < x) ans[stack.removeLast()] = x
+        if (i < n) stack.addLast(i)
     }
-    dfs(0)
-    return out
+    return ans
 }
 ```
 
 ### Swift
 
 ```swift
-func subsets(_ nums: [Int]) -> [[Int]] {
-    var out: [[Int]] = []
-    var path: [Int] = []
-    func dfs(_ i: Int) {
-        if i == nums.count {
-            out.append(path)
-            return
+func nextGreaterCircular(_ a: [Int]) -> [Int] {
+    let n = a.count
+    var ans = [Int](repeating: -1, count: n)
+    var stack: [Int] = []
+    for i in 0..<(2 * n) {
+        let x = a[i % n]
+        while let top = stack.last, a[top] < x {
+            ans[top] = x
+            stack.removeLast()
         }
-        dfs(i + 1)
-        path.append(nums[i])
-        dfs(i + 1)
-        path.removeLast()
+        if i < n { stack.append(i) }
     }
-    dfs(0)
-    return out
+    return ans
 }
 ```
 
 ### Dart
 
 ```dart
-List<List<int>> subsets(List<int> nums) {
-  final out = <List<int>>[];
-  final path = <int>[];
-  void dfs(int i) {
-    if (i == nums.length) {
-      out.add(List<int>.from(path));
-      return;
+List<int> nextGreaterCircular(List<int> a) {
+  final n = a.length;
+  final ans = List<int>.filled(n, -1);
+  final stack = <int>[];
+  for (var i = 0; i < 2 * n; i++) {
+    final x = a[i % n];
+    while (stack.isNotEmpty && a[stack.last] < x) {
+      ans[stack.removeLast()] = x;
     }
-    dfs(i + 1);
-    path.add(nums[i]);
-    dfs(i + 1);
-    path.removeLast();
+    if (i < n) stack.add(i);
   }
-  dfs(0);
-  return out;
+  return ans;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function subsets(nums: number[]): number[][] {
-  const out: number[][] = [];
-  const path: number[] = [];
-  const dfs = (i: number) => {
-    if (i === nums.length) {
-      out.push([...path]);
-      return;
-    }
-    dfs(i + 1);
-    path.push(nums[i]);
-    dfs(i + 1);
-    path.pop();
-  };
-  dfs(0);
-  return out;
+function nextGreaterCircular(a: number[]): number[] {
+  const n = a.length;
+  const ans = new Array<number>(n).fill(-1);
+  const stack: number[] = [];
+  for (let i = 0; i < 2 * n; i++) {
+    const x = a[i % n];
+    while (stack.length > 0 && a[stack[stack.length - 1]] < x) ans[stack.pop()!] = x;
+    if (i < n) stack.push(i);
+  }
+  return ans;
 }
 ```
 
 ---
 
-## P2: Combination sum
+## P2: Remove k digits
+
+Given a non-negative integer as a string `num` and `k ≤ num.length`, remove exactly `k` digits so the result is the smallest possible number. Return it without leading zeros, or `"0"` if nothing is left.
 
 ### Approach
 
-Candidates may be reused. DFS with remaining `target` and start index `start` to avoid permuting the same multiset. Try each `candidates[j]` for `j >= start` if `candidates[j] <= remain`; push, recurse with same `j` (reuse allowed), pop.
-
-Sorting first enables early break when `candidates[j] > remain`.
+Greedy plus a monotonic **increasing** stack. Scan left to right. While `k > 0` and the top digit is **greater** than the current digit, pop it (removing a bigger digit earlier in the number always helps more than any later removal) and decrement `k`. Push the current digit. If `k` is still positive at the end, the stack is non-decreasing, so drop the last `k` digits. Then strip leading zeros.
 
 ### Complexity
 
-- Time: exponential in solution count / depth; roughly O(n^{T/min}) worst case
-- Space: O(T/min) depth + output size
+- Time: O(n)
+- Space: O(n)
 
 ### Edge cases
 
-- No combination → empty list
-- `target` equals one candidate
-- Candidate `1` with large target — deep recursion; iterative DP may be safer for huge targets
-- Zeros / negatives — problem assumes positive candidates
+- `k == num.length` → `"0"`
+- Leading zeros after removal (`"10200", k = 1` → `"200"`)
+- Already non-decreasing (`"12345", k = 2` → `"123"`)
 
 ### Mobile note
 
-Maps to “ways to spend store credit with reusable SKUs” only at tiny catalogs. Prefer DP coin-change counting or server-side rules for real commerce.
+The same greedy stack picks the "lexicographically smallest subsequence of length L" for things like compact display codes. It runs in O(n) with no backtracking, so it's fine on the main thread.
 
 ### Kotlin
 
 ```kotlin
-fun combinationSum(candidates: IntArray, target: Int): List<List<Int>> {
-    candidates.sort()
-    val out = mutableListOf<List<Int>>()
-    val path = mutableListOf<Int>()
-    fun dfs(start: Int, remain: Int) {
-        if (remain == 0) {
-            out += path.toList()
-            return
+fun removeKdigits(num: String, k: Int): String {
+    var remaining = k
+    val stack = StringBuilder()
+    for (c in num) {
+        while (remaining > 0 && stack.isNotEmpty() && stack.last() > c) {
+            stack.setLength(stack.length - 1)
+            remaining--
         }
-        for (j in start until candidates.size) {
-            val c = candidates[j]
-            if (c > remain) break
-            path += c
-            dfs(j, remain - c)
-            path.removeAt(path.lastIndex)
-        }
+        stack.append(c)
     }
-    dfs(0, target)
-    return out
+    stack.setLength(stack.length - remaining)
+    val result = stack.trimStart('0').toString()
+    return result.ifEmpty { "0" }
 }
 ```
 
 ### Swift
 
 ```swift
-func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
-    let nums = candidates.sorted()
-    var out: [[Int]] = []
-    var path: [Int] = []
-    func dfs(_ start: Int, _ remain: Int) {
-        if remain == 0 {
-            out.append(path)
-            return
+func removeKdigits(_ num: String, _ k: Int) -> String {
+    var remaining = k
+    var stack: [Character] = []
+    for c in num {
+        while remaining > 0, let top = stack.last, top > c {
+            stack.removeLast()
+            remaining -= 1
         }
-        for j in start..<nums.count {
-            let c = nums[j]
-            if c > remain { break }
-            path.append(c)
-            dfs(j, remain - c)
-            path.removeLast()
-        }
+        stack.append(c)
     }
-    dfs(0, target)
-    return out
+    stack.removeLast(remaining)
+    let result = String(stack.drop(while: { $0 == "0" }))
+    return result.isEmpty ? "0" : result
 }
 ```
 
 ### Dart
 
 ```dart
-List<List<int>> combinationSum(List<int> candidates, int target) {
-  final nums = [...candidates]..sort();
-  final out = <List<int>>[];
-  final path = <int>[];
-  void dfs(int start, int remain) {
-    if (remain == 0) {
-      out.add(List<int>.from(path));
-      return;
+String removeKdigits(String num, int k) {
+  var remaining = k;
+  final stack = <int>[]; // code units
+  for (final c in num.codeUnits) {
+    while (remaining > 0 && stack.isNotEmpty && stack.last > c) {
+      stack.removeLast();
+      remaining--;
     }
-    for (var j = start; j < nums.length; j++) {
-      final c = nums[j];
-      if (c > remain) break;
-      path.add(c);
-      dfs(j, remain - c);
-      path.removeLast();
-    }
+    stack.add(c);
   }
-  dfs(0, target);
-  return out;
+  stack.removeRange(stack.length - remaining, stack.length);
+  var start = 0;
+  while (start < stack.length && stack[start] == 0x30) {
+    start++;
+  }
+  final result = String.fromCharCodes(stack.sublist(start));
+  return result.isEmpty ? '0' : result;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function combinationSum(candidates: number[], target: number): number[][] {
-  const nums = [...candidates].sort((a, b) => a - b);
-  const out: number[][] = [];
-  const path: number[] = [];
-  const dfs = (start: number, remain: number) => {
-    if (remain === 0) {
-      out.push([...path]);
-      return;
+function removeKdigits(num: string, k: number): string {
+  let remaining = k;
+  const stack: string[] = [];
+  for (const c of num) {
+    while (remaining > 0 && stack.length > 0 && stack[stack.length - 1] > c) {
+      stack.pop();
+      remaining--;
     }
-    for (let j = start; j < nums.length; j++) {
-      const c = nums[j];
-      if (c > remain) break;
-      path.push(c);
-      dfs(j, remain - c);
-      path.pop();
-    }
-  };
-  dfs(0, target);
-  return out;
+    stack.push(c);
+  }
+  stack.length -= remaining;
+  let start = 0;
+  while (start < stack.length && stack[start] === '0') start++;
+  const result = stack.slice(start).join('');
+  return result === '' ? '0' : result;
 }
 ```
 
 ---
 
-## P3: Phone letter combinations
+## P3: Sum of subarray minimums
+
+Return `Σ min(sub)` over every contiguous subarray of `a`, modulo `1_000_000_007`.
 
 ### Approach
 
-Classic backtracking on digit positions. Map `'2'..'9'` to letter groups. At index `i`, append each letter for `digits[i]`, recurse to `i+1`, pop. Base: `i == digits.length` → record string. Empty input → empty list (not `[""]`).
+**Contribution counting.** `a[j]` is the minimum of every subarray that starts after its previous smaller element and ends before its next smaller-or-equal element. If `left = j - prevSmaller` and `right = nextSmallerOrEqual - j`, then `a[j]` contributes `a[j] · left · right`.
+
+One pass with an increasing stack computes both at once. When the current index `i` (or a sentinel at `i = n` with value −∞) pops `j`, then `i` is `j`'s next smaller-or-equal, and the new top after popping, `k` (or `-1`), is `j`'s previous strictly-smaller. Use `>=` when popping, so equal values are owned by exactly one index.
 
 ### Complexity
 
-- Time: O(4ⁿ · n) worst case (digits like 7/9 have 4 letters); n = length
-- Space: O(n) depth + output size
+- Time: O(n)
+- Space: O(n)
 
 ### Edge cases
 
-- `""` → `[]`
-- Single digit
-- Digits including 7 or 9 (four letters)
-- Very long digit strings — output explodes; cap in product code
+- Duplicates (`[2, 2, 2]` → 2·6 = 12): the `>=` / strict split prevents double counting
+- Strictly increasing or decreasing inputs
+- Overflow: `a[j]·left·right` can reach ~10¹³, so use 64-bit integers and take the mod after each addition
 
 ### Mobile note
 
-Same shape as building autocomplete paths from a small key graph. Fine for SMS T9-style demos; production keyboards use tries and language models, not raw 4ⁿ enumeration on the UI thread.
+The same "how many windows does this sample dominate?" counting attributes jank: how much each slow frame contributes to the worst-case latency across all time windows in a trace.
 
 ### Kotlin
 
 ```kotlin
-fun letterCombinations(digits: String): List<String> {
-    if (digits.isEmpty()) return emptyList()
-    val map = arrayOf("", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz")
-    val out = mutableListOf<String>()
-    val path = StringBuilder()
-    fun dfs(i: Int) {
-        if (i == digits.length) {
-            out += path.toString()
-            return
+fun sumSubarrayMins(a: IntArray): Int {
+    val mod = 1_000_000_007L
+    val stack = ArrayDeque<Int>()
+    var total = 0L
+    for (i in 0..a.size) {
+        val cur = if (i == a.size) Int.MIN_VALUE else a[i]
+        while (stack.isNotEmpty() && a[stack.last()] >= cur) {
+            val j = stack.removeLast()
+            val k = if (stack.isEmpty()) -1 else stack.last()
+            total = (total + a[j].toLong() * (j - k) * (i - j)) % mod
         }
-        for (c in map[digits[i] - '0']) {
-            path.append(c)
-            dfs(i + 1)
-            path.deleteCharAt(path.lastIndex)
-        }
+        stack.addLast(i)
     }
-    dfs(0)
-    return out
+    return total.toInt()
 }
 ```
 
 ### Swift
 
 ```swift
-func letterCombinations(_ digits: String) -> [String] {
-    if digits.isEmpty { return [] }
-    let map = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"]
-    let chars = Array(digits)
-    var out: [String] = []
-    var path: [Character] = []
-    func dfs(_ i: Int) {
-        if i == chars.count {
-            out.append(String(path))
-            return
+func sumSubarrayMins(_ a: [Int]) -> Int {
+    let mod = 1_000_000_007
+    var stack: [Int] = []
+    var total = 0
+    for i in 0...a.count {
+        let cur = i == a.count ? Int.min : a[i]
+        while let j = stack.last, a[j] >= cur {
+            stack.removeLast()
+            let k = stack.last ?? -1
+            total = (total + a[j] * (j - k) * (i - j)) % mod
         }
-        let idx = Int(chars[i].asciiValue! - Character("0").asciiValue!)
-        for c in map[idx] {
-            path.append(c)
-            dfs(i + 1)
-            path.removeLast()
-        }
+        stack.append(i)
     }
-    dfs(0)
-    return out
+    return total
 }
 ```
 
 ### Dart
 
 ```dart
-List<String> letterCombinations(String digits) {
-  if (digits.isEmpty) return [];
-  const map = ['', '', 'abc', 'def', 'ghi', 'jkl', 'mno', 'pqrs', 'tuv', 'wxyz'];
-  final out = <String>[];
-  final path = <String>[];
-  void dfs(int i) {
-    if (i == digits.length) {
-      out.add(path.join());
-      return;
+int sumSubarrayMins(List<int> a) {
+  const mod = 1000000007;
+  final stack = <int>[];
+  var total = 0;
+  for (var i = 0; i <= a.length; i++) {
+    final cur = i == a.length ? -1 << 62 : a[i];
+    while (stack.isNotEmpty && a[stack.last] >= cur) {
+      final j = stack.removeLast();
+      final k = stack.isEmpty ? -1 : stack.last;
+      total = (total + a[j] * (j - k) * (i - j)) % mod;
     }
-    final letters = map[digits.codeUnitAt(i) - 48];
-    for (var k = 0; k < letters.length; k++) {
-      path.add(letters[k]);
-      dfs(i + 1);
-      path.removeLast();
-    }
+    stack.add(i);
   }
-  dfs(0);
-  return out;
+  return total;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function letterCombinations(digits: string): string[] {
-  if (!digits) return [];
-  const map = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"];
-  const out: string[] = [];
-  const path: string[] = [];
-  const dfs = (i: number) => {
-    if (i === digits.length) {
-      out.push(path.join(""));
-      return;
+function sumSubarrayMins(a: number[]): number {
+  const MOD = 1_000_000_007;
+  const stack: number[] = [];
+  let total = 0;
+  for (let i = 0; i <= a.length; i++) {
+    const cur = i === a.length ? -Infinity : a[i];
+    while (stack.length > 0 && a[stack[stack.length - 1]] >= cur) {
+      const j = stack.pop()!;
+      const k = stack.length > 0 ? stack[stack.length - 1] : -1;
+      // a[j] ≤ 3·10^4 and (j-k)(i-j) ≤ 9·10^8 ⇒ product < 2^53, safe in a double
+      total = (total + ((a[j] * (j - k) * (i - j)) % MOD)) % MOD;
     }
-    for (const c of map[digits.charCodeAt(i) - 48]) {
-      path.push(c);
-      dfs(i + 1);
-      path.pop();
-    }
-  };
-  dfs(0);
-  return out;
+    stack.push(i);
+  }
+  return total;
 }
 ```

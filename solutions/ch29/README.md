@@ -1,99 +1,65 @@
-# Chapter 29 — Behavioral & Product Critique Rubrics
+# Chapter 29 — Solution Index
 
-Rubrics and exemplars for practice in [`book/part-viii/29-behavioral-product-fintech.md`](../../book/part-viii/29-behavioral-product-fintech.md). Grade your drafts harshly; fintech panels will.
+Full worked solutions live inline in [`book/part-viii/29-interview-questions.md`](../../book/part-viii/29-interview-questions.md). This file is a navigation index plus condensed “remember this” notes for timed review.
 
----
+| # | Title | Topic | Languages in chapter | Pattern |
+|---|-------|-------|----------------------|---------|
+| [Q1](../../book/part-viii/29-interview-questions-q01-q10.md#q1-two-sum-cart-sku-pair) | Two Sum | Hashing | 4 | `map value→index` |
+| [Q2](../../book/part-viii/29-interview-questions-q01-q10.md#q2-contains-duplicate-dedupe-guard) | Contains Duplicate | Hashing | 4 | Hash set |
+| [Q3](../../book/part-viii/29-interview-questions-q01-q10.md#q3-group-anagrams-facet-grouping) | Group Anagrams | Hashing | 4 | Sorted / count key |
+| [Q4](../../book/part-viii/29-interview-questions-q01-q10.md#q4-top-k-frequent-elements) | Top K Frequent | Hash + buckets | 4 | Bucket by freq |
+| [Q5](../../book/part-viii/29-interview-questions-q01-q10.md#q5-subarray-sum-equals-k) | Subarray Sum = K | Prefix + hash | 4 | `count[p-k]` |
+| [Q6](../../book/part-viii/29-interview-questions-q01-q10.md#q6-valid-parentheses-schema--deep-link-path) | Valid Parentheses | Stack | 4 | Match on pop |
+| [Q7](../../book/part-viii/29-interview-questions-q01-q10.md#q7-min-stack-debug-overlay) | Min Stack | Stack | 4 | Store minSoFar |
+| [Q8](../../book/part-viii/29-interview-questions-q01-q10.md#q8-sliding-window-maximum-scroll-velocity) | Sliding Window Max | Deque | 4 | Monotonic deque |
+| [Q9](../../book/part-viii/29-interview-questions-q01-q10.md#q9-recent-searches-ring-buffer) | Recent Searches | Queue + set | 4 | Bounded unique ring |
+| [Q10](../../book/part-viii/29-interview-questions-q01-q10.md#q10-reverse-linked-list) | Reverse List | Linked list | 4 | Three pointers |
+| [Q11](../../book/part-viii/29-interview-questions-q11-q20.md#q11-linked-list-cycle-floyd) | Linked List Cycle | Linked list | 4 | Floyd |
+| [Q12](../../book/part-viii/29-interview-questions-q11-q20.md#q12-merge-two-sorted-lists) | Merge Two Lists | Linked list | 4 | Dummy head |
+| [Q13](../../book/part-viii/29-interview-questions-q11-q20.md#q13-maximum-depth-of-binary-tree) | Max Depth | Trees | 4 | DFS height |
+| [Q14](../../book/part-viii/29-interview-questions-q11-q20.md#q14-invert-binary-tree) | Invert Tree | Trees | 4 | Swap children |
+| [Q15](../../book/part-viii/29-interview-questions-q11-q20.md#q15-validate-bst) | Validate BST | Trees | 4 | Range DFS |
+| [Q16](../../book/part-viii/29-interview-questions-q11-q20.md#q16-binary-tree-level-order) | Level Order | Trees | 4 | BFS by size |
+| [Q17](../../book/part-viii/29-interview-questions-q11-q20.md#q17-lowest-common-ancestor-of-bst) | LCA of BST | Trees | 4 | Walk by order |
+| [Q18](../../book/part-viii/29-interview-questions-q11-q20.md#q18-binary-search) | Binary Search | Binary search | 4 | Mid compare |
+| [Q19](../../book/part-viii/29-interview-questions-q11-q20.md#q19-search-insert-position-lower-bound) | Search Insert | Binary search | 4 | Lower bound |
+| [Q20](../../book/part-viii/29-interview-questions-q11-q20.md#q20-find-peak-element) | Find Peak | Binary search | 4 | Slope climb |
+| [Q21](../../book/part-viii/29-interview-questions-q21-q30.md#q21-number-of-provinces-connected-components) | Provinces | Graphs | Kotlin+Swift | DFS components |
+| [Q22](../../book/part-viii/29-interview-questions-q21-q30.md#q22-clone-graph) | Clone Graph | Graphs | Dart+TS | Map old→new |
+| [Q23](../../book/part-viii/29-interview-questions-q21-q30.md#q23-course-schedule-cycle-detect) | Course Schedule | Graphs | Kotlin+Swift | Kahn topo |
+| [Q24](../../book/part-viii/29-interview-questions-q21-q30.md#q24-shortest-path-in-unweighted-graph) | Shortest Path | Graphs | Dart+TS | BFS layers |
+| [Q25](../../book/part-viii/29-interview-questions-q21-q30.md#q25-kth-largest-element) | Kth Largest | Heaps | Kotlin+Swift | Size-k min-heap |
+| [Q26](../../book/part-viii/29-interview-questions-q21-q30.md#q26-merge-k-sorted-lists-feed-merge) | Merge K Lists | Heaps | Dart+TS | Pairwise / heap |
+| [Q27](../../book/part-viii/29-interview-questions-q21-q30.md#q27-meeting-rooms--min-platforms-heap) | Meeting Rooms | Heaps | Kotlin+Swift | Ends min-heap |
+| [Q28](../../book/part-viii/29-interview-questions-q21-q30.md#q28-climbing-stairs) | Climbing Stairs | DP | Dart+TS | Fibonacci roll |
+| [Q29](../../book/part-viii/29-interview-questions-q21-q30.md#q29-house-robber) | House Robber | DP | Kotlin+Swift | Adjacent skip |
+| [Q30](../../book/part-viii/29-interview-questions-q21-q30.md#q30-coin-change) | Coin Change | DP | Dart+TS | Unbounded knapsack |
+| [Q31](../../book/part-viii/29-interview-questions-q31-q40.md#q31-unique-paths) | Unique Paths | DP | Kotlin+Swift | Grid DP 1D |
+| [Q32](../../book/part-viii/29-interview-questions-q31-q40.md#q32-first-unique-character) | First Unique Char | Strings | Dart+TS | Freq + scan |
+| [Q33](../../book/part-viii/29-interview-questions-q31-q40.md#q33-longest-substring-without-repeating-characters) | Longest Substring | Strings | Kotlin+Swift | Sliding window |
+| [Q34](../../book/part-viii/29-interview-questions-q31-q40.md#q34-reverse-words-in-a-string) | Reverse Words | Strings | Dart+TS | Split / reverse |
+| [Q35](../../book/part-viii/29-interview-questions-q31-q40.md#q35-implement-trie-autocomplete-core) | Trie | Strings | Kotlin+Swift | Prefix tree |
+| [Q36](../../book/part-viii/29-interview-questions-q31-q40.md#q36-lru-cache) | LRU Cache | Design | Kotlin+Swift | Map + DLL |
+| [Q37](../../book/part-viii/29-interview-questions-q31-q40.md#q37-thread-safe-request-coalescer-single-flight) | Coalescer | Concurrency | Dart+TS | Inflight map |
+| [Q38](../../book/part-viii/29-interview-questions-q31-q40.md#q38-token-bucket-rate-limiter) | Token Bucket | Design | Kotlin+Swift | Refill tokens |
+| [Q39](../../book/part-viii/29-interview-questions-q31-q40.md#q39-navigation-back-stack) | Nav Stack | Design | Dart+TS | Array stack |
+| [Q40](../../book/part-viii/29-interview-questions-q31-q40.md#q40-debounced-search-index-query) | Debounced Search | Design | Kotlin+Swift | Gen token |
 
-## Rubric A — STAR stories (each story, 10 points)
+## Flash cards (say aloud)
 
-| Criterion | Pts | Full marks |
-|-----------|-----|------------|
-| Clear Situation + your Task | 2 | One breath of context; *your* job stated |
-| Actions are concrete and yours | 3 | Verbs: shipped, mitigated, measured, decided — not “we somehow” |
-| Money / trust impact named | 2 | Users, funds, data exposure, or abuse vector |
-| Result + prevention | 2 | Outcome + durable control (test, flag, audit, runbook) |
-| Honest scope | 1 | No legal bluff; no invented heroics |
+1. **Two Sum / cart** — hash complement.  
+2. **Window max** — monotonic deque of indices.  
+3. **BFS shortest** — mark seen on enqueue.  
+4. **BST validate** — tighten `(lo, hi)`, not parent-only.  
+5. **LRU** — map + DLL (or access-order LinkedHashMap).  
+6. **Single-flight** — map key → shared future; delete in finally.  
+7. **Kth largest** — size-k min-heap.  
+8. **Coin change** — DP over amounts when greedy lies.
 
-**8–10** reusable in onsite · **5–7** tighten Actions/Result · **&lt;5** rebuild from a real incident.
+## Counts
 
-### Mapping check
+- **40** interview questions with worked solutions  
+- **20** with full Kotlin + Swift + Dart + TypeScript  
+- **20** with two-language solutions (still complete approach + complexity)
 
-Your three stories should cover **trust**, **incident**, and **disagreement or ownership** without triple-counting the same anecdote unless you clearly reframe the lens.
-
----
-
-## Rubric B — Product answers (each, 10 points)
-
-| Criterion | Pts | Full marks |
-|-----------|-----|------------|
-| User harm | 2 | Who hurt, how severe |
-| Money movement | 2 | Display vs commit; pending vs settled |
-| Failure modes | 2 | ≥2 realistic failures with handling |
-| Metrics | 2 | At least one leading indicator + one safety metric |
-| Rollout | 2 | Flag / % / kill switch / support note |
-
-**Missing server authority or idempotency on a Pay question → cap at 6.**
-
----
-
-## Exemplar STAR (trust / money risk)
-
-Use as a **shape**, not a script to memorize verbatim. Replace with your facts.
-
-> **Situation:** On our wallet app, a release made the home balance call race with an older cached ledger endpoint after refunds.  
-> **Task:** I owned the Android wallet home; support flagged ~1.5k tickets of “refund succeeded but balance low.”  
-> **Action:** I treated it as sev-2 money display. We shipped a kill switch that forced network refresh and hid the optimistic cache path. I added single-flight + `updated_at` monotonic commits so stale responses could not overwrite newer balances. I paired with backend to confirm refunds were settled in ledger (they were) — so we did not re-credit client-side. I wrote a short support macro with `txn_id` + last sync time.  
-> **Result:** Ticket volume dropped within a day of the flag; we kept the monotonic watermark in the permanent client. Postmortem added a screenshot test for “refund settled → balance refresh” and a metric on `balance_cache_rollback_count`.
-
-**Why it scores:** impact sized, mitigation ≠ fake money, prevention named, no statute cosplay.
-
----
-
-## Exemplar product answer (Pay tapped twice)
-
-> **Harm:** Double charge destroys trust faster than almost any UI polish.  
-> **Money movement:** `POST /payments` can commit a hold/charge — this is not a display-only tap.  
-> **Failures:** (1) Double tap → disable button + ignore re-entry while in-flight. (2) Retry after timeout → same Idempotency-Key; never mint a new key unless user explicitly retries after *terminal* failure. (3) Process death mid-flight → persist `payment_id` / key; resume with GET. (4) 3DS return → re-fetch status; do not trust URL flags.  
-> **Metrics:** duplicate `payment_id` per order ≈ 0; rate of idempotent replays; payment success rate; time-in-`processing`. Alert on multi-success per `order_id`.  
-> **Rollout:** Ship client guards + verify server idempotency in staging with chaos double-POST; feature-flag any new PSP path; kill switch to force “check status” CTA if create error spikes; support playbook keyed by `order_id`.
-
-**Why it scores:** full framework, server+client, metrics, rollout.
-
----
-
-## Weak patterns to edit out
-
-- “I’d check with legal” as the *entire* answer (escalate, then list controls).
-- Success animation before terminal status.
-- Optimistic balance without reconciliation.
-- Debounce-only double-charge defense.
-- LWW on amounts.
-- Blaming QA / PM with no ownership move.
-
----
-
-## Self-Check answer key
-
-**29.1** Mitigation (stop bleeding), fix/root cause, prevention (guardrail / process).
-
-**29.2** Debounce is same-process UX only; duplicates still happen via retries, timeouts, and process death — need idempotency and status resume.
-
-**29.3** Examples: no PAN/CVV storage; scrub PII from logs; short-lived tokens; mask account numbers; minimize analytics properties.
-
-**29.4** Hint → trigger fetch/upsert. Source of truth → authoritative money/state (should be server). Pushes can drop, delay, or duplicate.
-
-**29.5** Decline to assert law; say you’d implement compliance/risk guidance with engineering controls (minimize data, audit, least privilege, PSP tokenization) and escalate policy questions.
-
----
-
-## Practice submission checklist
-
-- [ ] 3 STARs, each ≤200 words, each scored with Rubric A  
-- [ ] 2 product answers using harm → money → failures → metrics → rollout  
-- [ ] Each product answer names at least one kill switch or flag  
-- [ ] Zero PAN-at-rest proposals  
-- [ ] Recorded once aloud under 90 seconds per product answer  
-
----
-
-Back: [Chapter 29](../../book/part-viii/29-behavioral-product-fintech.md)
+Back: [Chapter 29](../../book/part-viii/29-interview-questions.md) · Next projects: [Chapter 38](../../book/part-viii/38-mini-projects.md)

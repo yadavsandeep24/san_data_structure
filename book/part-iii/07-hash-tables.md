@@ -80,7 +80,7 @@ Three patterns you will ship constantly:
 
 1. **Lookup table** — `id → model` after decoding a list once; bind uses map, not `list.find`.
 2. **Dedup** — `seen.add(id)` / `if (id in map) skip` while merging paginated pages.
-3. **Memo / cache** — `key → expensiveResult` with size cap or TTL (pair with Chapter 12).
+3. **Memo / cache** — `key → expensiveResult` with size cap or TTL (pair with Chapter 18).
 
 **Kotlin**
 
@@ -318,7 +318,7 @@ When product requirements say “settings appear in the order we registered them
 **Kotlin**
 
 ```kotlin
-// Sketch: id → node, plus doubly linked list for LRU order (Chapter 12 expands this)
+// Sketch: id → node, plus doubly linked list for LRU order (Chapter 18 expands this)
 class LruSketch<K, V>(private val capacity: Int) {
     private val map = LinkedHashMap<K, V>(capacity, 0.75f, /* accessOrder */ true)
     fun get(key: K): V? = map[key]
@@ -336,7 +336,7 @@ class LruSketch<K, V>(private val capacity: Int) {
 
 ```swift
 // Sketch: Dictionary has no access order — keep keys in recency order
-// (O(n) reorder here; Chapter 12's map + linked list makes it O(1))
+// (O(n) reorder here; Chapter 18's map + linked list makes it O(1))
 final class LruSketch<K: Hashable, V> {
     private let capacity: Int
     private var map: [K: V] = [:]
@@ -437,7 +437,24 @@ class LruSketch<K, V> {
 ## Practice
 
 1. **Two Sum** — return indices of two numbers that add to `target` — [solutions/ch07](../../solutions/ch07/README.md#p1-two-sum)
-2. **Group by key / frequency** — group anagrams or count frequencies then emit groups — [solutions/ch07](../../solutions/ch07/README.md#p2-group-by-key-frequency)
+2. **Group by key / frequency** — group anagrams or count frequencies then emit groups — [solutions/ch07](../../solutions/ch07/README.md#p2-group-by-key--frequency)
 3. **First unique character** — first index whose character appears once — [solutions/ch07](../../solutions/ch07/README.md#p3-first-unique-character)
 
-Back: [Chapter 6 — Queues](../part-ii/06-queues-deques.md) · Next: [Chapter 8 — Sets](08-sets.md)
+### More practice
+
+- [Ch 29 — Interview Questions, Q1–Q10](../part-viii/29-interview-questions-q01-q10.md): Q1 Two Sum · Q2 Contains Duplicate · Q3 Group Anagrams · Q4 Top K Frequent · Q5 Subarray Sum Equals K
+- [Ch 29 — Interview Questions, Q31–Q40](../part-viii/29-interview-questions-q31-q40.md): Q32 First Unique Character
+- [Ch 31 — Arrays, Hashing & Matrix](../part-viii/31-arrays-hashing-matrix.md): Q2 Valid Sudoku · Q3 Encode and Decode Strings
+- [Ch 30 — Hard Drill Bank, Q1–Q10](../part-viii/30-hard-drill-bank-q01-q10.md): Q3 Longest Consecutive Sequence
+- [Ch 42 — Document & Signing Drills, Q1–Q7](../part-ix/42-document-signing-drill-bank-q01-q07.md): Q2 Normalize Signer Names
+- Prefix values in a hash map (subarray sums with negatives): [Chapter 15 — Prefix Sums](../part-iv/15-prefix-sums.md).
+
+---
+
+## What to remember
+
+A hash table gives O(1) average lookup, insert and delete by turning a key into an array index. Its correctness depends on `equals`/`hashCode` (or `Hashable`/`==`) agreeing and on keys not changing while stored. It is the default answer for "have I seen this?", "how many of each?" and "where is the partner?". Mention the average-vs-worst case, choose an ordered map when display order matters, and remember that a map of big objects is a memory cost on device.
+
+---
+
+Previous: [Chapter 6 — Queues and Deques](../part-ii/06-queues-deques.md) · Next: [Chapter 8 — Sets](08-sets.md) · Solutions: [`solutions/ch07`](../../solutions/ch07/README.md)

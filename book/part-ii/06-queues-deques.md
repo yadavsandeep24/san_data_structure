@@ -271,7 +271,23 @@ A queue drives breadth-first traversal: enqueue root; while not empty, dequeue, 
 ## Practice
 
 1. **Implement a queue with two stacks** — [solutions/ch06](../../solutions/ch06/README.md#p1-queue-with-two-stacks)
-2. **Sliding window maximum** *(or binary tree level-order as BFS preview)* — [solutions/ch06](../../solutions/ch06/README.md#p2-sliding-window-maximum-level-order)
+2. **Sliding window maximum** *(or binary tree level-order as BFS preview)* — [solutions/ch06](../../solutions/ch06/README.md#p2-sliding-window-maximum--level-order)
 3. **Design a bounded request queue with a drop policy** — [solutions/ch06](../../solutions/ch06/README.md#p3-bounded-request-queue-with-drop-policy)
 
-Back: [Chapter 5 — Stacks](05-stacks.md) · Next: [Chapter 7 — Hash Tables](../part-iii/07-hash-tables.md)
+### More practice
+
+- [Ch 29 — Interview Questions, Q1–Q10](../part-viii/29-interview-questions-q01-q10.md): Q8 Sliding Window Maximum · Q9 Recent Searches Ring Buffer
+- [Ch 29 — Interview Questions, Q31–Q40](../part-viii/29-interview-questions-q31-q40.md): Q38 Token Bucket Rate Limiter
+- [Ch 30 — Hard Drill Bank, Q11–Q20](../part-viii/30-hard-drill-bank-q11-q20.md): Q19 Design Hit Counter
+- [Ch 36 — Graphs & Dynamic Programming](../part-viii/36-graphs-dynamic-programming.md): Q2 Rotting Oranges (multi-source BFS queue)
+- Windows over a queue of recent items: [Chapter 14 — Sliding Window](../part-iv/14-sliding-window.md) and [Chapter 16 — Monotonic Stack & Deque](../part-iv/16-monotonic-stack-deque.md).
+
+---
+
+## What to remember
+
+Queues are first-in, first-out. Deques add O(1) at both ends. Use a ring buffer or `ArrayDeque`, never `removeAt(0)` / `shift()` on an array, which is O(n). On mobile, queues model request pipelines, upload retries, recent-items lists and BFS. Bound them and choose a drop policy (oldest, newest or reject) so a slow network can't grow memory without limit.
+
+---
+
+Previous: [Chapter 5 — Stacks](05-stacks.md) · Next: [Chapter 7 — Hash Tables (HashMap / Dictionary / Map)](../part-iii/07-hash-tables.md) · Solutions: [`solutions/ch06`](../../solutions/ch06/README.md)

@@ -1,65 +1,263 @@
-# Chapter 24 — Solution Index
+# Chapter 24 — Model Solutions
 
-Full worked solutions live inline in [`book/part-vii/24-interview-questions.md`](../../book/part-vii/24-interview-questions.md). This file is a navigation index plus condensed “remember this” notes for timed review.
+Model solutions for Chapter 24 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
 
-| # | Title | Topic | Languages in chapter | Pattern |
-|---|-------|-------|----------------------|---------|
-| [Q1](../../book/part-vii/24-interview-questions.md#q1-two-sum-cart-sku-pair) | Two Sum | Hashing | 4 | `map value→index` |
-| [Q2](../../book/part-vii/24-interview-questions.md#q2-contains-duplicate-dedupe-guard) | Contains Duplicate | Hashing | 4 | Hash set |
-| [Q3](../../book/part-vii/24-interview-questions.md#q3-group-anagrams-facet-grouping) | Group Anagrams | Hashing | 4 | Sorted / count key |
-| [Q4](../../book/part-vii/24-interview-questions.md#q4-top-k-frequent-elements) | Top K Frequent | Hash + buckets | 4 | Bucket by freq |
-| [Q5](../../book/part-vii/24-interview-questions.md#q5-subarray-sum-equals-k) | Subarray Sum = K | Prefix + hash | 4 | `count[p-k]` |
-| [Q6](../../book/part-vii/24-interview-questions.md#q6-valid-parentheses-schema-deep-link-path) | Valid Parentheses | Stack | 4 | Match on pop |
-| [Q7](../../book/part-vii/24-interview-questions.md#q7-min-stack-debug-overlay) | Min Stack | Stack | 4 | Store minSoFar |
-| [Q8](../../book/part-vii/24-interview-questions.md#q8-sliding-window-maximum-scroll-velocity) | Sliding Window Max | Deque | 4 | Monotonic deque |
-| [Q9](../../book/part-vii/24-interview-questions.md#q9-recent-searches-ring-buffer) | Recent Searches | Queue + set | 4 | Bounded unique ring |
-| [Q10](../../book/part-vii/24-interview-questions.md#q10-reverse-linked-list) | Reverse List | Linked list | 4 | Three pointers |
-| [Q11](../../book/part-vii/24-interview-questions.md#q11-linked-list-cycle-floyd) | Linked List Cycle | Linked list | 4 | Floyd |
-| [Q12](../../book/part-vii/24-interview-questions.md#q12-merge-two-sorted-lists) | Merge Two Lists | Linked list | 4 | Dummy head |
-| [Q13](../../book/part-vii/24-interview-questions.md#q13-maximum-depth-of-binary-tree) | Max Depth | Trees | 4 | DFS height |
-| [Q14](../../book/part-vii/24-interview-questions.md#q14-invert-binary-tree) | Invert Tree | Trees | 4 | Swap children |
-| [Q15](../../book/part-vii/24-interview-questions.md#q15-validate-bst) | Validate BST | Trees | 4 | Range DFS |
-| [Q16](../../book/part-vii/24-interview-questions.md#q16-binary-tree-level-order) | Level Order | Trees | 4 | BFS by size |
-| [Q17](../../book/part-vii/24-interview-questions.md#q17-lowest-common-ancestor-of-bst) | LCA of BST | Trees | 4 | Walk by order |
-| [Q18](../../book/part-vii/24-interview-questions.md#q18-binary-search) | Binary Search | Binary search | 4 | Mid compare |
-| [Q19](../../book/part-vii/24-interview-questions.md#q19-search-insert-position-lower-bound) | Search Insert | Binary search | 4 | Lower bound |
-| [Q20](../../book/part-vii/24-interview-questions.md#q20-find-peak-element) | Find Peak | Binary search | 4 | Slope climb |
-| [Q21](../../book/part-vii/24-interview-questions.md#q21-number-of-provinces-connected-components) | Provinces | Graphs | Kotlin+Swift | DFS components |
-| [Q22](../../book/part-vii/24-interview-questions.md#q22-clone-graph) | Clone Graph | Graphs | Dart+TS | Map old→new |
-| [Q23](../../book/part-vii/24-interview-questions.md#q23-course-schedule-cycle-detect) | Course Schedule | Graphs | Kotlin+Swift | Kahn topo |
-| [Q24](../../book/part-vii/24-interview-questions.md#q24-shortest-path-in-unweighted-graph) | Shortest Path | Graphs | Dart+TS | BFS layers |
-| [Q25](../../book/part-vii/24-interview-questions.md#q25-kth-largest-element) | Kth Largest | Heaps | Kotlin+Swift | Size-k min-heap |
-| [Q26](../../book/part-vii/24-interview-questions.md#q26-merge-k-sorted-lists-feed-merge) | Merge K Lists | Heaps | Dart+TS | Pairwise / heap |
-| [Q27](../../book/part-vii/24-interview-questions.md#q27-meeting-rooms-min-platforms-heap) | Meeting Rooms | Heaps | Kotlin+Swift | Ends min-heap |
-| [Q28](../../book/part-vii/24-interview-questions.md#q28-climbing-stairs) | Climbing Stairs | DP | Dart+TS | Fibonacci roll |
-| [Q29](../../book/part-vii/24-interview-questions.md#q29-house-robber) | House Robber | DP | Kotlin+Swift | Adjacent skip |
-| [Q30](../../book/part-vii/24-interview-questions.md#q30-coin-change) | Coin Change | DP | Dart+TS | Unbounded knapsack |
-| [Q31](../../book/part-vii/24-interview-questions.md#q31-unique-paths) | Unique Paths | DP | Kotlin+Swift | Grid DP 1D |
-| [Q32](../../book/part-vii/24-interview-questions.md#q32-first-unique-character) | First Unique Char | Strings | Dart+TS | Freq + scan |
-| [Q33](../../book/part-vii/24-interview-questions.md#q33-longest-substring-without-repeating-characters) | Longest Substring | Strings | Kotlin+Swift | Sliding window |
-| [Q34](../../book/part-vii/24-interview-questions.md#q34-reverse-words-in-a-string) | Reverse Words | Strings | Dart+TS | Split / reverse |
-| [Q35](../../book/part-vii/24-interview-questions.md#q35-implement-trie-autocomplete-core) | Trie | Strings | Kotlin+Swift | Prefix tree |
-| [Q36](../../book/part-vii/24-interview-questions.md#q36-lru-cache) | LRU Cache | Design | Kotlin+Swift | Map + DLL |
-| [Q37](../../book/part-vii/24-interview-questions.md#q37-thread-safe-request-coalescer-single-flight) | Coalescer | Concurrency | Dart+TS | Inflight map |
-| [Q38](../../book/part-vii/24-interview-questions.md#q38-token-bucket-rate-limiter) | Token Bucket | Design | Kotlin+Swift | Refill tokens |
-| [Q39](../../book/part-vii/24-interview-questions.md#q39-navigation-back-stack) | Nav Stack | Design | Dart+TS | Array stack |
-| [Q40](../../book/part-vii/24-interview-questions.md#q40-debounced-search-index-query) | Debounced Search | Design | Kotlin+Swift | Gen token |
+Problems are defined in [`book/part-vi/24-dynamic-programming.md`](../../book/part-vi/24-dynamic-programming.md).
 
-## Flash cards (say aloud)
+---
 
-1. **Two Sum / cart** — hash complement.  
-2. **Window max** — monotonic deque of indices.  
-3. **BFS shortest** — mark seen on enqueue.  
-4. **BST validate** — tighten `(lo, hi)`, not parent-only.  
-5. **LRU** — map + DLL (or access-order LinkedHashMap).  
-6. **Single-flight** — map key → shared future; delete in finally.  
-7. **Kth largest** — size-k min-heap.  
-8. **Coin change** — DP over amounts when greedy lies.
+## P1: Climbing stairs
 
-## Counts
+### Approach
 
-- **40** interview questions with worked solutions  
-- **20** with full Kotlin + Swift + Dart + TypeScript  
-- **20** with two-language solutions (still complete approach + complexity)
+Linear DP / Fibonacci: `dp[i] = dp[i-1] + dp[i-2]` with `dp[1]=1`, `dp[2]=2`. Roll two variables to use O(1) space. Iterative — no recursion stack.
 
-Back: [Chapter 24](../../book/part-vii/24-interview-questions.md) · Next projects: [Chapter 25](../../book/part-vii/25-mini-projects.md)
+### Complexity
+
+- Time: O(n)
+- Space: O(1)
+
+### Edge cases
+
+- `n == 1` or `2`
+- Large `n` — watch 32-bit overflow if the problem asks for full integer count; Kotlin/Swift `Int` may overflow; use wider type if required
+
+### Mobile note
+
+Teaching example. Unlikely to appear as stairs in product code; the pattern matches “number of ways to schedule two-length actions.” Prefer closed form or matrix exponentiation only if n is huge and you need exact counts.
+
+### Kotlin
+
+```kotlin
+fun climbStairs(n: Int): Int {
+    if (n <= 2) return n
+    var a = 1
+    var b = 2
+    repeat(n - 2) {
+        val c = a + b
+        a = b
+        b = c
+    }
+    return b
+}
+```
+
+### Swift
+
+```swift
+func climbStairs(_ n: Int) -> Int {
+    if n <= 2 { return n }
+    var a = 1, b = 2
+    for _ in 3...n {
+        let c = a + b
+        a = b
+        b = c
+    }
+    return b
+}
+```
+
+### Dart
+
+```dart
+int climbStairs(int n) {
+  if (n <= 2) return n;
+  var a = 1, b = 2;
+  for (var i = 3; i <= n; i++) {
+    final c = a + b;
+    a = b;
+    b = c;
+  }
+  return b;
+}
+```
+
+### TypeScript
+
+```typescript
+function climbStairs(n: number): number {
+  if (n <= 2) return n;
+  let a = 1, b = 2;
+  for (let i = 3; i <= n; i++) {
+    const c = a + b;
+    a = b;
+    b = c;
+  }
+  return b;
+}
+```
+
+---
+
+## P2: House robber
+
+### Approach
+
+`dp[i] = max(dp[i-1], dp[i-2] + nums[i])` — skip current vs rob current (+ best two back). Implement with two rolling variables `prev2`, `prev1`.
+
+### Complexity
+
+- Time: O(n)
+- Space: O(1)
+
+### Edge cases
+
+- Empty → 0
+- Single house
+- Two houses → max of them
+- Zeros / all equal
+
+### Mobile note
+
+Interview classic. Product analogues (pick non-adjacent notification slots, non-adjacent ad placements) exist but usually need extra constraints — do not force this recurrence onto layout.
+
+### Kotlin
+
+```kotlin
+fun rob(nums: IntArray): Int {
+    var prev2 = 0
+    var prev1 = 0
+    for (x in nums) {
+        val cur = maxOf(prev1, prev2 + x)
+        prev2 = prev1
+        prev1 = cur
+    }
+    return prev1
+}
+```
+
+### Swift
+
+```swift
+func rob(_ nums: [Int]) -> Int {
+    var prev2 = 0, prev1 = 0
+    for x in nums {
+        let cur = max(prev1, prev2 + x)
+        prev2 = prev1
+        prev1 = cur
+    }
+    return prev1
+}
+```
+
+### Dart
+
+```dart
+int rob(List<int> nums) {
+  var prev2 = 0, prev1 = 0;
+  for (final x in nums) {
+    final cur = prev1 > prev2 + x ? prev1 : prev2 + x;
+    prev2 = prev1;
+    prev1 = cur;
+  }
+  return prev1;
+}
+```
+
+### TypeScript
+
+```typescript
+function rob(nums: number[]): number {
+  let prev2 = 0, prev1 = 0;
+  for (const x of nums) {
+    const cur = Math.max(prev1, prev2 + x);
+    prev2 = prev1;
+    prev1 = cur;
+  }
+  return prev1;
+}
+```
+
+---
+
+## P3: Coin change (fewest coins)
+
+### Approach
+
+Tabulation: `dp[x] = minimum coins to make amount x`. Initialize `dp[0] = 0`, others to `amount + 1` (sentinel “infinity”). For each amount `x` from 1..amount, for each coin `c <= x`, set `dp[x] = min(dp[x], dp[x - c] + 1)`. If `dp[amount]` still sentinel, return `-1`.
+
+This is correct for arbitrary denominations (unlike greedy).
+
+### Complexity
+
+- Time: O(amount · coins)
+- Space: O(amount)
+
+### Edge cases
+
+- `amount == 0` → 0
+- Impossible amount → `-1`
+- Single coin equals amount
+- Coin larger than amount (ignored)
+- Many small coins — table size dominates memory; bound amount on device
+
+### Mobile note
+
+Use for loyalty-point redemption math with weird denominations. Keep `amount` modest (e.g. ≤ 10⁴–10⁵). Huge amounts belong on the backend. Do not run nested loops on the UI thread for large tables.
+
+### Kotlin
+
+```kotlin
+fun coinChange(coins: IntArray, amount: Int): Int {
+    val inf = amount + 1
+    val dp = IntArray(amount + 1) { inf }
+    dp[0] = 0
+    for (x in 1..amount) {
+        for (c in coins) {
+            if (c <= x) dp[x] = minOf(dp[x], dp[x - c] + 1)
+        }
+    }
+    return if (dp[amount] >= inf) -1 else dp[amount]
+}
+```
+
+### Swift
+
+```swift
+func coinChange(_ coins: [Int], _ amount: Int) -> Int {
+    let inf = amount + 1
+    var dp = Array(repeating: inf, count: amount + 1)
+    dp[0] = 0
+    if amount == 0 { return 0 }
+    for x in 1...amount {
+        for c in coins where c <= x {
+            dp[x] = min(dp[x], dp[x - c] + 1)
+        }
+    }
+    return dp[amount] >= inf ? -1 : dp[amount]
+}
+```
+
+### Dart
+
+```dart
+int coinChange(List<int> coins, int amount) {
+  final inf = amount + 1;
+  final dp = List<int>.filled(amount + 1, inf);
+  dp[0] = 0;
+  for (var x = 1; x <= amount; x++) {
+    for (final c in coins) {
+      if (c <= x && dp[x - c] + 1 < dp[x]) {
+        dp[x] = dp[x - c] + 1;
+      }
+    }
+  }
+  return dp[amount] >= inf ? -1 : dp[amount];
+}
+```
+
+### TypeScript
+
+```typescript
+function coinChange(coins: number[], amount: number): number {
+  const inf = amount + 1;
+  const dp = Array(amount + 1).fill(inf);
+  dp[0] = 0;
+  for (let x = 1; x <= amount; x++) {
+    for (const c of coins) {
+      if (c <= x) dp[x] = Math.min(dp[x], dp[x - c] + 1);
+    }
+  }
+  return dp[amount] >= inf ? -1 : dp[amount];
+}
+```

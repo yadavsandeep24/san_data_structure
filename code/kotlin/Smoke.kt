@@ -1,4 +1,4 @@
-// Smoke entry for kotlinc jar (Chapter 3 + 18 samples)
+// Smoke entry for kotlinc jar (Chapter 3 + 12 samples)
 fun main() {
     val u = uniquePreserveOrder(listOf("a", "b", "a", "c"))
     check(u == listOf("a", "b", "c")) { "unique $u" }

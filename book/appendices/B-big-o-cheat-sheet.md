@@ -82,4 +82,4 @@ Quick reference for interviews and code review. Assume average-case for hash str
 | T(n) = T(n−1) + O(1) | O(n) |
 | T(n) = T(n−1) + T(n−2) + O(1) | O(φⁿ) without memo; O(n) with DP |
 
-Keep this sheet open while drilling Chapter 24. Next: [Appendix C — Collections Internals](C-collections-internals.md).
+Keep this sheet open while drilling Chapter 29. Next: [Appendix C — Collections Internals](C-collections-internals.md).

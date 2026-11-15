@@ -131,7 +131,7 @@ If step 2 calls `selected.contains(id)` on a list, you reintroduce Chapter 1’s
 2. **Using arrays for mid-list deletes at scale** — each remove shifts; batch or rethink representation.
 3. **Ignoring capacity** — parsing 50k JSON objects into a default-growth list causes repeated copies and GC churn.
 4. **Mutating the array FlatList/RecyclerView is iterating** without a coherent diff — crashes or blank frames. (Compose's `LazyColumn` fails differently: an in-place mutation of a plain list is simply not observed — publish a new list.)
-5. **Storing heavy objects** (bitmaps, full subgraphs) directly in the scrolling array — store IDs, cache payloads elsewhere (Chapter 12).
+5. **Storing heavy objects** (bitmaps, full subgraphs) directly in the scrolling array — store IDs, cache payloads elsewhere (Chapter 18).
 
 ---
 
@@ -151,7 +151,7 @@ Answers in Appendix D.
 
 ---
 
-## Practice Problems
+## Practice
 
 Full model solutions (Kotlin, Swift, Dart, TypeScript), complexity, edge cases, and mobile notes:
 
@@ -162,8 +162,18 @@ Full model solutions (Kotlin, Swift, Dart, TypeScript), complexity, edge cases, 
 
 Attempt both on paper first, then compare with the model solutions. Run a mental check: would your solution be safe to call on the main thread for n = 20 vs n = 200,000?
 
+### More practice
+
+- [Ch 31 — Arrays, Hashing & Matrix](../part-viii/31-arrays-hashing-matrix.md): Q1 Product of Array Except Self · Q5 Maximum Subarray · Q7 Set Matrix Zeroes · Q8 Spiral Matrix · Q10 First Missing Positive
+- [Ch 32 — Two Pointers, Windows & Intervals](../part-viii/32-two-pointers-windows-intervals.md): Q5 Best Time to Buy and Sell Stock
+- In-place array moves (read/write cursors, opposite ends) are taught properly in [Chapter 13 — Two Pointers](../part-iv/13-two-pointers.md).
+
 ---
 
 ## What to remember
 
 Arrays give O(1) indexing and excellent locality — the right backbone for almost every scrollable UI. Dynamic arrays make append cheap amortized and front mutation expensive. Size capacity when you know n, never prepend in a hot loop, and pair the ordered array with sets/maps for membership and lookup. Next chapters contrast this with linked lists and stacks — tools for when order of growth at the ends matters more than index speed.
+
+---
+
+Previous: [Chapter 2 — Big-O Notation — Understanding It Practically](../part-i/02-big-o-notation.md) · Next: [Chapter 4 — Linked Lists](04-linked-lists.md) · Solutions: [`solutions/ch03`](../../solutions/ch03/README.md)

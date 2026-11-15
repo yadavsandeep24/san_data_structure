@@ -1,529 +1,237 @@
-# Chapter 25 — Mini Project Reference Sketches
+# Chapter 25 — Model Solutions
 
-Condensed but usable architectures for the six projects in [`book/part-vii/25-mini-projects.md`](../../book/part-vii/25-mini-projects.md). Prefer production libraries where noted; these sketches teach the data structures.
+Model solutions for Chapter 25 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
+
+Problems are defined in [`book/part-vii/25-graphs-advanced.md`](../../book/part-vii/25-graphs-advanced.md).
 
 ---
 
-## P1. LRU Image Memory Cache
+## P1: Course schedule
 
-**Architecture:** `Map<Key, Node>` + doubly linked list (MRU at head, LRU at tail). `get`/`put` splice in O(1).
+### Approach
+
+Model courses `0..numCourses-1` as nodes; each prerequisite `[a, b]` means edge `b → a` (“b before a”). Run **Kahn’s topological sort**: queue all zero in-degree nodes, peel layers, decrement neighbors. If you process all courses, scheduling is possible; otherwise a cycle exists → `false`.
+
+### Complexity
+
+- Time: O(V + E) with V = numCourses, E = prerequisites
+- Space: O(V + E)
+
+### Edge cases
+
+- No prerequisites → `true`
+- Self-loop or mutual pair → `false`
+- Disconnected components (multiple zero in-degree starts)
+- Single course
+
+### Mobile note
+
+Feature-flag / module init order on app launch. Keep graphs small on device; large dependency resolution belongs in CI. Never run heavy graph builds on the UI thread at cold start without measuring.
 
 ### Kotlin
 
 ```kotlin
-class ImageLruCache(private val capacity: Int) {
-    private class Node(val key: String, var bytes: ByteArray) {
-        var prev: Node? = null; var next: Node? = null
+fun canFinish(numCourses: Int, prerequisites: Array<IntArray>): Boolean {
+    val g = Array(numCourses) { mutableListOf<Int>() }
+    val indeg = IntArray(numCourses)
+    for (p in prerequisites) {
+        val a = p[0]
+        val b = p[1]
+        g[b].add(a)
+        indeg[a]++
     }
-    private val map = HashMap<String, Node>()
-    private val head = Node("", ByteArray(0))
-    private val tail = Node("", ByteArray(0))
-    init { head.next = tail; tail.prev = head }
-
-    private fun remove(n: Node) { n.prev!!.next = n.next; n.next!!.prev = n.prev }
-    private fun addFront(n: Node) {
-        n.next = head.next; n.prev = head
-        head.next!!.prev = n; head.next = n
+    val q = ArrayDeque<Int>()
+    for (i in 0 until numCourses) if (indeg[i] == 0) q.add(i)
+    var seen = 0
+    while (q.isNotEmpty()) {
+        val u = q.removeFirst()
+        seen++
+        for (v in g[u]) if (--indeg[v] == 0) q.add(v)
     }
-
-    fun get(key: String): ByteArray? {
-        val n = map[key] ?: return null
-        remove(n); addFront(n); return n.bytes
-    }
-    fun put(key: String, bytes: ByteArray) {
-        map[key]?.let { remove(it); map.remove(key) }
-        val n = Node(key, bytes); addFront(n); map[key] = n
-        if (map.size > capacity) {
-            val lru = tail.prev!!; remove(lru); map.remove(lru.key)
-        }
-    }
+    return seen == numCourses
 }
 ```
 
 ### Swift
 
 ```swift
-final class ImageLruCache {
-    private final class Node {
-        let key: String; var bytes: Data
-        var prev: Node?; var next: Node?
-        init(_ key: String, _ bytes: Data) { self.key = key; self.bytes = bytes }
+func canFinish(_ numCourses: Int, _ prerequisites: [[Int]]) -> Bool {
+    var g = Array(repeating: [Int](), count: numCourses)
+    var indeg = Array(repeating: 0, count: numCourses)
+    for p in prerequisites {
+        let a = p[0], b = p[1]
+        g[b].append(a)
+        indeg[a] += 1
     }
-    private let capacity: Int
-    private var map: [String: Node] = [:]
-    private let head = Node("", Data()), tail = Node("", Data())
-    init(_ capacity: Int) {
-        self.capacity = capacity
-        head.next = tail; tail.prev = head
-    }
-    private func remove(_ n: Node) { n.prev?.next = n.next; n.next?.prev = n.prev }
-    private func addFront(_ n: Node) {
-        n.next = head.next; n.prev = head
-        head.next?.prev = n; head.next = n
-    }
-    func get(_ key: String) -> Data? {
-        guard let n = map[key] else { return nil }
-        remove(n); addFront(n); return n.bytes
-    }
-    func put(_ key: String, _ bytes: Data) {
-        if let n = map[key] { remove(n); map.removeValue(forKey: key) }
-        let n = Node(key, bytes); addFront(n); map[key] = n
-        if map.count > capacity, let lru = tail.prev {
-            remove(lru); map.removeValue(forKey: lru.key)
+    var q = indeg.indices.filter { indeg[$0] == 0 }
+    var head = 0, seen = 0
+    while head < q.count {
+        let u = q[head]; head += 1
+        seen += 1
+        for v in g[u] {
+            indeg[v] -= 1
+            if indeg[v] == 0 { q.append(v) }
         }
     }
+    return seen == numCourses
 }
 ```
 
 ### Dart
 
 ```dart
-class ImageLruCache {
-  ImageLruCache(this.capacity);
-  final int capacity;
-  final _map = <String, _Node>{};
-  final _head = _Node('', []);
-  final _tail = _Node('', []);
-  // wire head↔tail in constructor body if using late init pattern
-  void _ensure() {
-    _head.next ??= _tail;
-    _tail.prev ??= _head;
+bool canFinish(int numCourses, List<List<int>> prerequisites) {
+  final g = List.generate(numCourses, (_) => <int>[]);
+  final indeg = List.filled(numCourses, 0);
+  for (final p in prerequisites) {
+    final a = p[0], b = p[1];
+    g[b].add(a);
+    indeg[a]++;
   }
-  List<int>? get(String key) {
-    _ensure();
-    final n = _map[key];
-    if (n == null) return null;
-    _remove(n); _addFront(n);
-    return n.bytes;
-  }
-  void put(String key, List<int> bytes) {
-    _ensure();
-    final old = _map.remove(key);
-    if (old != null) _remove(old);
-    final n = _Node(key, bytes);
-    _addFront(n); _map[key] = n;
-    if (_map.length > capacity) {
-      final lru = _tail.prev!;
-      _remove(lru); _map.remove(lru.key);
+  final q = <int>[for (var i = 0; i < numCourses; i++) if (indeg[i] == 0) i];
+  var head = 0, seen = 0;
+  while (head < q.length) {
+    final u = q[head++];
+    seen++;
+    for (final v in g[u]) {
+      if (--indeg[v] == 0) q.add(v);
     }
   }
-  void _remove(_Node n) { n.prev!.next = n.next; n.next!.prev = n.prev; }
-  void _addFront(_Node n) {
-    n.next = _head.next; n.prev = _head;
-    _head.next!.prev = n; _head.next = n;
-  }
-}
-class _Node {
-  _Node(this.key, this.bytes);
-  final String key; List<int> bytes;
-  _Node? prev, next;
+  return seen == numCourses;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-class ImageLruCache {
-  private map = new Map<string, { key: string; bytes: Uint8Array; prev?: any; next?: any }>();
-  private head: any = { key: "", bytes: new Uint8Array() };
-  private tail: any = { key: "", bytes: new Uint8Array() };
-  constructor(private capacity: number) {
-    this.head.next = this.tail; this.tail.prev = this.head;
+function canFinish(numCourses: number, prerequisites: number[][]): boolean {
+  const g: number[][] = Array.from({ length: numCourses }, () => []);
+  const indeg = new Array(numCourses).fill(0);
+  for (const [a, b] of prerequisites) {
+    g[b].push(a);
+    indeg[a]++;
   }
-  private remove(n: any) { n.prev.next = n.next; n.next.prev = n.prev; }
-  private addFront(n: any) {
-    n.next = this.head.next; n.prev = this.head;
-    this.head.next.prev = n; this.head.next = n;
-  }
-  get(key: string): Uint8Array | undefined {
-    const n = this.map.get(key); if (!n) return;
-    this.remove(n); this.addFront(n); return n.bytes;
-  }
-  put(key: string, bytes: Uint8Array): void {
-    if (this.map.has(key)) { this.remove(this.map.get(key)); this.map.delete(key); }
-    const n = { key, bytes }; this.addFront(n); this.map.set(key, n as any);
-    if (this.map.size > this.capacity) {
-      const lru = this.tail.prev; this.remove(lru); this.map.delete(lru.key);
+  const q: number[] = [];
+  for (let i = 0; i < numCourses; i++) if (indeg[i] === 0) q.push(i);
+  let head = 0, seen = 0;
+  while (head < q.length) {
+    const u = q[head++];
+    seen++;
+    for (const v of g[u]) {
+      if (--indeg[v] === 0) q.push(v);
     }
   }
+  return seen === numCourses;
 }
 ```
 
-**Production note:** Prefer `LruCache` / Coil / SDWebImage / `cached_network_image` — still know the DLL+map interview form.
-
-**Android UI, both toolkits:** the cache sits behind one app-wide loader that serves XML screens (`Glide.with(view).load(url).into(imageView)` or Coil `imageView.load(url)`) and Compose screens (Coil `AsyncImage(model = url, …)`) alike — one memory LRU, sized in bytes. The differences are size resolution (measured `ImageView` vs layout constraints) and cancellation (rebinding the `ImageView` / `onViewRecycled` vs leaving composition). Wiring code: [Chapter 12](../../book/part-iv/12-caching-strategies.md#in-practice-on-android-imageview-views-vs-asyncimage-compose).
-
 ---
 
-## P2. Autocomplete Trie
+## P2: Network delay time
+
+### Approach
+
+**Dijkstra** from source `k` on a directed weighted graph. Adjacency list of `(neighbor, weight)`. Min-heap of `(dist, node)`; relax edges; skip stale heap entries when popped distance `> dist[u]`. Answer is the maximum finite distance among nodes `1..n`; if any node remains unreachable, return `-1`.
+
+### Complexity
+
+- Time: O((V + E) log V) with binary heap and duplicate pushes
+- Space: O(V + E)
+
+### Edge cases
+
+- Single node, no edges → `0`
+- Unreachable node → `-1`
+- Multiple edges / parallel paths — keep minimum
+- Zero-weight edges OK; negative weights not allowed for Dijkstra
+
+### Mobile note
+
+Models “time until all devices get a config push” or CDN fan-out latency sketches. Prefer server-side for large graphs; on device keep V small. Do not block UI while running Dijkstra on thousands of nodes.
 
 ### Kotlin
 
 ```kotlin
-class AutoComplete {
-    private class Node {
-        val kids = HashMap<Char, Node>()
-        var end = false
-    }
-    private val root = Node()
-    fun insert(word: String) {
-        var n = root
-        for (c in word.lowercase()) n = n.kids.getOrPut(c) { Node() }
-        n.end = true
-    }
-    fun suggest(prefix: String, k: Int): List<String> {
-        var n: Node? = root
-        for (c in prefix.lowercase()) { n = n?.kids[c] ?: return emptyList() }
-        val out = mutableListOf<String>()
-        fun dfs(cur: Node, path: StringBuilder) {
-            if (out.size >= k) return
-            if (cur.end) out.add(path.toString())
-            for ((ch, child) in cur.kids) {
-                path.append(ch); dfs(child, path); path.deleteCharAt(path.lastIndex)
-                if (out.size >= k) return
+fun networkDelayTime(times: Array<IntArray>, n: Int, k: Int): Int {
+    val g = Array(n + 1) { mutableListOf<Pair<Int, Int>>() }
+    for (t in times) g[t[0]].add(t[1] to t[2])
+    val dist = IntArray(n + 1) { Int.MAX_VALUE / 4 }
+    dist[k] = 0
+    val pq = java.util.PriorityQueue(compareBy<Pair<Int, Int>> { it.first })
+    pq.add(0 to k)
+    while (pq.isNotEmpty()) {
+        val (d, u) = pq.poll()
+        if (d > dist[u]) continue
+        for ((v, w) in g[u]) {
+            if (d + w < dist[v]) {
+                dist[v] = d + w
+                pq.add(dist[v] to v)
             }
         }
-        dfs(n!!, StringBuilder(prefix.lowercase()))
-        return out
     }
+    var ans = 0
+    for (i in 1..n) {
+        if (dist[i] >= Int.MAX_VALUE / 4) return -1
+        ans = maxOf(ans, dist[i])
+    }
+    return ans
 }
 ```
 
 ### Swift
 
 ```swift
-final class AutoComplete {
-    private class Node { var kids: [Character: Node] = [:]; var end = false }
-    private let root = Node()
-    func insert(_ word: String) {
-        var n = root
-        for c in word.lowercased() {
-            if n.kids[c] == nil { n.kids[c] = Node() }
-            n = n.kids[c]!
+func networkDelayTime(_ times: [[Int]], _ n: Int, _ k: Int) -> Int {
+    var g = Array(repeating: [(Int, Int)](), count: n + 1)
+    for t in times { g[t[0]].append((t[1], t[2])) }
+    var dist = Array(repeating: Int.max / 4, count: n + 1)
+    dist[k] = 0
+    var heap = MinHeapPair()
+    heap.push(0, k)
+    while let (d, u) = heap.pop() {
+        if d > dist[u] { continue }
+        for (v, w) in g[u] where d + w < dist[v] {
+            dist[v] = d + w
+            heap.push(dist[v], v)
         }
-        n.end = true
     }
-    func suggest(_ prefix: String, _ k: Int) -> [String] {
-        var n: Node? = root
-        let p = prefix.lowercased()
-        for c in p { guard let nx = n?.kids[c] else { return [] }; n = nx }
-        var out: [String] = []
-        func dfs(_ cur: Node, _ path: inout String) {
-            if out.count >= k { return }
-            if cur.end { out.append(path) }
-            for (ch, child) in cur.kids.sorted(by: { $0.key < $1.key }) {
-                path.append(ch); dfs(child, &path); path.removeLast()
-                if out.count >= k { return }
-            }
-        }
-        var path = p; dfs(n!, &path); return out
+    var ans = 0
+    for i in 1...n {
+        if dist[i] >= Int.max / 4 { return -1 }
+        ans = max(ans, dist[i])
     }
-}
-```
-
-### Dart
-
-```dart
-class AutoComplete {
-  final _root = _TNode();
-  void insert(String word) {
-    var n = _root;
-    for (final r in word.toLowerCase().runes) {
-      final c = String.fromCharCode(r);
-      n = n.kids.putIfAbsent(c, () => _TNode());
-    }
-    n.end = true;
-  }
-  List<String> suggest(String prefix, int k) {
-    var n = _root;
-    final p = prefix.toLowerCase();
-    for (final r in p.runes) {
-      final c = String.fromCharCode(r);
-      final next = n.kids[c];
-      if (next == null) return [];
-      n = next;
-    }
-    final out = <String>[];
-    void dfs(_TNode cur, StringBuffer path) {
-      if (out.length >= k) return;
-      if (cur.end) out.add(path.toString());
-      for (final e in cur.kids.entries) {
-        path.write(e.key);
-        dfs(e.value, path);
-        path.length = path.length - 1;
-        if (out.length >= k) return;
-      }
-    }
-    dfs(n, StringBuffer(p));
-    return out;
-  }
-}
-class _TNode {
-  final kids = <String, _TNode>{};
-  bool end = false;
-}
-```
-
-### TypeScript
-
-```typescript
-class AutoComplete {
-  private root: any = { kids: new Map<string, any>(), end: false };
-  insert(word: string): void {
-    let n = this.root;
-    for (const c of word.toLowerCase()) {
-      if (!n.kids.has(c)) n.kids.set(c, { kids: new Map(), end: false });
-      n = n.kids.get(c);
-    }
-    n.end = true;
-  }
-  suggest(prefix: string, k: number): string[] {
-    let n = this.root;
-    const p = prefix.toLowerCase();
-    for (const c of p) { if (!n.kids.has(c)) return []; n = n.kids.get(c); }
-    const out: string[] = [];
-    const dfs = (cur: any, path: string) => {
-      if (out.length >= k) return;
-      if (cur.end) out.push(path);
-      for (const [ch, child] of [...cur.kids.entries()].sort()) {
-        dfs(child, path + ch);
-        if (out.length >= k) return;
-      }
-    };
-    dfs(n, p);
-    return out;
-  }
-}
-```
-
----
-
-## P3. Offline-First Feed
-
-**Architecture:** `items: Array<Entity>` + `ids: Set` / `Map<id, index>`; merge pages; diff by identity.
-
-### Kotlin (core)
-
-```kotlin
-data class Entity(val id: String, val body: String)
-data class Diff(val removals: List<String>, val inserts: List<Pair<Int, Entity>>, val updates: List<Entity>)
-
-class FeedBuffer {
-    private val items = mutableListOf<Entity>()
-    private val index = HashMap<String, Int>()
-
-    fun applyPage(page: List<Entity>, prepend: Boolean) {
-        val fresh = page.filter { it.id !in index }
-        if (prepend) {
-            items.addAll(0, fresh)
-        } else {
-            items.addAll(fresh)
-        }
-        reindex()
-    }
-    private fun reindex() {
-        index.clear()
-        items.forEachIndexed { i, e -> index[e.id] = i }
-    }
-    fun snapshot(): List<Entity> = items.toList()
-
-    fun diff(old: List<Entity>, new: List<Entity>): Diff {
-        val oldIds = old.map { it.id }.toSet()
-        val newMap = new.associateBy { it.id }
-        val removals = old.map { it.id }.filter { it !in newMap }
-        val inserts = new.withIndex().filter { it.value.id !in oldIds }.map { it.index to it.value }
-        val updates = new.filter { it.id in oldIds && old[old.indexOfFirst { o -> o.id == it.id }].body != it.body }
-        return Diff(removals, inserts, updates)
-    }
-}
-```
-
-### Swift / Dart / TypeScript
-
-Same shape: ordered array + id set/map; `applyPage` filters unseen ids; `diff` uses set difference on ids and field compare for updates. Keep **stable ids** for list keys (Chapter 13).
-
-```typescript
-type Entity = { id: string; body: string };
-class FeedBuffer {
-  private items: Entity[] = [];
-  private index = new Map<string, number>();
-  applyPage(page: Entity[], prepend: boolean): void {
-    const fresh = page.filter((e) => !this.index.has(e.id));
-    this.items = prepend ? [...fresh, ...this.items] : [...this.items, ...fresh];
-    this.reindex();
-  }
-  private reindex() {
-    this.index.clear();
-    this.items.forEach((e, i) => this.index.set(e.id, i));
-  }
-  snapshot() { return this.items.slice(); }
-}
-```
-
-```dart
-class FeedBuffer {
-  final items = <Entity>[];
-  final index = <String, int>{};
-  void applyPage(List<Entity> page, {required bool prepend}) {
-    final fresh = page.where((e) => !index.containsKey(e.id)).toList();
-    if (prepend) items.insertAll(0, fresh); else items.addAll(fresh);
-    _reindex();
-  }
-  void _reindex() {
-    index.clear();
-    for (var i = 0; i < items.length; i++) index[items[i].id] = i;
-  }
-}
-class Entity { final String id, body; Entity(this.id, this.body); }
-```
-
-```swift
-struct Entity: Equatable { let id: String; var body: String }
-final class FeedBuffer {
-    private(set) var items: [Entity] = []
-    private var index: [String: Int] = [:]
-    func applyPage(_ page: [Entity], prepend: Bool) {
-        let fresh = page.filter { index[$0.id] == nil }
-        items = prepend ? fresh + items : items + fresh
-        reindex()
-    }
-    private func reindex() {
-        index = Dictionary(uniqueKeysWithValues: items.enumerated().map { ($0.element.id, $0.offset) })
-    }
-}
-```
-
-### Android wiring (Views and Compose)
-
-One ViewModel publishes `buffer.snapshot()` as a fresh immutable list; each toolkit renders it. On device you do not call `diff` yourself — `ListAdapter` (DiffUtil) and `LazyColumn` (`key`) derive the edits from identity. `diff` stays as the interview/test form.
-
-```kotlin
-class FeedViewModel(private val buffer: FeedBuffer = FeedBuffer()) : ViewModel() {
-    private val _items = MutableStateFlow<List<Entity>>(emptyList())
-    val items: StateFlow<List<Entity>> = _items.asStateFlow()
-
-    fun onPage(page: List<Entity>, prepend: Boolean) {
-        buffer.applyPage(page, prepend)
-        _items.value = buffer.snapshot() // new immutable list every time
-    }
+    return ans
 }
 
-// Views: ListAdapter<Entity, VH>(EntityDiff), where EntityDiff compares ids / then contents
-object EntityDiff : DiffUtil.ItemCallback<Entity>() {
-    override fun areItemsTheSame(old: Entity, new: Entity) = old.id == new.id
-    override fun areContentsTheSame(old: Entity, new: Entity) = old == new
-}
-// in the Fragment, inside repeatOnLifecycle(STARTED):
-//     viewModel.items.collect { adapter.submitList(it) }
-
-// Compose
-@Composable
-fun FeedList(viewModel: FeedViewModel, listState: LazyListState) {
-    val items by viewModel.items.collectAsStateWithLifecycle()
-    LazyColumn(state = listState) {
-        items(items, key = { it.id }) { EntityRow(it) }
+struct MinHeapPair {
+    private var a: [(Int, Int)] = []
+    mutating func push(_ d: Int, _ u: Int) {
+        a.append((d, u)); siftUp(a.count - 1)
     }
-}
-```
-
-**Prepend without scrambling the viewport** (acceptance criterion): `RecyclerView` keeps its anchor on the first visible ViewHolder when DiffUtil dispatches `notifyItemRangeInserted(0, n)`; `LazyColumn` keeps the first visible item **by key**, so older/newer items inserted above do not move what the user is reading. Without `key`, Compose falls back to index and the viewport jumps.
-
----
-
-## P4. Task Scheduler (Priority Queue)
-
-### Kotlin
-
-```kotlin
-data class Task(val id: String, val priority: Int, val seq: Long, val run: () -> Unit)
-
-class TaskScheduler {
-    private var seq = 0L
-    private val pq = java.util.PriorityQueue<Task>(compareBy<Task> { -it.priority }.thenBy { it.seq })
-    private val cancelled = HashSet<String>()
-    fun schedule(id: String, priority: Int, run: () -> Unit) {
-        pq.add(Task(id, priority, seq++, run))
+    mutating func pop() -> (Int, Int)? {
+        guard let first = a.first else { return nil }
+        a[0] = a.last!; a.removeLast()
+        if !a.isEmpty { siftDown(0) }
+        return first
     }
-    fun cancel(id: String) { cancelled.add(id) }
-    fun runNext(): Boolean {
-        while (pq.isNotEmpty()) {
-            val t = pq.poll()!!
-            if (t.id in cancelled) { cancelled.remove(t.id); continue }
-            t.run(); return true
-        }
-        return false
-    }
-}
-```
-
-### Swift
-
-Use a binary heap of `(priority, seq, id)`; higher priority first; lazy cancel set — same as Kotlin.
-
-```swift
-final class TaskScheduler {
-    private struct Job {
-        let id: String
-        let priority: Int
-        let seq: Int
-        let run: () -> Void
-    }
-
-    private var heap: [Job] = []
-    private var cancelled = Set<String>()
-    private var seq = 0
-
-    func schedule(_ id: String, priority: Int, run: @escaping () -> Void) {
-        heap.append(Job(id: id, priority: priority, seq: seq, run: run))
-        seq += 1
-        siftUp(heap.count - 1)
-    }
-
-    func cancel(_ id: String) { cancelled.insert(id) }
-
-    func runNext() -> Bool {
-        while let job = pop() {
-            if cancelled.remove(job.id) != nil { continue }
-            job.run()
-            return true
-        }
-        return false
-    }
-
-    /// Higher priority first; tie-break earlier `seq`.
-    private func before(_ a: Job, _ b: Job) -> Bool {
-        a.priority != b.priority ? a.priority > b.priority : a.seq < b.seq
-    }
-
-    private func siftUp(_ start: Int) {
-        var i = start
+    private mutating func siftUp(_ i: Int) {
+        var i = i
         while i > 0 {
             let p = (i - 1) / 2
-            if !before(heap[i], heap[p]) { break }
-            heap.swapAt(i, p)
-            i = p
+            if a[i].0 >= a[p].0 { break }
+            a.swapAt(i, p); i = p
         }
     }
-
-    private func siftDown(_ start: Int) {
-        var i = start
+    private mutating func siftDown(_ i: Int) {
+        var i = i
         while true {
             var best = i
             let l = 2 * i + 1, r = l + 1
-            if l < heap.count && before(heap[l], heap[best]) { best = l }
-            if r < heap.count && before(heap[r], heap[best]) { best = r }
-            if best == i { return }
-            heap.swapAt(i, best)
-            i = best
+            if l < a.count && a[l].0 < a[best].0 { best = l }
+            if r < a.count && a[r].0 < a[best].0 { best = r }
+            if best == i { break }
+            a.swapAt(i, best); i = best
         }
-    }
-
-    private func pop() -> Job? {
-        guard !heap.isEmpty else { return nil }
-        heap.swapAt(0, heap.count - 1)
-        let top = heap.removeLast()
-        if !heap.isEmpty { siftDown(0) }
-        return top
     }
 }
 ```
@@ -531,304 +239,303 @@ final class TaskScheduler {
 ### Dart
 
 ```dart
-class TaskScheduler {
-  final _heap = <_T>[];
-  final _cancelled = <String>{};
-  var _seq = 0;
+import 'package:collection/collection.dart';
 
-  void schedule(String id, int priority, void Function() run) {
-    _heap.add(_T(id, priority, _seq++, run));
-    _siftUp(_heap.length - 1);
+int networkDelayTime(List<List<int>> times, int n, int k) {
+  final g = List.generate(n + 1, (_) => <(int, int)>[]);
+  for (final t in times) {
+    g[t[0]].add((t[1], t[2]));
   }
-
-  void cancel(String id) => _cancelled.add(id);
-
-  bool runNext() {
-    while (_heap.isNotEmpty) {
-      final t = _pop();
-      if (_cancelled.remove(t.id)) continue;
-      t.run();
-      return true;
-    }
-    return false;
-  }
-
-  /// Higher priority first; tie-break earlier `seq`.
-  bool _before(_T a, _T b) =>
-      a.priority != b.priority ? a.priority > b.priority : a.seq < b.seq;
-
-  void _siftUp(int i) {
-    while (i > 0) {
-      final p = (i - 1) >> 1;
-      if (!_before(_heap[i], _heap[p])) break;
-      final tmp = _heap[i];
-      _heap[i] = _heap[p];
-      _heap[p] = tmp;
-      i = p;
+  const inf = 1 << 30;
+  final dist = List.filled(n + 1, inf);
+  dist[k] = 0;
+  final pq = HeapPriorityQueue<(int, int)>((a, b) => a.$1.compareTo(b.$1));
+  pq.add((0, k));
+  while (pq.isNotEmpty) {
+    final (d, u) = pq.removeFirst();
+    if (d > dist[u]) continue;
+    for (final (v, w) in g[u]) {
+      if (d + w < dist[v]) {
+        dist[v] = d + w;
+        pq.add((dist[v], v));
+      }
     }
   }
-
-  void _siftDown(int i) {
-    for (;;) {
-      var best = i;
-      final l = i * 2 + 1, r = l + 1;
-      if (l < _heap.length && _before(_heap[l], _heap[best])) best = l;
-      if (r < _heap.length && _before(_heap[r], _heap[best])) best = r;
-      if (best == i) break;
-      final tmp = _heap[i];
-      _heap[i] = _heap[best];
-      _heap[best] = tmp;
-      i = best;
-    }
+  var ans = 0;
+  for (var i = 1; i <= n; i++) {
+    if (dist[i] >= inf) return -1;
+    if (dist[i] > ans) ans = dist[i];
   }
-
-  _T _pop() {
-    final top = _heap.first;
-    final last = _heap.removeLast();
-    if (_heap.isNotEmpty) {
-      _heap[0] = last;
-      _siftDown(0);
-    }
-    return top;
-  }
-}
-
-class _T {
-  _T(this.id, this.priority, this.seq, this.run);
-  final String id;
-  final int priority;
-  final int seq;
-  final void Function() run;
+  return ans;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-type T = { id: string; priority: number; seq: number; run: () => void };
-class TaskScheduler {
-  private heap: T[] = [];
-  private cancelled = new Set<string>();
-  private seq = 0;
-  private before(a: T, b: T) {
-    return a.priority !== b.priority ? a.priority > b.priority : a.seq < b.seq;
+class MinHeapPair {
+  private a: [number, number][] = [];
+  get size() { return this.a.length; }
+  push(d: number, u: number) {
+    this.a.push([d, u]);
+    this.siftUp(this.a.length - 1);
   }
-  schedule(id: string, priority: number, run: () => void) {
-    this.heap.push({ id, priority, seq: this.seq++, run });
-    this.siftUp(this.heap.length - 1);
-  }
-  cancel(id: string) { this.cancelled.add(id); }
-  runNext(): boolean {
-    while (this.heap.length) {
-      const t = this.pop();
-      if (this.cancelled.delete(t.id)) continue;
-      t.run(); return true;
+  pop(): [number, number] | undefined {
+    if (!this.a.length) return undefined;
+    const top = this.a[0];
+    const last = this.a.pop()!;
+    if (this.a.length) {
+      this.a[0] = last;
+      this.siftDown(0);
     }
-    return false;
+    return top;
   }
   private siftUp(i: number) {
-    const a = this.heap;
+    const a = this.a;
     while (i > 0) {
       const p = (i - 1) >> 1;
-      if (!this.before(a[i], a[p])) break;
+      if (a[i][0] >= a[p][0]) break;
       [a[i], a[p]] = [a[p], a[i]];
       i = p;
     }
   }
   private siftDown(i: number) {
-    const a = this.heap;
+    const a = this.a;
     for (;;) {
       let best = i;
       const l = i * 2 + 1, r = l + 1;
-      if (l < a.length && this.before(a[l], a[best])) best = l;
-      if (r < a.length && this.before(a[r], a[best])) best = r;
+      if (l < a.length && a[l][0] < a[best][0]) best = l;
+      if (r < a.length && a[r][0] < a[best][0]) best = r;
       if (best === i) break;
       [a[i], a[best]] = [a[best], a[i]];
       i = best;
     }
   }
-  private pop(): T {
-    const top = this.heap[0];
-    const last = this.heap.pop()!;
-    if (this.heap.length) {
-      this.heap[0] = last;
-      this.siftDown(0);
+}
+
+function networkDelayTime(times: number[][], n: number, k: number): number {
+  const g: [number, number][][] = Array.from({ length: n + 1 }, () => []);
+  for (const [u, v, w] of times) g[u].push([v, w]);
+  const dist = Array(n + 1).fill(Infinity);
+  dist[k] = 0;
+  const heap = new MinHeapPair();
+  heap.push(0, k);
+  while (heap.size) {
+    const [d, u] = heap.pop()!;
+    if (d > dist[u]) continue;
+    for (const [v, w] of g[u]) {
+      if (d + w < dist[v]) {
+        dist[v] = d + w;
+        heap.push(dist[v], v);
+      }
     }
-    return top;
   }
+  let ans = 0;
+  for (let i = 1; i <= n; i++) {
+    if (dist[i] === Infinity) return -1;
+    ans = Math.max(ans, dist[i]);
+  }
+  return ans;
 }
 ```
 
 ---
 
-## P5. Navigation Back Stack
+## P3: Connected components / redundant connection
 
-### Four-language core (same API)
+### Approach
+
+**Union-Find** with path compression and union by rank.
+
+**Connected components:** start with `n` components; for each undirected edge, `union(u, v)` (0-based or 1-based consistently). Final answer is `uf.components`.
+
+**Redundant connection:** process edges in order; if `find(u) == find(v)` before union, that edge closes a cycle — return it; else `union`.
+
+### Complexity
+
+- Time: nearly O(n + m · α(n))
+- Space: O(n)
+
+### Edge cases
+
+- No edges → `n` components
+- Already connected graph → first cycle-making edge is redundant
+- Duplicate edges
+- Nodes numbered `1..n` vs `0..n-1`
+
+### Mobile note
+
+Offline device clustering, merge of local conflict graphs, “same account across installs” sketches. Prefer DSU over repeated DFS when the edge stream is dynamic. Keep `n` bounded in memory on device.
+
+### Kotlin
 
 ```kotlin
-class NavStack {
-    private val stack = ArrayDeque<String>()
-    fun push(r: String) = stack.addLast(r)
-    fun pop(): String? = if (stack.isEmpty()) null else stack.removeLast()
-    fun peek(): String? = stack.lastOrNull()
-    fun replace(r: String) { if (stack.isEmpty()) push(r) else { stack.removeLast(); stack.addLast(r) } }
-    fun popToRoot() { while (stack.size > 1) stack.removeLast() }
-    fun snapshot() = stack.toList()
+class UnionFind(n: Int) {
+    private val parent = IntArray(n) { it }
+    private val rank = IntArray(n)
+    var components = n
+        private set
+    fun find(x: Int): Int {
+        if (parent[x] != x) parent[x] = find(parent[x])
+        return parent[x]
+    }
+    fun union(a: Int, b: Int): Boolean {
+        var ra = find(a)
+        var rb = find(b)
+        if (ra == rb) return false
+        if (rank[ra] < rank[rb]) {
+            val t = ra; ra = rb; rb = t
+        }
+        parent[rb] = ra
+        if (rank[ra] == rank[rb]) rank[ra]++
+        components--
+        return true
+    }
+}
+
+fun countComponents(n: Int, edges: Array<IntArray>): Int {
+    val uf = UnionFind(n)
+    for (e in edges) uf.union(e[0], e[1])
+    return uf.components
+}
+
+fun findRedundantConnection(edges: Array<IntArray>): IntArray {
+    val uf = UnionFind(edges.size + 1) // nodes 1..n
+    for (e in edges) {
+        if (!uf.union(e[0], e[1])) return e
+    }
+    return intArrayOf()
 }
 ```
+
+### Swift
 
 ```swift
-final class NavStack {
-    private var stack: [String] = []
-    func push(_ r: String) { stack.append(r) }
-    func pop() -> String? { stack.popLast() }
-    func peek() -> String? { stack.last }
-    func replace(_ r: String) { if stack.isEmpty { push(r) } else { stack[stack.count - 1] = r } }
-    func popToRoot() { if !stack.isEmpty { stack = [stack[0]] } }
-    func snapshot() -> [String] { stack }
-}
-```
-
-```dart
-class NavStack {
-  final _stack = <String>[];
-  void push(String r) => _stack.add(r);
-  String? pop() => _stack.isEmpty ? null : _stack.removeLast();
-  String? peek() => _stack.isEmpty ? null : _stack.last;
-  void replace(String r) {
-    if (_stack.isEmpty) push(r); else _stack[_stack.length - 1] = r;
-  }
-  void popToRoot() { if (_stack.length > 1) _stack.removeRange(1, _stack.length); }
-  List<String> snapshot() => List.of(_stack);
-}
-```
-
-```typescript
-class NavStack {
-  private stack: string[] = [];
-  push(r: string) { this.stack.push(r); }
-  pop() { return this.stack.pop(); }
-  peek() { return this.stack[this.stack.length - 1]; }
-  replace(r: string) {
-    if (!this.stack.length) this.push(r); else this.stack[this.stack.length - 1] = r;
-  }
-  popToRoot() { if (this.stack.length) this.stack.length = 1; }
-  snapshot() { return this.stack.slice(); }
-}
-```
-
-### Android: the same API over the real back stacks
-
-`NavStack` maps one-to-one onto both Android toolkits — useful for explaining that the platform back stack *is* this structure.
-
-```kotlin
-// Views: FragmentManager (root fragment added without addToBackStack)
-class FragmentNavStack(
-    private val fm: FragmentManager,
-    @IdRes private val container: Int,
-    private val screen: (route: String) -> Fragment,
-) {
-    fun push(r: String) = fm.commit {
-        setReorderingAllowed(true)
-        replace(container, screen(r))
-        addToBackStack(r)
+final class UnionFind {
+    private var parent: [Int]
+    private var rank: [Int]
+    private(set) var components: Int
+    init(_ n: Int) {
+        parent = Array(0..<n)
+        rank = Array(repeating: 0, count: n)
+        components = n
     }
-    fun pop() = fm.popBackStack()
-    fun popToRoot() = fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-    fun peek(): String? = fm.backStackEntryCount.takeIf { it > 0 }?.let { fm.getBackStackEntryAt(it - 1).name }
-    fun snapshot(): List<String?> = (0 until fm.backStackEntryCount).map { fm.getBackStackEntryAt(it).name }
-}
-
-// Compose: Navigation Compose NavController
-class ComposeNavStack(private val nav: NavController) {
-    fun push(r: String) = nav.navigate(r)
-    fun pop() = nav.popBackStack()
-    fun peek(): String? = nav.currentDestination?.route   // route pattern, e.g. "detail/{id}"
-    fun replace(r: String) {
-        val current = nav.currentDestination?.route
-        nav.navigate(r) { if (current != null) popUpTo(current) { inclusive = true } }
+    func find(_ x: Int) -> Int {
+        if parent[x] != x { parent[x] = find(parent[x]) }
+        return parent[x]
     }
-    fun popToRoot() = nav.popBackStack(nav.graph.findStartDestination().id, inclusive = false)
-}
-```
-
-State restoration (the "serialize stack" criterion) is built in on both sides: `FragmentManager` saves its back stack in the Activity's saved state, and `rememberNavController()` saves the `NavController` stack across configuration change and process death. Back interception (`OnBackPressedCallback` vs `BackHandler`) is in [Chapter 5](../../book/part-ii/05-stacks.md#predictive-back-intercepting-the-pop).
-
----
-
-## P6. Thread-Safe Request Coalescer
-
-### Kotlin (coroutines)
-
-```kotlin
-class Coalescer<T> {
-    private val mutex = kotlinx.coroutines.sync.Mutex()
-    private val inflight = HashMap<String, kotlinx.coroutines.Deferred<T>>()
-
-    suspend fun load(key: String, produce: suspend () -> T): T = coroutineScope {
-        val deferred = mutex.withLock {
-            inflight.getOrPut(key) { async { produce() } }
-        }
-        try {
-            deferred.await()
-        } finally {
-            mutex.withLock { inflight.remove(key) }
-        }
+    @discardableResult
+    func union(_ a: Int, _ b: Int) -> Bool {
+        var ra = find(a), rb = find(b)
+        if ra == rb { return false }
+        if rank[ra] < rank[rb] { swap(&ra, &rb) }
+        parent[rb] = ra
+        if rank[ra] == rank[rb] { rank[ra] += 1 }
+        components -= 1
+        return true
     }
 }
-```
 
-Uses **`coroutineScope` + `Mutex`** — not `GlobalScope` — so work stays structured and cancellable with the caller (ViewModel/`viewModelScope`).
+func countComponents(_ n: Int, _ edges: [[Int]]) -> Int {
+    let uf = UnionFind(n)
+    for e in edges { uf.union(e[0], e[1]) }
+    return uf.components
+}
 
-### Swift (actor)
-
-```swift
-actor Coalescer<T> {
-    private var inflight: [String: Task<T, Error>] = [:]
-    func load(_ key: String, produce: @escaping () async throws -> T) async throws -> T {
-        if let t = inflight[key] { return try await t.value }
-        let task = Task { try await produce() }
-        inflight[key] = task
-        defer { inflight[key] = nil }
-        return try await task.value
+func findRedundantConnection(_ edges: [[Int]]) -> [Int] {
+    let uf = UnionFind(edges.count + 1)
+    for e in edges {
+        if !uf.union(e[0], e[1]) { return e }
     }
+    return []
 }
 ```
 
 ### Dart
 
 ```dart
-class Coalescer<T> {
-  final _inflight = <String, Future<T>>{};
-  Future<T> load(String key, Future<T> Function() produce) {
-    return _inflight.putIfAbsent(key, () async {
-      try { return await produce(); }
-      finally { _inflight.remove(key); }
-    });
+class UnionFind {
+  final List<int> parent;
+  final List<int> rank;
+  int components;
+  UnionFind(int n)
+      : parent = List.generate(n, (i) => i),
+        rank = List.filled(n, 0),
+        components = n;
+  int find(int x) {
+    if (parent[x] != x) parent[x] = find(parent[x]);
+    return parent[x];
   }
+  bool union(int a, int b) {
+    var ra = find(a), rb = find(b);
+    if (ra == rb) return false;
+    if (rank[ra] < rank[rb]) {
+      final t = ra;
+      ra = rb;
+      rb = t;
+    }
+    parent[rb] = ra;
+    if (rank[ra] == rank[rb]) rank[ra]++;
+    components--;
+    return true;
+  }
+}
+
+int countComponents(int n, List<List<int>> edges) {
+  final uf = UnionFind(n);
+  for (final e in edges) {
+    uf.union(e[0], e[1]);
+  }
+  return uf.components;
+}
+
+List<int> findRedundantConnection(List<List<int>> edges) {
+  final uf = UnionFind(edges.length + 1);
+  for (final e in edges) {
+    if (!uf.union(e[0], e[1])) return e;
+  }
+  return [];
 }
 ```
 
 ### TypeScript
 
 ```typescript
-class Coalescer<T> {
-  private inflight = new Map<string, Promise<T>>();
-  load(key: string, produce: () => Promise<T>): Promise<T> {
-    const hit = this.inflight.get(key);
-    if (hit) return hit;
-    const p = produce().finally(() => this.inflight.delete(key));
-    this.inflight.set(key, p);
-    return p;
+class UnionFind {
+  parent: number[];
+  rank: number[];
+  components: number;
+  constructor(n: number) {
+    this.parent = Array.from({ length: n }, (_, i) => i);
+    this.rank = Array(n).fill(0);
+    this.components = n;
+  }
+  find(x: number): number {
+    if (this.parent[x] !== x) this.parent[x] = this.find(this.parent[x]);
+    return this.parent[x];
+  }
+  union(a: number, b: number): boolean {
+    let ra = this.find(a), rb = this.find(b);
+    if (ra === rb) return false;
+    if (this.rank[ra] < this.rank[rb]) [ra, rb] = [rb, ra];
+    this.parent[rb] = ra;
+    if (this.rank[ra] === this.rank[rb]) this.rank[ra]++;
+    this.components--;
+    return true;
   }
 }
+
+function countComponents(n: number, edges: number[][]): number {
+  const uf = new UnionFind(n);
+  for (const [u, v] of edges) uf.union(u, v);
+  return uf.components;
+}
+
+function findRedundantConnection(edges: number[][]): number[] {
+  const uf = new UnionFind(edges.length + 1);
+  for (const e of edges) {
+    if (!uf.union(e[0], e[1])) return e;
+  }
+  return [];
+}
 ```
-
-**Test idea:** fire 100 parallel `load("x")` with a producer that sleeps 50ms and increments a counter — counter must end at **1**.
-
----
-
-## Links
-
-- Specs: [`book/part-vii/25-mini-projects.md`](../../book/part-vii/25-mini-projects.md)
-- Interview bank: [`solutions/ch24`](../ch24/README.md)

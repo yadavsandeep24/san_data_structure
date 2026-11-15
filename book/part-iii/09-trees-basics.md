@@ -629,4 +629,18 @@ function isSameTree(p: TreeNode | null, q: TreeNode | null): boolean {
 2. **Invert binary tree** — [solutions/ch09](../../solutions/ch09/README.md#p2-invert-binary-tree)
 3. **Same tree** — [solutions/ch09](../../solutions/ch09/README.md#p3-same-tree)
 
-Back: [Chapter 8 — Sets](08-sets.md) · Next: [Chapter 10 — Trees Practical](10-trees-practical.md)
+### More practice
+
+- [Ch 29 — Interview Questions, Q11–Q20](../part-viii/29-interview-questions-q11-q20.md): Q13 Maximum Depth · Q14 Invert Binary Tree · Q16 Binary Tree Level Order
+- [Ch 34 — Linked Lists & Trees](../part-viii/34-linked-lists-trees.md): Q5 Diameter · Q6 Balanced Binary Tree · Q7 Subtree of Another Tree · Q8 Right Side View · Q9 Count Good Nodes
+- [Ch 30 — Hard Drill Bank, Q11–Q20](../part-viii/30-hard-drill-bank-q11-q20.md): Q13 Binary Tree Maximum Path Sum
+
+---
+
+## What to remember
+
+Trees are hierarchy: view trees, file systems, JSON, comment threads. Learn the four traversals (pre, in, post, level order) cold, plus the "return a value up from each subtree" recursion that solves most tree questions. On device, very deep trees can overflow the stack under recursion. Use an explicit stack or queue for untrusted or deeply nested input.
+
+---
+
+Previous: [Chapter 8 — Sets](08-sets.md) · Next: [Chapter 10 — Trees Practical (BST, Trie, JSON)](10-trees-practical.md) · Solutions: [`solutions/ch09`](../../solutions/ch09/README.md)
