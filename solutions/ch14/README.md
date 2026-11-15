@@ -1,175 +1,303 @@
 # Chapter 14 — Model Solutions
 
-## P1: Five scenario prompts
+Model solutions for Chapter 14 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
 
-For each scenario: pick a structure (or hybrid) and justify. Expected answers below — your wording may differ if the reasoning is sound.
-
----
-
-### S1 — Chat: older pages upward, new messages downward, no duplicates
-
-**Pick:** Dynamic array (or deque) of messages **plus** `HashSet`/`Set` of message IDs **plus** cursor tokens for upward/downward pagination.
-
-**Why:** Order matters for rendering; membership of IDs must be O(1) when merging pages or accepting realtime events; cursors avoid offset shift bugs when new messages arrive. Diff the array into the UI with stable keys = message IDs.
+Problems are defined in [`book/part-iv/14-sliding-window.md`](../../book/part-iv/14-sliding-window.md).
 
 ---
 
-### S2 — Settings: undo last five toggles
+## P1: Maximum average subarray
 
-**Pick:** Stack (bounded to 5) of inverse commands or prior values. Optional second stack if redo is required.
+Given `nums` and `1 ≤ k ≤ n`, return the maximum average of any `k` consecutive values.
 
-**Why:** Undo is LIFO — the last change is the first reversed. Bounding capacity keeps memory trivial. Do not scan a history array for “last change” on each undo; pop O(1).
+### Approach
 
----
-
-### S3 — Barcode scan vs 40k on-device SKUs under 16ms
-
-**Pick:** `HashSet` or `HashMap` of SKUs (possibly built once from a sorted file at startup). Not a linear list scan.
-
-**Why:** Average O(1) membership fits a frame budget; O(n) scan of 40k strings on the UI thread is a jank lottery. If you need prefix search for human typing, add a trie or sorted array + binary search — still not nested loops.
-
----
-
-### S4 — Profile: Follow vs Following for large following set
-
-**Pick:** `HashSet` of following IDs (or a map if you also store metadata). The followers **list** UI remains an array for order.
-
-**Why:** The button state is a membership query — must not scan the following list each bind. Load the set once (or page it into a set); array alone is the wrong structure for `contains`.
-
----
-
-### S5 — Gallery thumbnails: fast revisit, bound RAM, 24h expiry
-
-**Pick:** Two-level cache — L1 LRU memory of decoded thumbnails, L2 disk of encoded bytes, **TTL = 24h**, size/transform in the key. Or configure Glide/Coil/SDWebImage/`cached_network_image` equivalently.
-
-**Why:** Recency matches LRU; TTL enforces freshness; disk survives process death; memory stays bounded and trims under pressure. An unbounded `Map<url, bitmap>` fails the RAM requirement.
-
----
-
-## P2: Fix this code — membership in list
-
-### Why it hurts
-
-`cartSkus.contains(sku)` on a `List` is O(m). `bindRow` runs per visible row (and again on rebind). With n visible rows you pay O(n·m) during scroll — classic jank as the cart grows. Build a `Set` once per frame / per cart revision; then each row is O(1).
+Fixed window. Keep the running sum of the last `k` values. The maximum average comes from the maximum sum, so track the best sum and divide once at the end. Dividing at every step adds floating-point noise and work.
 
 ### Complexity
 
-- Before: O(n·m) per bind pass
-- After: O(m) to build set once + O(1) per row
+- Time: O(n)
+- Space: O(1)
 
 ### Edge cases
 
-- Empty cart — empty set; all unchecked
-- Duplicate SKUs in list — set collapses; fine for membership
-- Rebuild set when cart mutates, not inside each row
+- `k == n` → average of everything
+- All negative values (the best sum is still the "least negative")
+- Large values: use a 64-bit sum
 
 ### Mobile note
 
-Android `RecyclerView` (`onBindViewHolder`) and Jetpack Compose (`LazyColumn` item lambdas, which re-run on recomposition), iOS cell config, Flutter `itemBuilder`, RN `renderItem` — all share this trap. Pass `Set`/`Set<String>` into bind, or hold it on the view model.
+"Best 1-second FPS stretch" for a performance report. Keep sums as integers (frame counts or microseconds) and only convert to a floating-point value for display.
 
-### Kotlin — fixed
+### Kotlin
 
 ```kotlin
-// BAD
-fun bindRow(sku: String, cartSkus: List<String>, check: CheckBox) {
-    check.isChecked = cartSkus.contains(sku) // O(m) per row
-}
-
-// GOOD — build once when cart changes
-fun buildCartSet(cartSkus: List<String>): Set<String> = cartSkus.toHashSet()
-
-fun bindRow(sku: String, cartSet: Set<String>, check: CheckBox) {
-    check.isChecked = cartSet.contains(sku) // O(1) average
+fun findMaxAverage(nums: IntArray, k: Int): Double {
+    var sum = 0L
+    for (i in 0 until k) sum += nums[i]
+    var best = sum
+    for (r in k until nums.size) {
+        sum += nums[r] - nums[r - k]
+        if (sum > best) best = sum
+    }
+    return best.toDouble() / k
 }
 ```
 
-### Kotlin (Jetpack Compose) — fixed
-
-```kotlin
-// BAD — O(m) list scan per visible row, on every recomposition
-@Composable
-fun CartListSlow(skus: List<String>, cartSkus: List<String>, onToggle: (String) -> Unit) {
-    LazyColumn {
-        items(skus, key = { it }) { sku ->
-            Checkbox(checked = cartSkus.contains(sku), onCheckedChange = { onToggle(sku) })
-        }
-    }
-}
-
-// GOOD — Set rebuilt only when the cart changes (or expose a Set from the ViewModel)
-@Composable
-fun CartList(skus: List<String>, cartSkus: List<String>, onToggle: (String) -> Unit) {
-    val cartSet = remember(cartSkus) { cartSkus.toHashSet() }
-    LazyColumn {
-        items(skus, key = { it }) { sku ->
-            Checkbox(checked = sku in cartSet, onCheckedChange = { onToggle(sku) })
-        }
-    }
-}
-```
-
-### Swift — fixed
+### Swift
 
 ```swift
-// BAD
-func bindRow(sku: String, cartSkus: [String], check: UISwitch) {
-    check.isOn = cartSkus.contains(sku) // O(m)
-}
-
-// GOOD
-func buildCartSet(_ cartSkus: [String]) -> Set<String> { Set(cartSkus) }
-
-func bindRow(sku: String, cartSet: Set<String>, check: UISwitch) {
-    check.isOn = cartSet.contains(sku) // O(1)
+func findMaxAverage(_ nums: [Int], _ k: Int) -> Double {
+    var sum = 0
+    for i in 0..<k { sum += nums[i] }
+    var best = sum
+    for r in k..<nums.count {
+        sum += nums[r] - nums[r - k]
+        best = max(best, sum)
+    }
+    return Double(best) / Double(k)
 }
 ```
 
-### Dart — fixed
+### Dart
 
 ```dart
-// BAD
-void bindRow(String sku, List<String> cartSkus, bool Function(bool) setChecked) {
-  setChecked(cartSkus.contains(sku)); // O(m)
-}
-
-// GOOD
-Set<String> buildCartSet(List<String> cartSkus) => cartSkus.toSet();
-
-void bindRow(String sku, Set<String> cartSet, void Function(bool) setChecked) {
-  setChecked(cartSet.contains(sku)); // O(1)
+double findMaxAverage(List<int> nums, int k) {
+  var sum = 0;
+  for (var i = 0; i < k; i++) {
+    sum += nums[i];
+  }
+  var best = sum;
+  for (var r = k; r < nums.length; r++) {
+    sum += nums[r] - nums[r - k];
+    if (sum > best) best = sum;
+  }
+  return best / k;
 }
 ```
 
-### TypeScript — fixed
+### TypeScript
 
 ```typescript
-// BAD — inside renderItem
-function isInCart(sku: string, cartSkus: string[]): boolean {
-  return cartSkus.includes(sku); // O(m)
-}
-
-// GOOD — memoize / rebuild when cart changes
-function buildCartSet(cartSkus: string[]): Set<string> {
-  return new Set(cartSkus);
-}
-
-function isInCart(sku: string, cartSet: Set<string>): boolean {
-  return cartSet.has(sku); // O(1)
+function findMaxAverage(nums: number[], k: number): number {
+  let sum = 0;
+  for (let i = 0; i < k; i++) sum += nums[i];
+  let best = sum;
+  for (let r = k; r < nums.length; r++) {
+    sum += nums[r] - nums[r - k];
+    best = Math.max(best, sum);
+  }
+  return best / k;
 }
 ```
 
 ---
 
-## Quick reference — scenario → structure
+## P2: Max consecutive ones with k flips
 
-| # | Structure |
-|---|-----------|
-| S1 | Array + Set + cursor |
-| S2 | Bounded stack |
-| S3 | HashSet / HashMap |
-| S4 | HashSet (+ array for lists) |
-| S5 | LRU + TTL (+ disk) |
+Given a binary array and `k`, return the length of the longest run of 1s you can get by flipping at most `k` zeros.
 
-| Bug | Fix |
-|-----|-----|
-| `list.contains` in bind | `Set.contains` with set built once |
+### Approach
+
+Variable window. Restate the problem: find the longest window containing **at most `k` zeros**. Expand `right` and count zeros. While `zeros > k`, shrink from the left, decrementing the count when a zero leaves. Record `right - left + 1` after shrinking.
+
+### Complexity
+
+- Time: O(n)
+- Space: O(1)
+
+### Edge cases
+
+- `k == 0` → longest run of existing 1s
+- `k ≥` number of zeros → `n`
+- All zeros → `min(k, n)`
+
+### Mobile note
+
+"Longest streak of days online, forgiving up to k missed days" for an engagement badge. It runs on device over a few hundred booleans, so main-thread cost is negligible.
+
+### Kotlin
+
+```kotlin
+fun longestOnes(a: IntArray, k: Int): Int {
+    var left = 0
+    var zeros = 0
+    var best = 0
+    for (right in a.indices) {
+        if (a[right] == 0) zeros++
+        while (zeros > k) {
+            if (a[left] == 0) zeros--
+            left++
+        }
+        best = maxOf(best, right - left + 1)
+    }
+    return best
+}
+```
+
+### Swift
+
+```swift
+func longestOnes(_ a: [Int], _ k: Int) -> Int {
+    var left = 0, zeros = 0, best = 0
+    for right in a.indices {
+        if a[right] == 0 { zeros += 1 }
+        while zeros > k {
+            if a[left] == 0 { zeros -= 1 }
+            left += 1
+        }
+        best = max(best, right - left + 1)
+    }
+    return best
+}
+```
+
+### Dart
+
+```dart
+int longestOnes(List<int> a, int k) {
+  var left = 0, zeros = 0, best = 0;
+  for (var right = 0; right < a.length; right++) {
+    if (a[right] == 0) zeros++;
+    while (zeros > k) {
+      if (a[left] == 0) zeros--;
+      left++;
+    }
+    if (right - left + 1 > best) best = right - left + 1;
+  }
+  return best;
+}
+```
+
+### TypeScript
+
+```typescript
+function longestOnes(a: number[], k: number): number {
+  let left = 0;
+  let zeros = 0;
+  let best = 0;
+  for (let right = 0; right < a.length; right++) {
+    if (a[right] === 0) zeros++;
+    while (zeros > k) {
+      if (a[left] === 0) zeros--;
+      left++;
+    }
+    best = Math.max(best, right - left + 1);
+  }
+  return best;
+}
+```
+
+---
+
+## P3: Fruit into baskets (at most two kinds)
+
+Given `types`, return the length of the longest contiguous stretch that contains at most 2 distinct values.
+
+### Approach
+
+Variable window with a frequency map. Add `types[right]`. While the map has more than 2 keys, decrement `types[left]`, **remove the key when its count reaches 0**, and move `left`. Record the window length.
+
+The general version ("at most k distinct") is the same code with `2` replaced by `k`.
+
+### Complexity
+
+- Time: O(n)
+- Space: O(1) here (at most 3 keys at once); O(k) in general
+
+### Edge cases
+
+- One distinct value → `n`
+- Alternating three values `[1,2,3,1,2,3]` → 2
+- Empty input → 0
+
+### Mobile note
+
+"Longest browsing session that stayed within two categories" is a feature for on-device personalization. Raw events never leave the device. Only the summary is computed.
+
+### Kotlin
+
+```kotlin
+fun totalFruit(types: IntArray): Int {
+    val count = HashMap<Int, Int>()
+    var left = 0
+    var best = 0
+    for (right in types.indices) {
+        count[types[right]] = (count[types[right]] ?: 0) + 1
+        while (count.size > 2) {
+            val t = types[left]
+            val c = count.getValue(t) - 1
+            if (c == 0) count.remove(t) else count[t] = c
+            left++
+        }
+        best = maxOf(best, right - left + 1)
+    }
+    return best
+}
+```
+
+### Swift
+
+```swift
+func totalFruit(_ types: [Int]) -> Int {
+    var count: [Int: Int] = [:]
+    var left = 0, best = 0
+    for right in types.indices {
+        count[types[right], default: 0] += 1
+        while count.count > 2 {
+            let t = types[left]
+            count[t]! -= 1
+            if count[t] == 0 { count[t] = nil }
+            left += 1
+        }
+        best = max(best, right - left + 1)
+    }
+    return best
+}
+```
+
+### Dart
+
+```dart
+int totalFruit(List<int> types) {
+  final count = <int, int>{};
+  var left = 0, best = 0;
+  for (var right = 0; right < types.length; right++) {
+    count[types[right]] = (count[types[right]] ?? 0) + 1;
+    while (count.length > 2) {
+      final t = types[left];
+      final c = count[t]! - 1;
+      if (c == 0) {
+        count.remove(t);
+      } else {
+        count[t] = c;
+      }
+      left++;
+    }
+    if (right - left + 1 > best) best = right - left + 1;
+  }
+  return best;
+}
+```
+
+### TypeScript
+
+```typescript
+function totalFruit(types: number[]): number {
+  const count = new Map<number, number>();
+  let left = 0;
+  let best = 0;
+  for (let right = 0; right < types.length; right++) {
+    count.set(types[right], (count.get(types[right]) ?? 0) + 1);
+    while (count.size > 2) {
+      const t = types[left];
+      const c = count.get(t)! - 1;
+      if (c === 0) count.delete(t);
+      else count.set(t, c);
+      left++;
+    }
+    best = Math.max(best, right - left + 1);
+  }
+  return best;
+}
+```

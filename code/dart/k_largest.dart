@@ -1,4 +1,4 @@
-// Sample: k largest values via size-k min-heap (Chapter 18)
+// Sample: k largest values via size-k min-heap (Chapter 12)
 List<int> kLargest(List<int> nums, int k) {
   final heap = <int>[];
   void siftUp(int i) {

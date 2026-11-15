@@ -1,196 +1,184 @@
 # Chapter 36 — Solution Index & Extra Ports
 
-Full **Kotlin + TypeScript** solutions live inline in [`book/part-x/36-heaps-tries-greedy.md`](../../book/part-x/36-heaps-tries-greedy.md). This file adds a timed-review index plus a standalone copy of the **Swift/Dart** versions of the most interview-heavy problems. All four languages are also inline in the chapter.
+Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/36-graphs-dynamic-programming.md`](../../book/part-viii/36-graphs-dynamic-programming.md). This file adds a timed-review index plus a standalone copy of the **Swift/Dart** versions of the most interview-heavy problems. All four languages are also inline in the chapter.
 
 | # | Title | Topic | One-line approach |
 |---|-------|-------|-------------------|
-| [Q1](../../book/part-x/36-heaps-tries-greedy.md#q1-kth-largest-element-in-a-stream-live-leaderboard-cutoff) | Kth Largest Element in a Stream | Heap (bounded min-heap) | Min-heap of size k; root is the answer |
-| [Q2](../../book/part-x/36-heaps-tries-greedy.md#q2-k-closest-points-to-origin-nearest-stores-on-the-map) | K Closest Points to Origin | Heap (bounded max-heap) | Max-heap of size k on squared distance |
-| [Q3](../../book/part-x/36-heaps-tries-greedy.md#q3-task-scheduler-notification-cooldown-slots) | Task Scheduler | Greedy / counting | max(tasks.length, (maxF-1)(n+1) + #maxF) |
-| [Q4](../../book/part-x/36-heaps-tries-greedy.md#q4-design-add-and-search-words-data-structure-wildcard-contact-search) | Design Add and Search Words Data Structure | Trie + DFS | Trie; `.` fans out to every child |
-| [Q5](../../book/part-x/36-heaps-tries-greedy.md#q5-word-search-ii-word-game-board-scan) | Word Search II | Trie + backtracking | One trie, one DFS per cell; clear word on hit |
-| [Q6](../../book/part-x/36-heaps-tries-greedy.md#q6-jump-game-ii-fewest-deep-link-hops) | Jump Game II | Greedy (BFS by ranges) | Implicit BFS: curEnd / farthest window |
-| [Q7](../../book/part-x/36-heaps-tries-greedy.md#q7-gas-station-ev-delivery-loop-start) | Gas Station | Greedy (prefix reset) | Total ≥ 0 check; reset start when tank < 0 |
-| [Q8](../../book/part-x/36-heaps-tries-greedy.md#q8-hand-of-straights-consecutive-ticket-batches) | Hand of Straights | Greedy + ordered map | Smallest card starts a run; consume from ordered counts |
-| [Q9](../../book/part-x/36-heaps-tries-greedy.md#q9-merge-triplets-to-form-target-triplet-release-gate-versions) | Merge Triplets to Form Target Triplet | Greedy (filter) | Drop overshooting triplets; each slot must be hit exactly |
-| [Q10](../../book/part-x/36-heaps-tries-greedy.md#q10-partition-labels-chunking-a-sync-log) | Partition Labels | Greedy (last occurrence) | Last index per letter; close chunk when i == end |
-| [Q11](../../book/part-x/36-heaps-tries-greedy.md#q11-valid-parenthesis-string-template-brackets-with-wildcards) | Valid Parenthesis String | Greedy (range of balances) | Track [lo, hi] open-count range; clamp lo |
+| [Q1](../../book/part-viii/36-graphs-dynamic-programming.md#q1-max-area-of-island-largest-heatmap-region) | Max Area of Island | Grid DFS (iterative) | Iterative DFS with stack; mark visited in place |
+| [Q2](../../book/part-viii/36-graphs-dynamic-programming.md#q2-rotting-oranges-offline-update-spread) | Rotting Oranges | Multi-source BFS | Multi-source BFS by layers; count fresh |
+| [Q3](../../book/part-viii/36-graphs-dynamic-programming.md#q3-pacific-atlantic-water-flow-map-tiles-draining-to-both-coasts) | Pacific Atlantic Water Flow | Reverse BFS from borders | Uphill BFS from each ocean's border; intersect |
+| [Q4](../../book/part-viii/36-graphs-dynamic-programming.md#q4-surrounded-regions-paint-bucket-capture) | Surrounded Regions | Border flood fill | Flood border O's to safe; flip the rest |
+| [Q5](../../book/part-viii/36-graphs-dynamic-programming.md#q5-graph-valid-tree-folder-hierarchy-sanity-check) | Graph Valid Tree | Union-Find | n−1 edges + union-find (by size) finds no cycle |
+| [Q6](../../book/part-viii/36-graphs-dynamic-programming.md#q6-min-cost-climbing-stairs-cheapest-onboarding-path) | Min Cost Climbing Stairs | 1-D DP | dp[i] = min(dp[i-1]+c[i-1], dp[i-2]+c[i-2]) |
+| [Q7](../../book/part-viii/36-graphs-dynamic-programming.md#q7-house-robber-ii-circular-carousel-ad-slots) | House Robber II | 1-D DP (two passes) | Linear robber on [0..n-2] and [1..n-1] |
+| [Q8](../../book/part-viii/36-graphs-dynamic-programming.md#q8-decode-ways-ambiguous-numeric-codes) | Decode Ways | 1-D DP | dp[i] = one-digit + valid two-digit ways |
+| [Q9](../../book/part-viii/36-graphs-dynamic-programming.md#q9-longest-increasing-subsequence-longest-rising-streak) | Longest Increasing Subsequence | DP + binary search (patience) | Patience tails + binary search |
+| [Q10](../../book/part-viii/36-graphs-dynamic-programming.md#q10-combination-sum-iv-ordered-top-up-sequences) | Combination Sum IV | 1-D DP (order matters) | Amount outer loop: ways[t] += ways[t-x] |
+| [Q11](../../book/part-viii/36-graphs-dynamic-programming.md#q11-longest-common-subsequence-diffing-two-lists) | Longest Common Subsequence | 2-D DP (rolled to 1-D) | Rolling row with diag carry |
+| [Q12](../../book/part-viii/36-graphs-dynamic-programming.md#q12-best-time-to-buy-and-sell-stock-with-cooldown-price-chart-cooldown-rule) | Best Time to Buy and Sell Stock with Cooldown | State-machine DP | hold / sold / rest state machine |
+| [Q13](../../book/part-viii/36-graphs-dynamic-programming.md#q13-coin-change-ii-ways-to-make-change-at-the-till) | Coin Change II | 1-D DP (unbounded knapsack) | Coin outer loop: ways[a] += ways[a-coin] |
+| [Q14](../../book/part-viii/36-graphs-dynamic-programming.md#q14-target-sum-signed-ledger-adjustments) | Target Sum | 0/1 knapsack (subset count) | Subset count for (total+target)/2, backwards loop |
 
 ---
 
-## Q3 — Task Scheduler (Swift / Dart)
+## Q3 — Pacific Atlantic Water Flow (Swift / Dart)
 
 ### Swift
 
 ```swift
-func leastInterval(_ tasks: [Character], _ n: Int) -> Int {
-    var freq = [Int](repeating: 0, count: 26)
-    for t in tasks {
-        guard let v = t.asciiValue, v >= 65, v <= 90 else { continue } // labels are 'A'...'Z'
-        freq[Int(v) - 65] += 1
-    }
-    guard let maxF = freq.max(), maxF > 0 else { return 0 }
-    let maxCount = freq.filter { $0 == maxF }.count
-    return max(tasks.count, (maxF - 1) * (n + 1) + maxCount)
-}
-```
-
-### Dart
-
-```dart
-int leastInterval(List<String> tasks, int n) {
-  if (tasks.isEmpty) return 0;
-  final freq = List<int>.filled(26, 0);
-  for (final t in tasks) {
-    freq[t.codeUnitAt(0) - 65]++;
-  }
-  final maxF = freq.reduce(max);
-  final maxCount = freq.where((f) => f == maxF).length;
-  return max(tasks.length, (maxF - 1) * (n + 1) + maxCount);
-}
-```
-
----
-
-## Q5 — Word Search II (Swift / Dart)
-
-### Swift
-
-```swift
-final class WordNode {
-    var next: [Character: WordNode] = [:]
-    var word: String?
-}
-
-func findWords(_ board: [[Character]], _ words: [String]) -> [String] {
-    let root = WordNode()
-    for w in words {
-        var cur = root
-        for c in w {
-            if let nx = cur.next[c] {
-                cur = nx
-            } else {
-                let nx = WordNode()
-                cur.next[c] = nx
-                cur = nx
+func pacificAtlantic(_ heights: [[Int]]) -> [[Int]] {
+    let rows = heights.count, cols = heights.first?.count ?? 0
+    let dirs = [1, 0, -1, 0, 1]
+    func flood(_ seeds: [Int]) -> [Bool] { // walk uphill from the ocean
+        var seen = [Bool](repeating: false, count: rows * cols)
+        var queue: [Int] = []
+        for s in seeds where !seen[s] { seen[s] = true; queue.append(s) }
+        var head = 0
+        while head < queue.count {
+            let cell = queue[head]; head += 1
+            let r = cell / cols, c = cell % cols
+            for d in 0..<4 {
+                let nr = r + dirs[d], nc = c + dirs[d + 1]
+                if nr < 0 || nr >= rows || nc < 0 || nc >= cols { continue }
+                let next = nr * cols + nc
+                if !seen[next] && heights[nr][nc] >= heights[r][c] {
+                    seen[next] = true
+                    queue.append(next)
+                }
             }
         }
-        cur.word = w
+        return seen
     }
-    var grid = board // local copy; Swift arrays are values
-    let rows = grid.count, cols = grid.first?.count ?? 0
-    var found: [String] = []
-    func dfs(_ r: Int, _ c: Int, _ parent: WordNode) {
-        let ch = grid[r][c]
-        guard let node = parent.next[ch] else { return } // '#' is never a trie edge
-        if let w = node.word {
-            found.append(w)
-            node.word = nil // report once
-        }
-        grid[r][c] = "#"
-        if r > 0 { dfs(r - 1, c, node) }
-        if r < rows - 1 { dfs(r + 1, c, node) }
-        if c > 0 { dfs(r, c - 1, node) }
-        if c < cols - 1 { dfs(r, c + 1, node) }
-        grid[r][c] = ch
-    }
-    for r in 0..<rows { for c in 0..<cols { dfs(r, c, root) } }
-    return found
+    let pacific = flood(Array(0..<cols) + (0..<rows).map { $0 * cols })
+    let atlantic = flood((0..<cols).map { (rows - 1) * cols + $0 } + (0..<rows).map { $0 * cols + cols - 1 })
+    return (0..<(rows * cols)).filter { pacific[$0] && atlantic[$0] }.map { [$0 / cols, $0 % cols] }
 }
 ```
 
 ### Dart
 
 ```dart
-class WordNode {
-  final next = <String, WordNode>{};
-  String? word;
-}
-
-List<String> findWords(List<List<String>> board, List<String> words) {
-  final root = WordNode();
-  for (final w in words) {
-    var cur = root;
-    for (final c in w.split('')) {
-      cur = cur.next.putIfAbsent(c, () => WordNode());
+List<List<int>> pacificAtlantic(List<List<int>> heights) {
+  final rows = heights.length, cols = heights[0].length;
+  const dirs = [1, 0, -1, 0, 1];
+  List<bool> flood(List<int> seeds) { // walk uphill from the ocean
+    final seen = List<bool>.filled(rows * cols, false);
+    final queue = <int>[];
+    for (final s in seeds) {
+      if (!seen[s]) { seen[s] = true; queue.add(s); }
     }
-    cur.word = w;
-  }
-  final rows = board.length, cols = board[0].length;
-  final found = <String>[];
-  void dfs(int r, int c, WordNode parent) {
-    final ch = board[r][c];
-    final node = parent.next[ch]; // '#' is never a trie edge
-    if (node == null) return;
-    final w = node.word;
-    if (w != null) {
-      found.add(w);
-      node.word = null; // report once
+    for (var head = 0; head < queue.length; head++) {
+      final cell = queue[head];
+      final r = cell ~/ cols, c = cell % cols;
+      for (var d = 0; d < 4; d++) {
+        final nr = r + dirs[d], nc = c + dirs[d + 1];
+        if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+        final next = nr * cols + nc;
+        if (!seen[next] && heights[nr][nc] >= heights[r][c]) {
+          seen[next] = true;
+          queue.add(next);
+        }
+      }
     }
-    board[r][c] = '#';
-    if (r > 0) dfs(r - 1, c, node);
-    if (r < rows - 1) dfs(r + 1, c, node);
-    if (c > 0) dfs(r, c - 1, node);
-    if (c < cols - 1) dfs(r, c + 1, node);
-    board[r][c] = ch;
+    return seen;
   }
-
-  for (var r = 0; r < rows; r++) {
-    for (var c = 0; c < cols; c++) {
-      dfs(r, c, root);
-    }
-  }
-  return found;
+  final pacific = flood([for (var c = 0; c < cols; c++) c, for (var r = 0; r < rows; r++) r * cols]);
+  final atlantic = flood([
+    for (var c = 0; c < cols; c++) (rows - 1) * cols + c,
+    for (var r = 0; r < rows; r++) r * cols + cols - 1,
+  ]);
+  return [
+    for (var i = 0; i < rows * cols; i++)
+      if (pacific[i] && atlantic[i]) [i ~/ cols, i % cols],
+  ];
 }
 ```
 
 ---
 
-## Q8 — Hand of Straights (Swift / Dart)
+## Q9 — Longest Increasing Subsequence (Swift / Dart)
 
 ### Swift
 
 ```swift
-func isNStraightHand(_ hand: [Int], _ groupSize: Int) -> Bool {
-    if hand.count % groupSize != 0 { return false }
-    var count: [Int: Int] = [:]
-    for h in hand { count[h, default: 0] += 1 }
-    for first in count.keys.sorted() {
-        let need = count[first] ?? 0 // groups that must start here
-        if need == 0 { continue }
-        for v in first..<(first + groupSize) {
-            let have = count[v] ?? 0
-            if have < need { return false }
-            count[v] = have - need
+func lengthOfLIS(_ nums: [Int]) -> Int {
+    var tails: [Int] = [] // tails[k] = smallest tail of an increasing run of length k+1
+    for x in nums {
+        var lo = 0, hi = tails.count
+        while lo < hi {
+            let mid = (lo + hi) / 2
+            if tails[mid] < x { lo = mid + 1 } else { hi = mid }
         }
+        if lo == tails.count { tails.append(x) } else { tails[lo] = x }
     }
-    return true
+    return tails.count
 }
 ```
 
 ### Dart
 
 ```dart
-bool isNStraightHand(List<int> hand, int groupSize) {
-  if (hand.length % groupSize != 0) return false;
-  final count = <int, int>{};
-  for (final h in hand) {
-    count[h] = (count[h] ?? 0) + 1;
-  }
-  final keys = count.keys.toList()..sort();
-  for (final first in keys) {
-    final need = count[first] ?? 0; // groups that must start here
-    if (need == 0) continue;
-    for (var v = first; v < first + groupSize; v++) {
-      final have = count[v] ?? 0;
-      if (have < need) return false;
-      count[v] = have - need;
+int lengthOfLIS(List<int> nums) {
+  final tails = <int>[]; // tails[k] = smallest tail of an increasing run of length k+1
+  for (final x in nums) {
+    var lo = 0, hi = tails.length;
+    while (lo < hi) {
+      final mid = (lo + hi) >> 1;
+      if (tails[mid] < x) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    if (lo == tails.length) {
+      tails.add(x);
+    } else {
+      tails[lo] = x;
     }
   }
-  return true;
+  return tails.length;
 }
 ```
 
 ---
 
-Back to [Chapter 36](../../book/part-x/36-heaps-tries-greedy.md).
+## Q14 — Target Sum (Swift / Dart)
+
+### Swift
+
+```swift
+func findTargetSumWays(_ nums: [Int], _ target: Int) -> Int {
+    let total = nums.reduce(0, +)
+    if abs(target) > total || (total + target) % 2 != 0 { return 0 }
+    let want = (total + target) / 2 // sum of the '+' group
+    var ways = [Int](repeating: 0, count: want + 1)
+    ways[0] = 1
+    for x in nums {
+        var s = want
+        while s >= x { ways[s] += ways[s - x]; s -= 1 } // 0/1 knapsack, backwards
+    }
+    return ways[want]
+}
+```
+
+### Dart
+
+```dart
+int findTargetSumWays(List<int> nums, int target) {
+  final total = nums.fold(0, (a, b) => a + b);
+  if (target.abs() > total || (total + target) % 2 != 0) return 0;
+  final want = (total + target) ~/ 2; // sum of the '+' group
+  final ways = List<int>.filled(want + 1, 0);
+  ways[0] = 1;
+  for (final x in nums) {
+    for (var s = want; s >= x; s--) {
+      ways[s] += ways[s - x]; // 0/1 knapsack, backwards
+    }
+  }
+  return ways[want];
+}
+```
+
+---
+
+Back to [Chapter 36](../../book/part-viii/36-graphs-dynamic-programming.md).

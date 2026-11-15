@@ -2,41 +2,40 @@
 
 Model solutions for Chapter 17 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
 
-Problems are defined in [`book/part-v/17-greedy-thinking.md`](../../book/part-v/17-greedy-thinking.md).
+Problems are defined in [`book/part-iv/17-intervals-sweep-line.md`](../../book/part-iv/17-intervals-sweep-line.md).
 
 ---
 
-## P1: Jump game
+## P1: Can attend all meetings
+
+Given half-open `[start, end)` meetings, return `true` if no two overlap.
 
 ### Approach
 
-Greedy farthest-reach: scan left to right. If index `i` is beyond `farthest`, it is unreachable → false. Otherwise extend `farthest` to `max(farthest, i + nums[i])`. Success when `farthest >= last index`.
+Sort by start, then check neighbours only: if any `meetings[i].start < meetings[i - 1].end`, two meetings overlap. After sorting, a meeting can only conflict with an earlier one if it conflicts with the one just before it in sorted order (or an overlap already shows up earlier in the scan).
 
 ### Complexity
 
-- Time: O(n)
-- Space: O(1)
+- Time: O(n log n)
+- Space: O(n) for the sorted copy (O(1) extra if sorting in place is allowed)
 
 ### Edge cases
 
-- Single element → true
-- `nums[0] == 0` and n > 1 → false
-- Zeros in the middle that block the path
-- Large jumps that skip past the end → true
+- Back-to-back `[9, 10)`, `[10, 11)` → no conflict (half-open)
+- Empty or single meeting → `true`
+- Identical meetings → conflict
 
 ### Mobile note
 
-Same idea as “can the user finish this pager / wizard given skip allowances?” Safe on main thread for normal list sizes. Do not recurse every jump path — that is exponential.
+Run this when the user saves an event to show a "conflicts with…" warning. For an incremental check (one new event against an already-sorted day), binary search the insertion point and compare only the two neighbours: O(log n).
 
 ### Kotlin
 
 ```kotlin
-fun canJump(nums: IntArray): Boolean {
-    var farthest = 0
-    for (i in nums.indices) {
-        if (i > farthest) return false
-        farthest = maxOf(farthest, i + nums[i])
-        if (farthest >= nums.lastIndex) return true
+fun canAttendAll(meetings: List<IntArray>): Boolean {
+    val sorted = meetings.sortedBy { it[0] }
+    for (i in 1 until sorted.size) {
+        if (sorted[i][0] < sorted[i - 1][1]) return false
     }
     return true
 }
@@ -45,12 +44,10 @@ fun canJump(nums: IntArray): Boolean {
 ### Swift
 
 ```swift
-func canJump(_ nums: [Int]) -> Bool {
-    var farthest = 0
-    for i in nums.indices {
-        if i > farthest { return false }
-        farthest = max(farthest, i + nums[i])
-        if farthest >= nums.count - 1 { return true }
+func canAttendAll(_ meetings: [(start: Int, end: Int)]) -> Bool {
+    let sorted = meetings.sorted { $0.start < $1.start }
+    for i in sorted.indices.dropFirst() where sorted[i].start < sorted[i - 1].end {
+        return false
     }
     return true
 }
@@ -59,13 +56,10 @@ func canJump(_ nums: [Int]) -> Bool {
 ### Dart
 
 ```dart
-bool canJump(List<int> nums) {
-  var farthest = 0;
-  for (var i = 0; i < nums.length; i++) {
-    if (i > farthest) return false;
-    final reach = i + nums[i];
-    if (reach > farthest) farthest = reach;
-    if (farthest >= nums.length - 1) return true;
+bool canAttendAll(List<List<int>> meetings) {
+  final sorted = [...meetings]..sort((a, b) => a[0].compareTo(b[0]));
+  for (var i = 1; i < sorted.length; i++) {
+    if (sorted[i][0] < sorted[i - 1][1]) return false;
   }
   return true;
 }
@@ -74,12 +68,10 @@ bool canJump(List<int> nums) {
 ### TypeScript
 
 ```typescript
-function canJump(nums: number[]): boolean {
-  let farthest = 0;
-  for (let i = 0; i < nums.length; i++) {
-    if (i > farthest) return false;
-    farthest = Math.max(farthest, i + nums[i]);
-    if (farthest >= nums.length - 1) return true;
+function canAttendAll(meetings: [number, number][]): boolean {
+  const sorted = [...meetings].sort((a, b) => a[0] - b[0]);
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i][0] < sorted[i - 1][1]) return false;
   }
   return true;
 }
@@ -87,181 +79,197 @@ function canJump(nums: number[]): boolean {
 
 ---
 
-## P2: Non-overlapping intervals
+## P2: Remove covered intervals
+
+Interval `[a, b)` is covered by `[c, d)` if `c ≤ a` and `b ≤ d`. Return how many intervals remain after removing every covered one.
 
 ### Approach
 
-Minimum removals so intervals do not overlap ≡ `n - maximum non-overlapping count`. Sort by **end** time ascending. Greedily keep an interval if its start ≥ last kept end; otherwise remove (count++). On conflict, the earlier-ending interval is already kept — discard the current one.
+Sort by start **ascending**, and for equal starts by end **descending**. Then any interval that could cover the current one comes before it. Track `maxEnd`, the furthest end seen. If the current end is `≤ maxEnd`, the current interval is covered. Otherwise it survives and `maxEnd` grows.
+
+The descending tie-break matters. For `[1, 4)` and `[1, 6)`, the longer one must be seen first so the shorter one is detected as covered.
 
 ### Complexity
 
-- Time: O(n log n) sort + O(n) scan
-- Space: O(1) extra beyond sort (language-dependent)
+- Time: O(n log n)
+- Space: O(n) for the sorted copy
 
 ### Edge cases
 
-- Empty / single interval → 0 removals
-- All overlapping at one point — careful with touching endpoints: treat `[1,2]` and `[2,3]` as non-overlapping if half-open or `start >= lastEnd`
-- Identical intervals → keep one
+- Identical intervals: one covers the other, so one remains
+- Nested chain `[1,10) ⊃ [2,9) ⊃ [3,8)` → 1
+- No overlaps → `n`
 
 ### Mobile note
 
-Calendar “remove fewest conflicting local drafts” before sync. Sort/copy off the main thread if the user has thousands of events; the greedy scan itself is cheap.
+Media players get buffered ranges from several fetches. Dropping covered ranges before merging keeps the progress-bar drawing to a handful of segments.
 
 ### Kotlin
 
 ```kotlin
-fun eraseOverlapIntervals(intervals: Array<IntArray>): Int {
-    if (intervals.isEmpty()) return 0
-    intervals.sortBy { it[1] }
-    var keptEnd = intervals[0][1]
-    var removals = 0
-    for (i in 1 until intervals.size) {
-        if (intervals[i][0] >= keptEnd) {
-            keptEnd = intervals[i][1]
-        } else {
-            removals++
+fun removeCoveredIntervals(intervals: List<IntArray>): Int {
+    val sorted = intervals.sortedWith(compareBy<IntArray>({ it[0] }, { -it[1] }))
+    var maxEnd = Int.MIN_VALUE
+    var kept = 0
+    for ((_, end) in sorted) {
+        if (end > maxEnd) {
+            kept++
+            maxEnd = end
         }
     }
-    return removals
+    return kept
 }
 ```
 
 ### Swift
 
 ```swift
-func eraseOverlapIntervals(_ intervals: [[Int]]) -> Int {
-    if intervals.isEmpty { return 0 }
-    let sorted = intervals.sorted { $0[1] < $1[1] }
-    var keptEnd = sorted[0][1]
-    var removals = 0
-    for i in 1..<sorted.count {
-        if sorted[i][0] >= keptEnd {
-            keptEnd = sorted[i][1]
-        } else {
-            removals += 1
-        }
+func removeCoveredIntervals(_ intervals: [(start: Int, end: Int)]) -> Int {
+    let sorted = intervals.sorted { $0.start != $1.start ? $0.start < $1.start : $0.end > $1.end }
+    var maxEnd = Int.min, kept = 0
+    for iv in sorted where iv.end > maxEnd {
+        kept += 1
+        maxEnd = iv.end
     }
-    return removals
+    return kept
 }
 ```
 
 ### Dart
 
 ```dart
-int eraseOverlapIntervals(List<List<int>> intervals) {
-  if (intervals.isEmpty) return 0;
-  intervals.sort((a, b) => a[1].compareTo(b[1]));
-  var keptEnd = intervals[0][1];
-  var removals = 0;
-  for (var i = 1; i < intervals.length; i++) {
-    if (intervals[i][0] >= keptEnd) {
-      keptEnd = intervals[i][1];
-    } else {
-      removals++;
+int removeCoveredIntervals(List<List<int>> intervals) {
+  final sorted = [...intervals]
+    ..sort((a, b) => a[0] != b[0] ? a[0].compareTo(b[0]) : b[1].compareTo(a[1]));
+  var maxEnd = -1 << 62;
+  var kept = 0;
+  for (final iv in sorted) {
+    if (iv[1] > maxEnd) {
+      kept++;
+      maxEnd = iv[1];
     }
   }
-  return removals;
+  return kept;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function eraseOverlapIntervals(intervals: number[][]): number {
-  if (!intervals.length) return 0;
-  intervals.sort((a, b) => a[1] - b[1]);
-  let keptEnd = intervals[0][1];
-  let removals = 0;
-  for (let i = 1; i < intervals.length; i++) {
-    if (intervals[i][0] >= keptEnd) keptEnd = intervals[i][1];
-    else removals++;
+function removeCoveredIntervals(intervals: [number, number][]): number {
+  const sorted = [...intervals].sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+  let maxEnd = -Infinity;
+  let kept = 0;
+  for (const [, end] of sorted) {
+    if (end > maxEnd) {
+      kept++;
+      maxEnd = end;
+    }
   }
-  return removals;
+  return kept;
 }
 ```
 
 ---
 
-## P3: Assign cookies
+## P3: Meeting scheduler (two calendars)
+
+`slotsA` and `slotsB` are each person's free slots, `[start, end)`, non-overlapping within each list. Return the earliest `[start, start + duration)` that fits inside a free slot of both people, or an empty result.
 
 ### Approach
 
-Sort greed factors and cookie sizes ascending. Two pointers: for each child in order, advance the cookie pointer until the cookie is large enough or cookies run out. Assign when `s[j] >= g[i]`; count++.
+Sort both lists by start, then use **two pointers**. The overlap of `A[i]` and `B[j]` is `[max(starts), min(ends))`. If it's at least `duration` long, return its start. Otherwise advance whichever slot **ends first**, because it can't overlap anything later in the other list beyond what we've already checked.
 
 ### Complexity
 
-- Time: O(n log n + m log m)
-- Space: O(1) extra if sorting in place
+- Time: O(n log n + m log m) to sort, plus O(n + m) for the scan
+- Space: O(n + m) for the sorted copies
 
 ### Edge cases
 
-- No cookies / no children
-- All cookies too small
-- One huge cookie for the greediest child only — sorting still correct
-- Equal sizes and greeds
+- Overlap exactly equal to `duration` → valid
+- One list empty → no slot
+- Slots that only touch (`[9, 10)` and `[10, 11)`) → overlap length 0
 
 ### Mobile note
 
-Lite matching pattern: assign limited download slots or promo codes to the “smallest need first” to maximize satisfied users. Document that this maximizes *count*, not total utility.
+This powers "suggest a time" in a scheduling sheet. Both availabilities are usually already sorted from the server, so the on-device cost is a linear scan on each drag.
 
 ### Kotlin
 
 ```kotlin
-fun findContentChildren(g: IntArray, s: IntArray): Int {
-    g.sort()
-    s.sort()
+fun meetingScheduler(slotsA: List<IntArray>, slotsB: List<IntArray>, duration: Int): IntArray? {
+    val a = slotsA.sortedBy { it[0] }
+    val b = slotsB.sortedBy { it[0] }
     var i = 0
     var j = 0
-    while (i < g.size && j < s.size) {
-        if (s[j] >= g[i]) i++
-        j++
+    while (i < a.size && j < b.size) {
+        val start = maxOf(a[i][0], b[j][0])
+        val end = minOf(a[i][1], b[j][1])
+        if (end - start >= duration) return intArrayOf(start, start + duration)
+        if (a[i][1] < b[j][1]) i++ else j++
     }
-    return i
+    return null
 }
 ```
 
 ### Swift
 
 ```swift
-func findContentChildren(_ g: [Int], _ s: [Int]) -> Int {
-    let kids = g.sorted()
-    let cookies = s.sorted()
+func meetingScheduler(_ slotsA: [(start: Int, end: Int)], _ slotsB: [(start: Int, end: Int)], _ duration: Int) -> (start: Int, end: Int)? {
+    let a = slotsA.sorted { $0.start < $1.start }
+    let b = slotsB.sorted { $0.start < $1.start }
     var i = 0, j = 0
-    while i < kids.count && j < cookies.count {
-        if cookies[j] >= kids[i] { i += 1 }
-        j += 1
+    while i < a.count && j < b.count {
+        let start = max(a[i].start, b[j].start)
+        let end = min(a[i].end, b[j].end)
+        if end - start >= duration { return (start, start + duration) }
+        if a[i].end < b[j].end { i += 1 } else { j += 1 }
     }
-    return i
+    return nil
 }
 ```
 
 ### Dart
 
 ```dart
-int findContentChildren(List<int> g, List<int> s) {
-  g.sort();
-  s.sort();
+List<int>? meetingScheduler(List<List<int>> slotsA, List<List<int>> slotsB, int duration) {
+  final a = [...slotsA]..sort((x, y) => x[0].compareTo(y[0]));
+  final b = [...slotsB]..sort((x, y) => x[0].compareTo(y[0]));
   var i = 0, j = 0;
-  while (i < g.length && j < s.length) {
-    if (s[j] >= g[i]) i++;
-    j++;
+  while (i < a.length && j < b.length) {
+    final start = a[i][0] > b[j][0] ? a[i][0] : b[j][0];
+    final end = a[i][1] < b[j][1] ? a[i][1] : b[j][1];
+    if (end - start >= duration) return [start, start + duration];
+    if (a[i][1] < b[j][1]) {
+      i++;
+    } else {
+      j++;
+    }
   }
-  return i;
+  return null;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function findContentChildren(g: number[], s: number[]): number {
-  g.sort((a, b) => a - b);
-  s.sort((a, b) => a - b);
-  let i = 0, j = 0;
-  while (i < g.length && j < s.length) {
-    if (s[j] >= g[i]) i++;
-    j++;
+function meetingScheduler(
+  slotsA: [number, number][],
+  slotsB: [number, number][],
+  duration: number,
+): [number, number] | null {
+  const a = [...slotsA].sort((x, y) => x[0] - y[0]);
+  const b = [...slotsB].sort((x, y) => x[0] - y[0]);
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    const start = Math.max(a[i][0], b[j][0]);
+    const end = Math.min(a[i][1], b[j][1]);
+    if (end - start >= duration) return [start, start + duration];
+    if (a[i][1] < b[j][1]) i++;
+    else j++;
   }
-  return i;
+  return null;
 }
 ```

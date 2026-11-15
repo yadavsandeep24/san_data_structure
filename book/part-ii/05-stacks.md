@@ -405,4 +405,21 @@ class MinStack {
 2. **Min stack** (`push`/`pop`/`top`/`getMin` all O(1)) — [solutions/ch05](../../solutions/ch05/README.md#p2-min-stack)
 3. **Simplify absolute path** (Unix-style `/a/./b/../../c/`) — [solutions/ch05](../../solutions/ch05/README.md#p3-simplify-absolute-path)
 
-Next: [Chapter 6 — Queues and Deques](06-queues-deques.md) — FIFO, sliding windows, and request queues.
+### More practice
+
+- [Ch 29 — Interview Questions, Q1–Q10](../part-viii/29-interview-questions-q01-q10.md): Q6 Valid Parentheses · Q7 Min Stack
+- [Ch 29 — Interview Questions, Q31–Q40](../part-viii/29-interview-questions-q31-q40.md): Q39 Navigation Back Stack
+- [Ch 33 — Stacks & Binary Search](../part-viii/33-stacks-binary-search.md): Q1 Evaluate Reverse Polish Notation · Q2 Daily Temperatures · Q3 Largest Rectangle in Histogram
+- [Ch 35 — Heaps, Tries & Greedy](../part-viii/35-heaps-tries-greedy.md): Q11 Valid Parenthesis String
+- [Ch 42 — Document & Signing Drills, Q1–Q7](../part-ix/42-document-signing-drill-bank-q01-q07.md): Q5 Text Editor with a Cursor
+- Stacks that stay sorted solve "next greater / smaller" in O(n): [Chapter 16 — Monotonic Stack & Deque](../part-iv/16-monotonic-stack-deque.md).
+
+---
+
+## What to remember
+
+A stack is last-in, first-out with O(1) push, pop and peek. It is the shape of navigation back stacks, undo/redo, bracket matching, expression evaluation and the call stack itself. Keep stack entries small (IDs or route objects, not live views), bound undo history, and remember that deep recursion is an implicit stack that can overflow on device. An explicit stack is the safe rewrite.
+
+---
+
+Previous: [Chapter 4 — Linked Lists](04-linked-lists.md) · Next: [Chapter 6 — Queues and Deques](06-queues-deques.md) · Solutions: [`solutions/ch05`](../../solutions/ch05/README.md)

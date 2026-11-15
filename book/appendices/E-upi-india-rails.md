@@ -2,7 +2,7 @@
 
 Quick reference for **Indian fintech mobile interviews** — vocabulary, client flows, and failure modes. This is not legal or NPCI compliance documentation; it is engineering fluency at the altitude mobile hires are expected to show.
 
-Related chapters: [26 — Money & Idempotency](../part-viii/26-money-idempotency-reliability.md), [28 — System Design](../part-viii/28-mobile-fintech-system-design.md), [practice outline](../../solutions/ch28/README.md#practice-1-upi-collect-intent-return).
+Related chapters: [26 — Money & Idempotency](../part-ix/39-money-idempotency-reliability.md), [28 — System Design](../part-ix/40-mobile-fintech-system-design.md), [practice outline](../../solutions/ch40/README.md#practice-1-upi-collect-or-intent-return).
 
 ---
 
@@ -59,7 +59,7 @@ User taps Pay (amount locked, idempotency key minted)
 
 ---
 
-## Status model (align with Chapter 28)
+## Status model (align with Chapter 40)
 
 | Status | UI copy (example) | Client action |
 |--------|-------------------|---------------|
@@ -77,7 +77,7 @@ User taps Pay (amount locked, idempotency key minted)
 
 | Bug | Mitigation |
 |-----|------------|
-| User taps Pay twice | UI disable + in-flight coalescing (Ch 26) + server idempotency |
+| User taps Pay twice | UI disable + in-flight coalescing (Ch 39) + server idempotency |
 | User opens two UPI apps | Same `payment_id`; second intent should no-op or show “already in progress” |
 | Return deep link opened twice | Idempotent navigation to same receipt screen |
 | Collect + Intent confusion | One active payment per `order_id` on server |
@@ -117,4 +117,4 @@ Mobile app: show **transfer initiated** vs **credited**; poll payout status API;
 
 ---
 
-Back: [Appendix D](D-self-check-answer-key.md) · [Chapter 28](../part-viii/28-mobile-fintech-system-design.md) · [Book map](../../README.md)
+Back: [Appendix D](D-self-check-answer-key.md) · [Chapter 40](../part-ix/40-mobile-fintech-system-design.md) · [Book map](../../README.md)

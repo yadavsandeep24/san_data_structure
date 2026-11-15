@@ -318,7 +318,7 @@ Bound by memory, not only count. For bitmaps, store decoded size and evict until
 
 ### Kotlin / Swift / Dart / TypeScript
 
-Use the complete `LRUCache` classes in [Chapter 4](../../book/part-ii/04-linked-lists.md#lru-cache-hashmap-doubly-linked-list). Minimal test harness:
+Use the complete `LRUCache` classes in [Chapter 4](../../book/part-ii/04-linked-lists.md#lru-cache-hashmap-and-doubly-linked-list). Minimal test harness:
 
 ```kotlin
 val cache = LRUCache(2)

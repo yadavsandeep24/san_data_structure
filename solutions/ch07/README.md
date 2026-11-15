@@ -80,7 +80,7 @@ function twoSum(nums: number[], target: number): number[] {
 
 ---
 
-## P2: Group by key / frequency
+## P2: Group by key or frequency
 
 ### Approach (group anagrams)
 

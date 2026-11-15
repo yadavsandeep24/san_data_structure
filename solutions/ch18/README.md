@@ -1,90 +1,357 @@
 # Chapter 18 — Model Solutions
 
-Model solutions for Chapter 18 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
-
-Problems are defined in [`book/part-vi/18-heaps-priority-queues.md`](../../book/part-vi/18-heaps-priority-queues.md).
-
----
-
-## P1: Kth largest element
+## P1: TTL + LRU hybrid cache
 
 ### Approach
 
-Maintain a min-heap of size at most `k`. For each number, push; if size exceeds `k`, pop the smallest. The heap root is the kth largest among all elements seen.
-
-Alternative: full sort O(n log n) — fine for tiny n; heap wins when k ≪ n.
+Store entries as `(value, expiresAt)`. Keep a hash map for O(1) lookup and an LRU order structure (linked hash / `Map` insertion order / explicit list). On `get`: miss if absent or expired (delete expired). On hit, move to most-recent. On `put`: overwrite + touch; if over capacity, evict LRU until size fits, skipping the need to keep expired entries by purging on access and optionally before eviction.
 
 ### Complexity
 
-- Time: O(n log k)
-- Space: O(k)
+- `get` / `put`: O(1) average with linked-hash / `Map` order
+- Space: O(capacity)
 
 ### Edge cases
 
-- `k == 1` → maximum
-- `k == n` → minimum
-- Duplicates
-- Negatives
+- `capacity < 1` — clamp to 1 or throw
+- `put` with already-expired TTL — store then immediately miss on get (or reject); model rejects by not retaining usefully: still store; next get removes
+- Duplicate keys — update value and expiry, treat as touch
+- `now` injected for testability — do not call wall clock inside unit tests blindly
 
 ### Mobile note
 
-Top scores / “kth hottest search” without sorting the full analytics array on device. Prefer server-side Top-K when n is huge; on device keep k small (10–100).
+Use for small API response caches on device. For bitmaps prefer platform `LruCache` / image loaders; still apply TTL at the HTTP or metadata layer.
 
 ### Kotlin
 
 ```kotlin
-fun findKthLargest(nums: IntArray, k: Int): Int {
-    val pq = java.util.PriorityQueue<Int>() // min-heap
-    for (x in nums) {
-        pq.offer(x)
-        if (pq.size > k) pq.poll()
+class TtlLruCache<K, V>(
+    private val capacity: Int,
+    private val clock: () -> Long = { System.currentTimeMillis() },
+) {
+    private data class Entry<V>(val value: V, val expiresAt: Long)
+
+    private val map = object : LinkedHashMap<K, Entry<V>>(capacity, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, Entry<V>>?): Boolean =
+            size > capacity
     }
-    return pq.peek()
+
+    @Synchronized
+    fun get(key: K): V? {
+        val e = map[key] ?: return null
+        if (clock() >= e.expiresAt) {
+            map.remove(key)
+            return null
+        }
+        return e.value // accessOrder already touched by get
+    }
+
+    @Synchronized
+    fun put(key: K, value: V, ttlMillis: Long) {
+        require(capacity >= 1)
+        map[key] = Entry(value, clock() + ttlMillis)
+        // removeEldestEntry handles capacity
+    }
+
+    @Synchronized
+    fun size(): Int = map.size
 }
 ```
 
 ### Swift
 
 ```swift
-func findKthLargest(_ nums: [Int], _ k: Int) -> Int {
-    var heap = MinHeap()
-    for x in nums {
-        heap.push(x)
-        if heap.count > k { _ = heap.pop() }
+final class TtlLruCache<Key: Hashable, Value> {
+    private struct Entry {
+        var value: Value
+        var expiresAt: TimeInterval
     }
-    return heap.peek!
-}
 
-struct MinHeap {
-    private var a: [Int] = []
-    var count: Int { a.count }
-    var peek: Int? { a.first }
-    mutating func push(_ x: Int) {
-        a.append(x); siftUp(a.count - 1)
+    private let capacity: Int
+    private let clock: () -> TimeInterval
+    private var map: [Key: Entry] = [:]
+    private var order: [Key] = [] // 0 = LRU
+
+    init(capacity: Int, clock: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 }) {
+        self.capacity = max(1, capacity)
+        self.clock = clock
     }
-    mutating func pop() -> Int? {
-        guard let first = a.first else { return nil }
-        a[0] = a.last!; a.removeLast()
-        if !a.isEmpty { siftDown(0) }
-        return first
+
+    func get(_ key: Key) -> Value? {
+        guard let e = map[key] else { return nil }
+        if clock() >= e.expiresAt {
+            removeKey(key)
+            return nil
+        }
+        touch(key)
+        return e.value
     }
-    private mutating func siftUp(_ i: Int) {
-        var i = i
-        while i > 0 {
-            let p = (i - 1) / 2
-            if a[i] >= a[p] { break }
-            a.swapAt(i, p); i = p
+
+    func put(_ key: Key, _ value: Value, ttl: TimeInterval) {
+        if map[key] != nil {
+            map[key] = Entry(value: value, expiresAt: clock() + ttl)
+            touch(key)
+            return
+        }
+        while order.count >= capacity {
+            if let evict = order.first { removeKey(evict) }
+        }
+        map[key] = Entry(value: value, expiresAt: clock() + ttl)
+        order.append(key)
+    }
+
+    private func touch(_ key: Key) {
+        if let i = order.firstIndex(of: key) {
+            order.remove(at: i)
+            order.append(key)
         }
     }
-    private mutating func siftDown(_ i: Int) {
-        var i = i
-        while true {
-            var best = i
-            let l = 2 * i + 1, r = l + 1
-            if l < a.count && a[l] < a[best] { best = l }
-            if r < a.count && a[r] < a[best] { best = r }
-            if best == i { break }
-            a.swapAt(i, best); i = best
+
+    private func removeKey(_ key: Key) {
+        map.removeValue(forKey: key)
+        if let i = order.firstIndex(of: key) { order.remove(at: i) }
+    }
+}
+```
+
+### Dart
+
+```dart
+class TtlLruCache<K, V> {
+  TtlLruCache(this.capacity, {int Function()? clock})
+      : _clock = clock ?? (() => DateTime.now().millisecondsSinceEpoch);
+
+  final int capacity;
+  final int Function() _clock;
+  final _map = <K, _Entry<V>>{};
+  final _order = <K>[];
+
+  V? get(K key) {
+    final e = _map[key];
+    if (e == null) return null;
+    if (_clock() >= e.expiresAt) {
+      _remove(key);
+      return null;
+    }
+    _touch(key);
+    return e.value;
+  }
+
+  void put(K key, V value, int ttlMillis) {
+    final exp = _clock() + ttlMillis;
+    if (_map.containsKey(key)) {
+      _map[key] = _Entry(value, exp);
+      _touch(key);
+      return;
+    }
+    while (_order.length >= capacity) {
+      _remove(_order.first);
+    }
+    _map[key] = _Entry(value, exp);
+    _order.add(key);
+  }
+
+  void _touch(K key) {
+    _order.remove(key);
+    _order.add(key);
+  }
+
+  void _remove(K key) {
+    _map.remove(key);
+    _order.remove(key);
+  }
+}
+
+class _Entry<V> {
+  _Entry(this.value, this.expiresAt);
+  final V value;
+  final int expiresAt;
+}
+```
+
+### TypeScript
+
+```typescript
+type Entry<V> = { value: V; expiresAt: number };
+
+class TtlLruCache<K, V> {
+  private map = new Map<K, Entry<V>>();
+  constructor(
+    private capacity: number,
+    private clock: () => number = () => Date.now(),
+  ) {
+    this.capacity = Math.max(1, capacity);
+  }
+
+  get(key: K): V | undefined {
+    const e = this.map.get(key);
+    if (!e) return undefined;
+    if (this.clock() >= e.expiresAt) {
+      this.map.delete(key);
+      return undefined;
+    }
+    this.map.delete(key);
+    this.map.set(key, e);
+    return e.value;
+  }
+
+  put(key: K, value: V, ttlMs: number): void {
+    if (this.map.has(key)) this.map.delete(key);
+    this.map.set(key, { value, expiresAt: this.clock() + ttlMs });
+    while (this.map.size > this.capacity) {
+      const lru = this.map.keys().next().value;
+      this.map.delete(lru);
+    }
+  }
+}
+```
+
+---
+
+## P2: Two-level (memory + disk) cache API sketch
+
+### Approach
+
+Define `MemoryCache` (fast, trim-able) and `DiskCache` (slower fake store). `TwoLevelCache.get` checks L1, then L2; on L2 hit, **promote** into L1. `put` writes L1 and L2. `trimMemory` clears or halves L1 only.
+
+### Complexity
+
+- Memory ops: O(1); disk fake: O(1) map — real disk is I/O-bound
+- Promotion: one L1 put
+
+### Edge cases
+
+- Disk hit of expired entry — treat as miss and delete both levels
+- trim while empty — no-op
+- put null — disallow or mean “invalidate”
+
+### Mobile note
+
+Never call real disk on the UI thread; expose `suspend` / async APIs in production. This sketch stays synchronous for clarity.
+
+### Kotlin
+
+```kotlin
+interface MemoryCache<K, V> {
+    fun get(key: K): V?
+    fun put(key: K, value: V)
+    fun remove(key: K)
+    fun trimToHalf()
+    fun clear()
+}
+
+interface DiskCache<K, V> {
+    fun get(key: K): V?
+    fun put(key: K, value: V)
+    fun remove(key: K)
+}
+
+class MapMemoryCache<K, V>(private val capacity: Int) : MemoryCache<K, V> {
+    private val map = object : LinkedHashMap<K, V>(capacity, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?) = size > capacity
+    }
+    override fun get(key: K) = map[key]
+    override fun put(key: K, value: V) { map[key] = value }
+    override fun remove(key: K) { map.remove(key) }
+    override fun clear() = map.clear()
+    override fun trimToHalf() {
+        val target = map.size / 2
+        val it = map.entries.iterator()
+        var seen = 0
+        val n = map.size
+        while (it.hasNext() && seen < n - target) {
+            it.next(); it.remove(); seen++
+        }
+    }
+}
+
+class MapDiskCache<K, V> : DiskCache<K, V> {
+    private val map = HashMap<K, V>()
+    override fun get(key: K) = map[key]
+    override fun put(key: K, value: V) { map[key] = value }
+    override fun remove(key: K) { map.remove(key) }
+}
+
+enum class TrimLevel { MILD, CRITICAL }
+
+class TwoLevelCache<K, V>(
+    private val memory: MemoryCache<K, V>,
+    private val disk: DiskCache<K, V>,
+) {
+    fun get(key: K): V? {
+        memory.get(key)?.let { return it }
+        val fromDisk = disk.get(key) ?: return null
+        memory.put(key, fromDisk) // promote
+        return fromDisk
+    }
+
+    fun put(key: K, value: V) {
+        memory.put(key, value)
+        disk.put(key, value)
+    }
+
+    fun invalidate(key: K) {
+        memory.remove(key)
+        disk.remove(key)
+    }
+
+    fun trimMemory(level: TrimLevel) {
+        when (level) {
+            TrimLevel.MILD -> memory.trimToHalf()
+            TrimLevel.CRITICAL -> memory.clear()
+        }
+    }
+}
+```
+
+### Swift
+
+```swift
+protocol MemoryCache {
+    associatedtype Key: Hashable
+    associatedtype Value
+    func get(_ key: Key) -> Value?
+    func put(_ key: Key, _ value: Value)
+    func remove(_ key: Key)
+    func trimToHalf()
+    func clear()
+}
+
+protocol DiskCache {
+    associatedtype Key: Hashable
+    associatedtype Value
+    func get(_ key: Key) -> Value?
+    func put(_ key: Key, _ value: Value)
+    func remove(_ key: Key)
+}
+
+enum TrimLevel { case mild, critical }
+
+final class TwoLevelCache<M: MemoryCache, D: DiskCache>
+where M.Key == D.Key, M.Value == D.Value {
+    private let memory: M
+    private let disk: D
+    init(memory: M, disk: D) {
+        self.memory = memory
+        self.disk = disk
+    }
+
+    func get(_ key: M.Key) -> M.Value? {
+        if let v = memory.get(key) { return v }
+        guard let v = disk.get(key) else { return nil }
+        memory.put(key, v)
+        return v
+    }
+
+    func put(_ key: M.Key, _ value: M.Value) {
+        memory.put(key, value)
+        disk.put(key, value)
+    }
+
+    func trimMemory(_ level: TrimLevel) {
+        switch level {
+        case .mild: memory.trimToHalf()
+        case .critical: memory.clear()
         }
     }
 }
@@ -93,197 +360,161 @@ struct MinHeap {
 ### Dart
 
 ```dart
-import 'package:collection/collection.dart';
-
-int findKthLargest(List<int> nums, int k) {
-  final pq = HeapPriorityQueue<int>();
-  for (final x in nums) {
-    pq.add(x);
-    if (pq.length > k) pq.removeFirst();
-  }
-  return pq.first;
+abstract class MemoryCache<K, V> {
+  V? get(K key);
+  void put(K key, V value);
+  void remove(K key);
+  void trimToHalf();
+  void clear();
 }
-```
 
-Manual Dart min-heap (no package):
+abstract class DiskCache<K, V> {
+  V? get(K key);
+  void put(K key, V value);
+  void remove(K key);
+}
 
-```dart
-int findKthLargestManual(List<int> nums, int k) {
-  final h = <int>[];
-  void siftUp(int i) {
-    while (i > 0) {
-      final p = (i - 1) ~/ 2;
-      if (h[i] >= h[p]) break;
-      final t = h[i];
-      h[i] = h[p];
-      h[p] = t;
-      i = p;
+enum TrimLevel { mild, critical }
+
+class TwoLevelCache<K, V> {
+  TwoLevelCache(this.memory, this.disk);
+  final MemoryCache<K, V> memory;
+  final DiskCache<K, V> disk;
+
+  V? get(K key) {
+    final m = memory.get(key);
+    if (m != null) return m;
+    final d = disk.get(key);
+    if (d == null) return null;
+    memory.put(key, d);
+    return d;
+  }
+
+  void put(K key, V value) {
+    memory.put(key, value);
+    disk.put(key, value);
+  }
+
+  void trimMemory(TrimLevel level) {
+    switch (level) {
+      case TrimLevel.mild:
+        memory.trimToHalf();
+      case TrimLevel.critical:
+        memory.clear();
     }
   }
-  void siftDown(int i) {
-    for (;;) {
-      var best = i;
-      final l = 2 * i + 1, r = l + 1;
-      if (l < h.length && h[l] < h[best]) best = l;
-      if (r < h.length && h[r] < h[best]) best = r;
-      if (best == i) break;
-      final t = h[i];
-      h[i] = h[best];
-      h[best] = t;
-      i = best;
-    }
-  }
-  for (final x in nums) {
-    h.add(x);
-    siftUp(h.length - 1);
-    if (h.length > k) {
-      h[0] = h.removeLast();
-      if (h.isNotEmpty) siftDown(0);
-    }
-  }
-  return h.first;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-class MinHeap {
-  private a: number[] = [];
-  get size() { return this.a.length; }
-  peek(): number { return this.a[0]; }
-  push(x: number) {
-    this.a.push(x);
-    this.siftUp(this.a.length - 1);
-  }
-  pop(): number {
-    const top = this.a[0];
-    const last = this.a.pop()!;
-    if (this.a.length) {
-      this.a[0] = last;
-      this.siftDown(0);
-    }
-    return top;
-  }
-  private siftUp(i: number) {
-    const a = this.a;
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (a[i] >= a[p]) break;
-      [a[i], a[p]] = [a[p], a[i]];
-      i = p;
-    }
-  }
-  private siftDown(i: number) {
-    const a = this.a;
-    for (;;) {
-      let best = i;
-      const l = i * 2 + 1, r = l + 1;
-      if (l < a.length && a[l] < a[best]) best = l;
-      if (r < a.length && a[r] < a[best]) best = r;
-      if (best === i) break;
-      [a[i], a[best]] = [a[best], a[i]];
-      i = best;
-    }
-  }
+interface MemoryCache<K, V> {
+  get(key: K): V | undefined;
+  put(key: K, value: V): void;
+  remove(key: K): void;
+  trimToHalf(): void;
+  clear(): void;
 }
 
-function findKthLargest(nums: number[], k: number): number {
-  const h = new MinHeap();
-  for (const x of nums) {
-    h.push(x);
-    if (h.size > k) h.pop();
+interface DiskCache<K, V> {
+  get(key: K): V | undefined;
+  put(key: K, value: V): void;
+  remove(key: K): void;
+}
+
+type TrimLevel = "mild" | "critical";
+
+class TwoLevelCache<K, V> {
+  constructor(
+    private memory: MemoryCache<K, V>,
+    private disk: DiskCache<K, V>,
+  ) {}
+
+  get(key: K): V | undefined {
+    const m = this.memory.get(key);
+    if (m !== undefined) return m;
+    const d = this.disk.get(key);
+    if (d === undefined) return undefined;
+    this.memory.put(key, d);
+    return d;
   }
-  return h.peek();
+
+  put(key: K, value: V): void {
+    this.memory.put(key, value);
+    this.disk.put(key, value);
+  }
+
+  trimMemory(level: TrimLevel): void {
+    if (level === "mild") this.memory.trimToHalf();
+    else this.memory.clear();
+  }
 }
 ```
 
 ---
 
-## P2: Top K frequent
+## P3: Cache hit-rate helper
 
 ### Approach
 
-Count frequencies in a hash map O(n). Push `(freq, value)` into a min-heap keyed by frequency, capped at size k (pop least frequent when over capacity). Remaining heap values are the top k frequent. Order among ties is unspecified unless you add a tie-break.
+Increment `hits` or `misses` on each lookup outcome. `hitRate = hits / (hits + misses)` when total &gt; 0, else `0` (or `NaN` — pick 0 for mobile dashboards).
 
 ### Complexity
 
-- Time: O(n log k)
-- Space: O(n) for counts + O(k) heap
+- Record / hitRate: O(1)
+- Space: O(1)
 
 ### Edge cases
 
-- All unique → any k elements
-- One value dominates
-- k equals number of distinct keys
-- Ties in frequency — define policy if UI needs determinism (e.g. larger value first)
+- Zero observations → 0.0
+- Only misses → 0.0
+- Integer division — use floating point
 
 ### Mobile note
 
-“Top searched terms this session” on device. Cap k; do not sort the entire frequency map on every keystroke — update counts incrementally and refresh Top-K on a debounce.
+Attach to your cache wrapper in debug/QA builds to verify warming after a scroll session. Do not log to disk every hit in production hot paths.
 
 ### Kotlin
 
 ```kotlin
-fun topKFrequent(nums: IntArray, k: Int): IntArray {
-    val freq = HashMap<Int, Int>()
-    for (x in nums) freq[x] = (freq[x] ?: 0) + 1
-    val pq = java.util.PriorityQueue<IntArray> { a, b -> a[0] - b[0] } // [freq, value]
-    for ((v, f) in freq) {
-        pq.offer(intArrayOf(f, v))
-        if (pq.size > k) pq.poll()
+class HitRateCounter {
+    var hits: Long = 0
+        private set
+    var misses: Long = 0
+        private set
+
+    fun recordHit() { hits++ }
+    fun recordMiss() { misses++ }
+
+    fun hitRate(): Double {
+        val t = hits + misses
+        return if (t == 0L) 0.0 else hits.toDouble() / t
     }
-    return IntArray(pq.size) { pq.poll()[1] }
+
+    fun reset() {
+        hits = 0
+        misses = 0
+    }
 }
+
+// usage inside cache get:
+// val v = map[key]; if (v == null) { counter.recordMiss(); return null } else { counter.recordHit(); return v }
 ```
 
 ### Swift
 
 ```swift
-func topKFrequent(_ nums: [Int], _ k: Int) -> [Int] {
-    var freq: [Int: Int] = [:]
-    for x in nums { freq[x, default: 0] += 1 }
-    var heap = MinHeapPair() // min by freq
-    for (v, f) in freq {
-        heap.push(f, v)
-        if heap.count > k { _ = heap.pop() }
-    }
-    var out: [Int] = []
-    while let p = heap.pop() { out.append(p.value) }
-    return out
-}
+final class HitRateCounter {
+    private(set) var hits: Int = 0
+    private(set) var misses: Int = 0
 
-struct MinHeapPair {
-    struct Node { var freq: Int; var value: Int }
-    private var a: [Node] = []
-    var count: Int { a.count }
-    mutating func push(_ freq: Int, _ value: Int) {
-        a.append(Node(freq: freq, value: value)); siftUp(a.count - 1)
-    }
-    mutating func pop() -> Node? {
-        guard let first = a.first else { return nil }
-        a[0] = a.last!; a.removeLast()
-        if !a.isEmpty { siftDown(0) }
-        return first
-    }
-    private mutating func siftUp(_ i: Int) {
-        var i = i
-        while i > 0 {
-            let p = (i - 1) / 2
-            if a[i].freq >= a[p].freq { break }
-            a.swapAt(i, p); i = p
-        }
-    }
-    private mutating func siftDown(_ i: Int) {
-        var i = i
-        while true {
-            var best = i
-            let l = 2 * i + 1, r = l + 1
-            if l < a.count && a[l].freq < a[best].freq { best = l }
-            if r < a.count && a[r].freq < a[best].freq { best = r }
-            if best == i { break }
-            a.swapAt(i, best); i = best
-        }
+    func recordHit() { hits += 1 }
+    func recordMiss() { misses += 1 }
+
+    func hitRate() -> Double {
+        let t = hits + misses
+        return t == 0 ? 0 : Double(hits) / Double(t)
     }
 }
 ```
@@ -291,272 +522,36 @@ struct MinHeapPair {
 ### Dart
 
 ```dart
-List<int> topKFrequent(List<int> nums, int k) {
-  final freq = <int, int>{};
-  for (final x in nums) {
-    freq[x] = (freq[x] ?? 0) + 1;
+class HitRateCounter {
+  int hits = 0;
+  int misses = 0;
+
+  void recordHit() => hits++;
+  void recordMiss() => misses++;
+
+  double hitRate() {
+    final t = hits + misses;
+    return t == 0 ? 0.0 : hits / t;
   }
-  final h = <List<int>>[]; // [freq, value]
-  void siftUp(int i) {
-    while (i > 0) {
-      final p = (i - 1) ~/ 2;
-      if (h[i][0] >= h[p][0]) break;
-      final t = h[i];
-      h[i] = h[p];
-      h[p] = t;
-      i = p;
-    }
-  }
-  void siftDown(int i) {
-    for (;;) {
-      var best = i;
-      final l = 2 * i + 1, r = l + 1;
-      if (l < h.length && h[l][0] < h[best][0]) best = l;
-      if (r < h.length && h[r][0] < h[best][0]) best = r;
-      if (best == i) break;
-      final t = h[i];
-      h[i] = h[best];
-      h[best] = t;
-      i = best;
-    }
-  }
-  freq.forEach((v, f) {
-    h.add([f, v]);
-    siftUp(h.length - 1);
-    if (h.length > k) {
-      h[0] = h.removeLast();
-      if (h.isNotEmpty) siftDown(0);
-    }
-  });
-  return h.map((e) => e[1]).toList();
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function topKFrequent(nums: number[], k: number): number[] {
-  const freq = new Map<number, number>();
-  for (const x of nums) freq.set(x, (freq.get(x) ?? 0) + 1);
-  const h: [number, number][] = []; // [freq, value]
-  const siftUp = (i: number) => {
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (h[i][0] >= h[p][0]) break;
-      [h[i], h[p]] = [h[p], h[i]];
-      i = p;
-    }
-  };
-  const siftDown = (i: number) => {
-    for (;;) {
-      let best = i;
-      const l = i * 2 + 1, r = l + 1;
-      if (l < h.length && h[l][0] < h[best][0]) best = l;
-      if (r < h.length && h[r][0] < h[best][0]) best = r;
-      if (best === i) break;
-      [h[i], h[best]] = [h[best], h[i]];
-      i = best;
-    }
-  };
-  for (const [v, f] of freq) {
-    h.push([f, v]);
-    siftUp(h.length - 1);
-    if (h.length > k) {
-      h[0] = h.pop()!;
-      if (h.length) siftDown(0);
-    }
+class HitRateCounter {
+  hits = 0;
+  misses = 0;
+
+  recordHit(): void {
+    this.hits++;
   }
-  return h.map((e) => e[1]);
-}
-```
-
----
-
-## P3: Last stone weight
-
-### Approach
-
-Simulate with a max-heap: while at least two stones remain, pop two heaviest `x >= y`; if `x != y`, push `x - y`. Return the last stone or 0.
-
-### Complexity
-
-- Time: O(n log n)
-- Space: O(n)
-
-### Edge cases
-
-- One stone → that weight
-- Empty → 0
-- All equal pairs smash to nothing → 0
-- Two stones
-
-### Mobile note
-
-Toy combat / merge simulation. In production game loops, prefer a binary heap over re-sorting the array each smash.
-
-### Kotlin
-
-```kotlin
-fun lastStoneWeight(stones: IntArray): Int {
-    val pq = java.util.PriorityQueue<Int>(compareByDescending { it })
-    for (s in stones) pq.offer(s)
-    while (pq.size > 1) {
-        val x = pq.poll()
-        val y = pq.poll()
-        if (x != y) pq.offer(x - y)
-    }
-    return if (pq.isEmpty()) 0 else pq.peek()
-}
-```
-
-### Swift
-
-```swift
-func lastStoneWeight(_ stones: [Int]) -> Int {
-    var h = MaxHeap()
-    for s in stones { h.push(s) }
-    while h.count > 1 {
-        let x = h.pop()!
-        let y = h.pop()!
-        if x != y { h.push(x - y) }
-    }
-    return h.pop() ?? 0
-}
-
-struct MaxHeap {
-    private var a: [Int] = []
-    var count: Int { a.count }
-    mutating func push(_ x: Int) {
-        a.append(x); siftUp(a.count - 1)
-    }
-    mutating func pop() -> Int? {
-        guard let first = a.first else { return nil }
-        a[0] = a.last!; a.removeLast()
-        if !a.isEmpty { siftDown(0) }
-        return first
-    }
-    private mutating func siftUp(_ i: Int) {
-        var i = i
-        while i > 0 {
-            let p = (i - 1) / 2
-            if a[i] <= a[p] { break }
-            a.swapAt(i, p); i = p
-        }
-    }
-    private mutating func siftDown(_ i: Int) {
-        var i = i
-        while true {
-            var best = i
-            let l = 2 * i + 1, r = l + 1
-            if l < a.count && a[l] > a[best] { best = l }
-            if r < a.count && a[r] > a[best] { best = r }
-            if best == i { break }
-            a.swapAt(i, best); i = best
-        }
-    }
-}
-```
-
-### Dart
-
-```dart
-int lastStoneWeight(List<int> stones) {
-  final h = <int>[];
-  void siftUp(int i) {
-    while (i > 0) {
-      final p = (i - 1) ~/ 2;
-      if (h[i] <= h[p]) break;
-      final t = h[i];
-      h[i] = h[p];
-      h[p] = t;
-      i = p;
-    }
+  recordMiss(): void {
+    this.misses++;
   }
-  void siftDown(int i) {
-    for (;;) {
-      var best = i;
-      final l = 2 * i + 1, r = l + 1;
-      if (l < h.length && h[l] > h[best]) best = l;
-      if (r < h.length && h[r] > h[best]) best = r;
-      if (best == i) break;
-      final t = h[i];
-      h[i] = h[best];
-      h[best] = t;
-      i = best;
-    }
+  hitRate(): number {
+    const t = this.hits + this.misses;
+    return t === 0 ? 0 : this.hits / t;
   }
-  void push(int x) {
-    h.add(x);
-    siftUp(h.length - 1);
-  }
-  int pop() {
-    final top = h.first;
-    h[0] = h.removeLast();
-    if (h.isNotEmpty) siftDown(0);
-    return top;
-  }
-  for (final s in stones) {
-    push(s);
-  }
-  while (h.length > 1) {
-    final x = pop();
-    final y = pop();
-    if (x != y) push(x - y);
-  }
-  return h.isEmpty ? 0 : h.first;
-}
-```
-
-### TypeScript
-
-```typescript
-class MaxHeap {
-  private a: number[] = [];
-  get size() { return this.a.length; }
-  push(x: number) {
-    this.a.push(x);
-    this.siftUp(this.a.length - 1);
-  }
-  pop(): number {
-    const top = this.a[0];
-    const last = this.a.pop()!;
-    if (this.a.length) {
-      this.a[0] = last;
-      this.siftDown(0);
-    }
-    return top;
-  }
-  private siftUp(i: number) {
-    const a = this.a;
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (a[i] <= a[p]) break;
-      [a[i], a[p]] = [a[p], a[i]];
-      i = p;
-    }
-  }
-  private siftDown(i: number) {
-    const a = this.a;
-    for (;;) {
-      let best = i;
-      const l = i * 2 + 1, r = l + 1;
-      if (l < a.length && a[l] > a[best]) best = l;
-      if (r < a.length && a[r] > a[best]) best = r;
-      if (best === i) break;
-      [a[i], a[best]] = [a[best], a[i]];
-      i = best;
-    }
-  }
-}
-
-function lastStoneWeight(stones: number[]): number {
-  const h = new MaxHeap();
-  for (const s of stones) h.push(s);
-  while (h.size > 1) {
-    const x = h.pop();
-    const y = h.pop();
-    if (x !== y) h.push(x - y);
-  }
-  return h.size ? h.pop() : 0;
 }
 ```

@@ -1,541 +1,175 @@
 # Chapter 20 — Model Solutions
 
-Model solutions for Chapter 20 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
+## P1: Five scenario prompts
 
-Problems are defined in [`book/part-vi/20-graphs-advanced.md`](../../book/part-vi/20-graphs-advanced.md).
-
----
-
-## P1: Course schedule
-
-### Approach
-
-Model courses `0..numCourses-1` as nodes; each prerequisite `[a, b]` means edge `b → a` (“b before a”). Run **Kahn’s topological sort**: queue all zero in-degree nodes, peel layers, decrement neighbors. If you process all courses, scheduling is possible; otherwise a cycle exists → `false`.
-
-### Complexity
-
-- Time: O(V + E) with V = numCourses, E = prerequisites
-- Space: O(V + E)
-
-### Edge cases
-
-- No prerequisites → `true`
-- Self-loop or mutual pair → `false`
-- Disconnected components (multiple zero in-degree starts)
-- Single course
-
-### Mobile note
-
-Feature-flag / module init order on app launch. Keep graphs small on device; large dependency resolution belongs in CI. Never run heavy graph builds on the UI thread at cold start without measuring.
-
-### Kotlin
-
-```kotlin
-fun canFinish(numCourses: Int, prerequisites: Array<IntArray>): Boolean {
-    val g = Array(numCourses) { mutableListOf<Int>() }
-    val indeg = IntArray(numCourses)
-    for (p in prerequisites) {
-        val a = p[0]
-        val b = p[1]
-        g[b].add(a)
-        indeg[a]++
-    }
-    val q = ArrayDeque<Int>()
-    for (i in 0 until numCourses) if (indeg[i] == 0) q.add(i)
-    var seen = 0
-    while (q.isNotEmpty()) {
-        val u = q.removeFirst()
-        seen++
-        for (v in g[u]) if (--indeg[v] == 0) q.add(v)
-    }
-    return seen == numCourses
-}
-```
-
-### Swift
-
-```swift
-func canFinish(_ numCourses: Int, _ prerequisites: [[Int]]) -> Bool {
-    var g = Array(repeating: [Int](), count: numCourses)
-    var indeg = Array(repeating: 0, count: numCourses)
-    for p in prerequisites {
-        let a = p[0], b = p[1]
-        g[b].append(a)
-        indeg[a] += 1
-    }
-    var q = indeg.indices.filter { indeg[$0] == 0 }
-    var head = 0, seen = 0
-    while head < q.count {
-        let u = q[head]; head += 1
-        seen += 1
-        for v in g[u] {
-            indeg[v] -= 1
-            if indeg[v] == 0 { q.append(v) }
-        }
-    }
-    return seen == numCourses
-}
-```
-
-### Dart
-
-```dart
-bool canFinish(int numCourses, List<List<int>> prerequisites) {
-  final g = List.generate(numCourses, (_) => <int>[]);
-  final indeg = List.filled(numCourses, 0);
-  for (final p in prerequisites) {
-    final a = p[0], b = p[1];
-    g[b].add(a);
-    indeg[a]++;
-  }
-  final q = <int>[for (var i = 0; i < numCourses; i++) if (indeg[i] == 0) i];
-  var head = 0, seen = 0;
-  while (head < q.length) {
-    final u = q[head++];
-    seen++;
-    for (final v in g[u]) {
-      if (--indeg[v] == 0) q.add(v);
-    }
-  }
-  return seen == numCourses;
-}
-```
-
-### TypeScript
-
-```typescript
-function canFinish(numCourses: number, prerequisites: number[][]): boolean {
-  const g: number[][] = Array.from({ length: numCourses }, () => []);
-  const indeg = new Array(numCourses).fill(0);
-  for (const [a, b] of prerequisites) {
-    g[b].push(a);
-    indeg[a]++;
-  }
-  const q: number[] = [];
-  for (let i = 0; i < numCourses; i++) if (indeg[i] === 0) q.push(i);
-  let head = 0, seen = 0;
-  while (head < q.length) {
-    const u = q[head++];
-    seen++;
-    for (const v of g[u]) {
-      if (--indeg[v] === 0) q.push(v);
-    }
-  }
-  return seen === numCourses;
-}
-```
+For each scenario: pick a structure (or hybrid) and justify. Expected answers below — your wording may differ if the reasoning is sound.
 
 ---
 
-## P2: Network delay time
+### S1 — Chat: older pages upward, new messages downward, no duplicates
 
-### Approach
+**Pick:** Dynamic array (or deque) of messages **plus** `HashSet`/`Set` of message IDs **plus** cursor tokens for upward/downward pagination.
 
-**Dijkstra** from source `k` on a directed weighted graph. Adjacency list of `(neighbor, weight)`. Min-heap of `(dist, node)`; relax edges; skip stale heap entries when popped distance `> dist[u]`. Answer is the maximum finite distance among nodes `1..n`; if any node remains unreachable, return `-1`.
+**Why:** Order matters for rendering; membership of IDs must be O(1) when merging pages or accepting realtime events; cursors avoid offset shift bugs when new messages arrive. Diff the array into the UI with stable keys = message IDs.
+
+---
+
+### S2 — Settings: undo last five toggles
+
+**Pick:** Stack (bounded to 5) of inverse commands or prior values. Optional second stack if redo is required.
+
+**Why:** Undo is LIFO — the last change is the first reversed. Bounding capacity keeps memory trivial. Do not scan a history array for “last change” on each undo; pop O(1).
+
+---
+
+### S3 — Barcode scan vs 40k on-device SKUs under 16ms
+
+**Pick:** `HashSet` or `HashMap` of SKUs (possibly built once from a sorted file at startup). Not a linear list scan.
+
+**Why:** Average O(1) membership fits a frame budget; O(n) scan of 40k strings on the UI thread is a jank lottery. If you need prefix search for human typing, add a trie or sorted array + binary search — still not nested loops.
+
+---
+
+### S4 — Profile: Follow vs Following for large following set
+
+**Pick:** `HashSet` of following IDs (or a map if you also store metadata). The followers **list** UI remains an array for order.
+
+**Why:** The button state is a membership query — must not scan the following list each bind. Load the set once (or page it into a set); array alone is the wrong structure for `contains`.
+
+---
+
+### S5 — Gallery thumbnails: fast revisit, bound RAM, 24h expiry
+
+**Pick:** Two-level cache — L1 LRU memory of decoded thumbnails, L2 disk of encoded bytes, **TTL = 24h**, size/transform in the key. Or configure Glide/Coil/SDWebImage/`cached_network_image` equivalently.
+
+**Why:** Recency matches LRU; TTL enforces freshness; disk survives process death; memory stays bounded and trims under pressure. An unbounded `Map<url, bitmap>` fails the RAM requirement.
+
+---
+
+## P2: Fix this code — membership in list
+
+### Why it hurts
+
+`cartSkus.contains(sku)` on a `List` is O(m). `bindRow` runs per visible row (and again on rebind). With n visible rows you pay O(n·m) during scroll — classic jank as the cart grows. Build a `Set` once per frame / per cart revision; then each row is O(1).
 
 ### Complexity
 
-- Time: O((V + E) log V) with binary heap and duplicate pushes
-- Space: O(V + E)
+- Before: O(n·m) per bind pass
+- After: O(m) to build set once + O(1) per row
 
 ### Edge cases
 
-- Single node, no edges → `0`
-- Unreachable node → `-1`
-- Multiple edges / parallel paths — keep minimum
-- Zero-weight edges OK; negative weights not allowed for Dijkstra
+- Empty cart — empty set; all unchecked
+- Duplicate SKUs in list — set collapses; fine for membership
+- Rebuild set when cart mutates, not inside each row
 
 ### Mobile note
 
-Models “time until all devices get a config push” or CDN fan-out latency sketches. Prefer server-side for large graphs; on device keep V small. Do not block UI while running Dijkstra on thousands of nodes.
+Android `RecyclerView` (`onBindViewHolder`) and Jetpack Compose (`LazyColumn` item lambdas, which re-run on recomposition), iOS cell config, Flutter `itemBuilder`, RN `renderItem` — all share this trap. Pass `Set`/`Set<String>` into bind, or hold it on the view model.
 
-### Kotlin
+### Kotlin — fixed
 
 ```kotlin
-fun networkDelayTime(times: Array<IntArray>, n: Int, k: Int): Int {
-    val g = Array(n + 1) { mutableListOf<Pair<Int, Int>>() }
-    for (t in times) g[t[0]].add(t[1] to t[2])
-    val dist = IntArray(n + 1) { Int.MAX_VALUE / 4 }
-    dist[k] = 0
-    val pq = java.util.PriorityQueue(compareBy<Pair<Int, Int>> { it.first })
-    pq.add(0 to k)
-    while (pq.isNotEmpty()) {
-        val (d, u) = pq.poll()
-        if (d > dist[u]) continue
-        for ((v, w) in g[u]) {
-            if (d + w < dist[v]) {
-                dist[v] = d + w
-                pq.add(dist[v] to v)
-            }
-        }
-    }
-    var ans = 0
-    for (i in 1..n) {
-        if (dist[i] >= Int.MAX_VALUE / 4) return -1
-        ans = maxOf(ans, dist[i])
-    }
-    return ans
+// BAD
+fun bindRow(sku: String, cartSkus: List<String>, check: CheckBox) {
+    check.isChecked = cartSkus.contains(sku) // O(m) per row
+}
+
+// GOOD — build once when cart changes
+fun buildCartSet(cartSkus: List<String>): Set<String> = cartSkus.toHashSet()
+
+fun bindRow(sku: String, cartSet: Set<String>, check: CheckBox) {
+    check.isChecked = cartSet.contains(sku) // O(1) average
 }
 ```
 
-### Swift
+### Kotlin (Jetpack Compose) — fixed
+
+```kotlin
+// BAD — O(m) list scan per visible row, on every recomposition
+@Composable
+fun CartListSlow(skus: List<String>, cartSkus: List<String>, onToggle: (String) -> Unit) {
+    LazyColumn {
+        items(skus, key = { it }) { sku ->
+            Checkbox(checked = cartSkus.contains(sku), onCheckedChange = { onToggle(sku) })
+        }
+    }
+}
+
+// GOOD — Set rebuilt only when the cart changes (or expose a Set from the ViewModel)
+@Composable
+fun CartList(skus: List<String>, cartSkus: List<String>, onToggle: (String) -> Unit) {
+    val cartSet = remember(cartSkus) { cartSkus.toHashSet() }
+    LazyColumn {
+        items(skus, key = { it }) { sku ->
+            Checkbox(checked = sku in cartSet, onCheckedChange = { onToggle(sku) })
+        }
+    }
+}
+```
+
+### Swift — fixed
 
 ```swift
-func networkDelayTime(_ times: [[Int]], _ n: Int, _ k: Int) -> Int {
-    var g = Array(repeating: [(Int, Int)](), count: n + 1)
-    for t in times { g[t[0]].append((t[1], t[2])) }
-    var dist = Array(repeating: Int.max / 4, count: n + 1)
-    dist[k] = 0
-    var heap = MinHeapPair()
-    heap.push(0, k)
-    while let (d, u) = heap.pop() {
-        if d > dist[u] { continue }
-        for (v, w) in g[u] where d + w < dist[v] {
-            dist[v] = d + w
-            heap.push(dist[v], v)
-        }
-    }
-    var ans = 0
-    for i in 1...n {
-        if dist[i] >= Int.max / 4 { return -1 }
-        ans = max(ans, dist[i])
-    }
-    return ans
+// BAD
+func bindRow(sku: String, cartSkus: [String], check: UISwitch) {
+    check.isOn = cartSkus.contains(sku) // O(m)
 }
 
-struct MinHeapPair {
-    private var a: [(Int, Int)] = []
-    mutating func push(_ d: Int, _ u: Int) {
-        a.append((d, u)); siftUp(a.count - 1)
-    }
-    mutating func pop() -> (Int, Int)? {
-        guard let first = a.first else { return nil }
-        a[0] = a.last!; a.removeLast()
-        if !a.isEmpty { siftDown(0) }
-        return first
-    }
-    private mutating func siftUp(_ i: Int) {
-        var i = i
-        while i > 0 {
-            let p = (i - 1) / 2
-            if a[i].0 >= a[p].0 { break }
-            a.swapAt(i, p); i = p
-        }
-    }
-    private mutating func siftDown(_ i: Int) {
-        var i = i
-        while true {
-            var best = i
-            let l = 2 * i + 1, r = l + 1
-            if l < a.count && a[l].0 < a[best].0 { best = l }
-            if r < a.count && a[r].0 < a[best].0 { best = r }
-            if best == i { break }
-            a.swapAt(i, best); i = best
-        }
-    }
+// GOOD
+func buildCartSet(_ cartSkus: [String]) -> Set<String> { Set(cartSkus) }
+
+func bindRow(sku: String, cartSet: Set<String>, check: UISwitch) {
+    check.isOn = cartSet.contains(sku) // O(1)
 }
 ```
 
-### Dart
+### Dart — fixed
 
 ```dart
-import 'package:collection/collection.dart';
+// BAD
+void bindRow(String sku, List<String> cartSkus, bool Function(bool) setChecked) {
+  setChecked(cartSkus.contains(sku)); // O(m)
+}
 
-int networkDelayTime(List<List<int>> times, int n, int k) {
-  final g = List.generate(n + 1, (_) => <(int, int)>[]);
-  for (final t in times) {
-    g[t[0]].add((t[1], t[2]));
-  }
-  const inf = 1 << 30;
-  final dist = List.filled(n + 1, inf);
-  dist[k] = 0;
-  final pq = HeapPriorityQueue<(int, int)>((a, b) => a.$1.compareTo(b.$1));
-  pq.add((0, k));
-  while (pq.isNotEmpty) {
-    final (d, u) = pq.removeFirst();
-    if (d > dist[u]) continue;
-    for (final (v, w) in g[u]) {
-      if (d + w < dist[v]) {
-        dist[v] = d + w;
-        pq.add((dist[v], v));
-      }
-    }
-  }
-  var ans = 0;
-  for (var i = 1; i <= n; i++) {
-    if (dist[i] >= inf) return -1;
-    if (dist[i] > ans) ans = dist[i];
-  }
-  return ans;
+// GOOD
+Set<String> buildCartSet(List<String> cartSkus) => cartSkus.toSet();
+
+void bindRow(String sku, Set<String> cartSet, void Function(bool) setChecked) {
+  setChecked(cartSet.contains(sku)); // O(1)
 }
 ```
 
-### TypeScript
+### TypeScript — fixed
 
 ```typescript
-class MinHeapPair {
-  private a: [number, number][] = [];
-  get size() { return this.a.length; }
-  push(d: number, u: number) {
-    this.a.push([d, u]);
-    this.siftUp(this.a.length - 1);
-  }
-  pop(): [number, number] | undefined {
-    if (!this.a.length) return undefined;
-    const top = this.a[0];
-    const last = this.a.pop()!;
-    if (this.a.length) {
-      this.a[0] = last;
-      this.siftDown(0);
-    }
-    return top;
-  }
-  private siftUp(i: number) {
-    const a = this.a;
-    while (i > 0) {
-      const p = (i - 1) >> 1;
-      if (a[i][0] >= a[p][0]) break;
-      [a[i], a[p]] = [a[p], a[i]];
-      i = p;
-    }
-  }
-  private siftDown(i: number) {
-    const a = this.a;
-    for (;;) {
-      let best = i;
-      const l = i * 2 + 1, r = l + 1;
-      if (l < a.length && a[l][0] < a[best][0]) best = l;
-      if (r < a.length && a[r][0] < a[best][0]) best = r;
-      if (best === i) break;
-      [a[i], a[best]] = [a[best], a[i]];
-      i = best;
-    }
-  }
+// BAD — inside renderItem
+function isInCart(sku: string, cartSkus: string[]): boolean {
+  return cartSkus.includes(sku); // O(m)
 }
 
-function networkDelayTime(times: number[][], n: number, k: number): number {
-  const g: [number, number][][] = Array.from({ length: n + 1 }, () => []);
-  for (const [u, v, w] of times) g[u].push([v, w]);
-  const dist = Array(n + 1).fill(Infinity);
-  dist[k] = 0;
-  const heap = new MinHeapPair();
-  heap.push(0, k);
-  while (heap.size) {
-    const [d, u] = heap.pop()!;
-    if (d > dist[u]) continue;
-    for (const [v, w] of g[u]) {
-      if (d + w < dist[v]) {
-        dist[v] = d + w;
-        heap.push(dist[v], v);
-      }
-    }
-  }
-  let ans = 0;
-  for (let i = 1; i <= n; i++) {
-    if (dist[i] === Infinity) return -1;
-    ans = Math.max(ans, dist[i]);
-  }
-  return ans;
+// GOOD — memoize / rebuild when cart changes
+function buildCartSet(cartSkus: string[]): Set<string> {
+  return new Set(cartSkus);
+}
+
+function isInCart(sku: string, cartSet: Set<string>): boolean {
+  return cartSet.has(sku); // O(1)
 }
 ```
 
 ---
 
-## P3: Connected components / redundant connection
+## Quick reference — scenario → structure
 
-### Approach
+| # | Structure |
+|---|-----------|
+| S1 | Array + Set + cursor |
+| S2 | Bounded stack |
+| S3 | HashSet / HashMap |
+| S4 | HashSet (+ array for lists) |
+| S5 | LRU + TTL (+ disk) |
 
-**Union-Find** with path compression and union by rank.
-
-**Connected components:** start with `n` components; for each undirected edge, `union(u, v)` (0-based or 1-based consistently). Final answer is `uf.components`.
-
-**Redundant connection:** process edges in order; if `find(u) == find(v)` before union, that edge closes a cycle — return it; else `union`.
-
-### Complexity
-
-- Time: nearly O(n + m · α(n))
-- Space: O(n)
-
-### Edge cases
-
-- No edges → `n` components
-- Already connected graph → first cycle-making edge is redundant
-- Duplicate edges
-- Nodes numbered `1..n` vs `0..n-1`
-
-### Mobile note
-
-Offline device clustering, merge of local conflict graphs, “same account across installs” sketches. Prefer DSU over repeated DFS when the edge stream is dynamic. Keep `n` bounded in memory on device.
-
-### Kotlin
-
-```kotlin
-class UnionFind(n: Int) {
-    private val parent = IntArray(n) { it }
-    private val rank = IntArray(n)
-    var components = n
-        private set
-    fun find(x: Int): Int {
-        if (parent[x] != x) parent[x] = find(parent[x])
-        return parent[x]
-    }
-    fun union(a: Int, b: Int): Boolean {
-        var ra = find(a)
-        var rb = find(b)
-        if (ra == rb) return false
-        if (rank[ra] < rank[rb]) {
-            val t = ra; ra = rb; rb = t
-        }
-        parent[rb] = ra
-        if (rank[ra] == rank[rb]) rank[ra]++
-        components--
-        return true
-    }
-}
-
-fun countComponents(n: Int, edges: Array<IntArray>): Int {
-    val uf = UnionFind(n)
-    for (e in edges) uf.union(e[0], e[1])
-    return uf.components
-}
-
-fun findRedundantConnection(edges: Array<IntArray>): IntArray {
-    val uf = UnionFind(edges.size + 1) // nodes 1..n
-    for (e in edges) {
-        if (!uf.union(e[0], e[1])) return e
-    }
-    return intArrayOf()
-}
-```
-
-### Swift
-
-```swift
-final class UnionFind {
-    private var parent: [Int]
-    private var rank: [Int]
-    private(set) var components: Int
-    init(_ n: Int) {
-        parent = Array(0..<n)
-        rank = Array(repeating: 0, count: n)
-        components = n
-    }
-    func find(_ x: Int) -> Int {
-        if parent[x] != x { parent[x] = find(parent[x]) }
-        return parent[x]
-    }
-    @discardableResult
-    func union(_ a: Int, _ b: Int) -> Bool {
-        var ra = find(a), rb = find(b)
-        if ra == rb { return false }
-        if rank[ra] < rank[rb] { swap(&ra, &rb) }
-        parent[rb] = ra
-        if rank[ra] == rank[rb] { rank[ra] += 1 }
-        components -= 1
-        return true
-    }
-}
-
-func countComponents(_ n: Int, _ edges: [[Int]]) -> Int {
-    let uf = UnionFind(n)
-    for e in edges { uf.union(e[0], e[1]) }
-    return uf.components
-}
-
-func findRedundantConnection(_ edges: [[Int]]) -> [Int] {
-    let uf = UnionFind(edges.count + 1)
-    for e in edges {
-        if !uf.union(e[0], e[1]) { return e }
-    }
-    return []
-}
-```
-
-### Dart
-
-```dart
-class UnionFind {
-  final List<int> parent;
-  final List<int> rank;
-  int components;
-  UnionFind(int n)
-      : parent = List.generate(n, (i) => i),
-        rank = List.filled(n, 0),
-        components = n;
-  int find(int x) {
-    if (parent[x] != x) parent[x] = find(parent[x]);
-    return parent[x];
-  }
-  bool union(int a, int b) {
-    var ra = find(a), rb = find(b);
-    if (ra == rb) return false;
-    if (rank[ra] < rank[rb]) {
-      final t = ra;
-      ra = rb;
-      rb = t;
-    }
-    parent[rb] = ra;
-    if (rank[ra] == rank[rb]) rank[ra]++;
-    components--;
-    return true;
-  }
-}
-
-int countComponents(int n, List<List<int>> edges) {
-  final uf = UnionFind(n);
-  for (final e in edges) {
-    uf.union(e[0], e[1]);
-  }
-  return uf.components;
-}
-
-List<int> findRedundantConnection(List<List<int>> edges) {
-  final uf = UnionFind(edges.length + 1);
-  for (final e in edges) {
-    if (!uf.union(e[0], e[1])) return e;
-  }
-  return [];
-}
-```
-
-### TypeScript
-
-```typescript
-class UnionFind {
-  parent: number[];
-  rank: number[];
-  components: number;
-  constructor(n: number) {
-    this.parent = Array.from({ length: n }, (_, i) => i);
-    this.rank = Array(n).fill(0);
-    this.components = n;
-  }
-  find(x: number): number {
-    if (this.parent[x] !== x) this.parent[x] = this.find(this.parent[x]);
-    return this.parent[x];
-  }
-  union(a: number, b: number): boolean {
-    let ra = this.find(a), rb = this.find(b);
-    if (ra === rb) return false;
-    if (this.rank[ra] < this.rank[rb]) [ra, rb] = [rb, ra];
-    this.parent[rb] = ra;
-    if (this.rank[ra] === this.rank[rb]) this.rank[ra]++;
-    this.components--;
-    return true;
-  }
-}
-
-function countComponents(n: number, edges: number[][]): number {
-  const uf = new UnionFind(n);
-  for (const [u, v] of edges) uf.union(u, v);
-  return uf.components;
-}
-
-function findRedundantConnection(edges: number[][]): number[] {
-  const uf = new UnionFind(edges.length + 1);
-  for (const e of edges) {
-    if (!uf.union(e[0], e[1])) return e;
-  }
-  return [];
-}
-```
+| Bug | Fix |
+|-----|-----|
+| `list.contains` in bind | `Set.contains` with set built once |

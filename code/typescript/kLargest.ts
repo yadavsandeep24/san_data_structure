@@ -1,4 +1,4 @@
-// Sample: k largest values via size-k min-heap (Chapter 18)
+// Sample: k largest values via size-k min-heap (Chapter 12)
 export function kLargest(nums: number[], k: number): number[] {
   const heap: number[] = [];
   const siftUp = (i: number) => {

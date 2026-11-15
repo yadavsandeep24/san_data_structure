@@ -195,28 +195,32 @@ Exact nanoseconds vary; the **ratio** does not. Big-O is how you see that ratio 
 
 Answers in Appendix D.
 
-2.1 What is the difference between O(n) and Θ(n)?
+**2.1** What is the difference between O(n) and Θ(n)?
 
-2.2 Why might an O(n) algorithm with large allocations feel worse on mobile than an O(n log n) sort with tight memory use for moderate n?
+**2.2** Why might an O(n) algorithm with large allocations feel worse on mobile than an O(n log n) sort with tight memory use for moderate n?
 
-2.3 Classify: nested loop `for i in 0..n; for j in 0..i` — is it still Θ(n²)?
+**2.3** Classify: nested loop `for i in 0..n; for j in 0..i` — is it still Θ(n²)?
 
-2.4 You build a Dictionary once (O(n)) then answer 10,000 lookups. How should you describe the cost of the feature end-to-end?
+**2.4** You build a Dictionary once (O(n)) then answer 10,000 lookups. How should you describe the cost of the feature end-to-end?
 
-2.5 At 120Hz, roughly how many milliseconds do you have per frame, and why does that change your tolerance for O(n) on the UI thread?
+**2.5** At 120Hz, roughly how many milliseconds do you have per frame, and why does that change your tolerance for O(n) on the UI thread?
 
 ---
 
-## Practice Problems
+## Practice
 
-1. **Read the cost** — For each snippet in your language of choice, state time and extra space: (a) one loop pushing into a new array; (b) loop with `list.contains`; (c) sort then single pass.
-2. **Budget call** — A search box filters 10,000 rows on every character on the JS/UI thread with a linear scan. Propose a complexity-aware redesign (index? debounce? background?).
-3. **Space first** — Name a mobile feature where reducing space complexity matters more than shaving a log n factor in time.
+1. **Read the cost** ([solution](../../solutions/ch02/README.md#p1-read-the-cost)) — For each snippet in your language of choice, state time and extra space: (a) one loop pushing into a new array; (b) loop with `list.contains`; (c) sort then single pass.
+2. **Budget call** ([solution](../../solutions/ch02/README.md#p2-budget-call)) — A search box filters 10,000 rows on every character on the JS/UI thread with a linear scan. Propose a complexity-aware redesign (index? debounce? background?).
+3. **Space first** ([solution](../../solutions/ch02/README.md#p3-space-first)) — Name a mobile feature where reducing space complexity matters more than shaving a log n factor in time.
 
-Array-focused drills with full solutions: [`solutions/ch03/`](../../solutions/ch03/README.md) (after you read Chapter 3).
+Model answers: [`solutions/ch02/`](../../solutions/ch02/README.md).
 
 ---
 
 ## What to remember
 
 Big-O predicts scaling; mobile turns scaling into jank, heat, and kills. Label time and space, watch for hidden linear library calls, and keep per-frame work closer to O(1) or O(visible) than O(n) or O(n²). Next, Chapter 3 applies this lens to the structure underneath almost every list UI: arrays and dynamic arrays.
+
+---
+
+Previous: [Chapter 1 — Why Data Structures Matter for Mobile Developers](01-why-data-structures-matter.md) · Next: [Chapter 3 — Arrays and Dynamic Arrays](../part-ii/03-arrays-dynamic-arrays.md) · Solutions: [`solutions/ch02`](../../solutions/ch02/README.md)

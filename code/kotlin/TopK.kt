@@ -1,4 +1,4 @@
-// Sample: k largest values via size-k min-heap (Chapter 18) — not “top-k frequent”
+// Sample: k largest values via size-k min-heap (Chapter 12) — not “top-k frequent”
 import java.util.PriorityQueue
 
 fun kLargest(nums: IntArray, k: Int): List<Int> {

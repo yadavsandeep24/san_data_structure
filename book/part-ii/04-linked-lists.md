@@ -219,7 +219,7 @@ function hasCycle(head: ListNode | null): boolean {
 }
 ```
 
-## LRU cache: HashMap + doubly linked list
+## LRU cache: HashMap and doubly linked list
 
 **Idea:** Map `key → node` for O(1) lookup. Doubly linked list orders by recency: head = most recent, tail = least recent. On `get`/`put` hit, splice the node to head. On capacity overflow, drop the tail and remove it from the map.
 
@@ -533,4 +533,20 @@ class Node {
 2. **Detect cycle** (and optionally return the cycle entrance) — [solutions/ch04](../../solutions/ch04/README.md#p2-detect-cycle)
 3. **LRU get/put** (implement from scratch; compare to the chapter reference) — [solutions/ch04](../../solutions/ch04/README.md#p3-lru-cache-getput)
 
-Next: [Chapter 5 — Stacks](05-stacks.md) — LIFO, navigation back-stacks, and undo.
+### More practice
+
+- [Ch 29 — Interview Questions, Q1–Q10](../part-viii/29-interview-questions-q01-q10.md): Q10 Reverse Linked List
+- [Ch 29 — Interview Questions, Q11–Q20](../part-viii/29-interview-questions-q11-q20.md): Q11 Linked List Cycle · Q12 Merge Two Sorted Lists
+- [Ch 34 — Linked Lists & Trees](../part-viii/34-linked-lists-trees.md): Q1 Reorder List · Q2 Remove Nth Node From End · Q3 Copy List with Random Pointer · Q4 Add Two Numbers
+- [Ch 29 — Interview Questions, Q31–Q40](../part-viii/29-interview-questions-q31-q40.md): Q36 LRU Cache
+- [Ch 30 — Hard Drill Bank, Q1–Q10](../part-viii/30-hard-drill-bank-q01-q10.md): Q9 LFU Cache
+
+---
+
+## What to remember
+
+Linked lists trade O(1) indexing for O(1) splicing at a node you already hold. On mobile that's rarely a win for plain lists, because arrays are cache-friendly and diffable. It is the right tool inside structures like the LRU cache (hash map + doubly linked list) and for queues of in-flight work. In interviews, draw the pointers, use a dummy head to remove edge cases, and reach for fast/slow pointers (Chapter 13) for middles and cycles.
+
+---
+
+Previous: [Chapter 3 — Arrays and Dynamic Arrays](03-arrays-dynamic-arrays.md) · Next: [Chapter 5 — Stacks](05-stacks.md) · Solutions: [`solutions/ch04`](../../solutions/ch04/README.md)

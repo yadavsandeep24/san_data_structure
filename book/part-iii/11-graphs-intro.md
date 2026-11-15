@@ -14,7 +14,7 @@ Trees (Chapters 9–10) are graphs with a stricter shape: in graph theory, a *tr
 | **Edge** | A link between vertices | Follow, “can navigate to” |
 | **Directed** | Edge has direction `u → v` | Follow graph, deeplink flow |
 | **Undirected** | Edge is bidirectional | Mutual friends, Bluetooth mesh sketch |
-| **Weighted** | Edge has cost | Travel time (advanced — Chapter 20) |
+| **Weighted** | Edge has cost | Travel time (advanced — Chapter 25) |
 | **Degree** | Number of incident edges | Follower count (directed: in/out degree) |
 | **Path** | Sequence of edges | Navigation stack trail |
 | **Cycle** | Path that returns to start | A→B→A follows |
@@ -556,4 +556,18 @@ function shortestHops(g: Map<string, string[]>, src: string, dst: string): numbe
 2. **Clone graph** — [solutions/ch11](../../solutions/ch11/README.md#p2-clone-graph)
 3. **Shortest path in unweighted graph (BFS)** — [solutions/ch11](../../solutions/ch11/README.md#p3-shortest-path-unweighted)
 
-Back: [Chapter 10 — Trees Practical](10-trees-practical.md) · Next: [Chapter 12 — Caching Strategies](../part-iv/12-caching-strategies.md)
+### More practice
+
+- [Ch 29 — Interview Questions, Q21–Q30](../part-viii/29-interview-questions-q21-q30.md): Q21 Number of Provinces · Q22 Clone Graph · Q23 Course Schedule · Q24 Shortest Path in Unweighted Graph
+- [Ch 36 — Graphs & Dynamic Programming](../part-viii/36-graphs-dynamic-programming.md): Q1 Max Area of Island · Q2 Rotting Oranges · Q3 Pacific Atlantic · Q4 Surrounded Regions · Q5 Graph Valid Tree
+- [Ch 30 — Hard Drill Bank, Q11–Q20](../part-viii/30-hard-drill-bank-q11-q20.md): Q17 Bus Routes
+
+---
+
+## What to remember
+
+A graph is vertices plus edges, stored as an adjacency list for sparse real-world data. BFS finds shortest paths in unweighted graphs and goes level by level. DFS explores, finds components and detects cycles. Always keep a visited set, and say O(V + E). On mobile, graphs show up as screen navigation, social connections and dependency ordering. Heavier algorithms are in Chapter 25.
+
+---
+
+Previous: [Chapter 10 — Trees Practical (BST, Trie, JSON)](10-trees-practical.md) · Next: [Chapter 12 — Heaps and Priority Queues](12-heaps-priority-queues.md) · Solutions: [`solutions/ch11`](../../solutions/ch11/README.md)

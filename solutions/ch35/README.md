@@ -1,195 +1,196 @@
 # Chapter 35 — Solution Index & Extra Ports
 
-Full **Kotlin + TypeScript** solutions live inline in [`book/part-x/35-linked-lists-trees.md`](../../book/part-x/35-linked-lists-trees.md). The chapter now shows all four languages inline; this file adds a timed-review index and repeats the **Swift/Dart** ports for three of the most interview-heavy problems.
+Full **Kotlin + TypeScript** solutions live inline in [`book/part-viii/35-heaps-tries-greedy.md`](../../book/part-viii/35-heaps-tries-greedy.md). This file adds a timed-review index plus a standalone copy of the **Swift/Dart** versions of the most interview-heavy problems. All four languages are also inline in the chapter.
 
 | # | Title | Topic | One-line approach |
 |---|-------|-------|-------------------|
-| [Q1](../../book/part-x/35-linked-lists-trees.md#q1-reorder-list-interleave-oldest-and-newest) | Reorder List | Linked list (middle, reverse, merge) | Middle (slow/fast) → reverse 2nd half → weave |
-| [Q2](../../book/part-x/35-linked-lists-trees.md#q2-remove-nth-node-from-end-of-list-drop-the-nth-latest-notification) | Remove Nth Node From End of List | Linked list (two pointers) | Dummy + gap of n; trail stops before target |
-| [Q3](../../book/part-x/35-linked-lists-trees.md#q3-copy-list-with-random-pointer-deep-copy-a-linked-playlist) | Copy List with Random Pointer | Linked list + hash map | Map original → copy; wire next/random in pass 2 |
-| [Q4](../../book/part-x/35-linked-lists-trees.md#q4-add-two-numbers-digit-list-amount-sum) | Add Two Numbers | Linked list (carry) | Column addition with carry while any list or carry left |
-| [Q5](../../book/part-x/35-linked-lists-trees.md#q5-diameter-of-binary-tree-longest-path-in-a-view-tree) | Diameter of Binary Tree | Tree DFS (post-order) | Post-order height; best = max(l + r) |
-| [Q6](../../book/part-x/35-linked-lists-trees.md#q6-balanced-binary-tree-layout-depth-check) | Balanced Binary Tree | Tree DFS (post-order) | Post-order height with −1 sentinel for unbalanced |
-| [Q7](../../book/part-x/35-linked-lists-trees.md#q7-subtree-of-another-tree-find-a-component-pattern) | Subtree of Another Tree | Tree recursion | sameTree at every node (serialize + KMP for O(m+n)) |
-| [Q8](../../book/part-x/35-linked-lists-trees.md#q8-binary-tree-right-side-view-what-the-right-edge-shows) | Binary Tree Right Side View | BFS level order | BFS; keep last node per level |
-| [Q9](../../book/part-x/35-linked-lists-trees.md#q9-count-good-nodes-in-binary-tree-record-high-checkpoints) | Count Good Nodes in Binary Tree | Tree DFS with path state | DFS carrying maxSoFar; good if val ≥ maxSoFar |
-| [Q10](../../book/part-x/35-linked-lists-trees.md#q10-kth-smallest-element-in-a-bst-kth-cheapest-in-a-price-index) | Kth Smallest Element in a BST | BST in-order traversal | Iterative in-order; stop at k-th pop |
-| [Q11](../../book/part-x/35-linked-lists-trees.md#q11-construct-binary-tree-from-preorder-and-inorder-traversal-rebuild-a-tree-from-two-dumps) | Construct Binary Tree from Preorder and Inorder Traversal | Tree recursion + hash map | Preorder index gives roots; inorder map splits windows |
+| [Q1](../../book/part-viii/35-heaps-tries-greedy.md#q1-kth-largest-element-in-a-stream-live-leaderboard-cutoff) | Kth Largest Element in a Stream | Heap (bounded min-heap) | Min-heap of size k; root is the answer |
+| [Q2](../../book/part-viii/35-heaps-tries-greedy.md#q2-k-closest-points-to-origin-nearest-stores-on-the-map) | K Closest Points to Origin | Heap (bounded max-heap) | Max-heap of size k on squared distance |
+| [Q3](../../book/part-viii/35-heaps-tries-greedy.md#q3-task-scheduler-notification-cooldown-slots) | Task Scheduler | Greedy / counting | max(tasks.length, (maxF-1)(n+1) + #maxF) |
+| [Q4](../../book/part-viii/35-heaps-tries-greedy.md#q4-design-add-and-search-words-data-structure-wildcard-contact-search) | Design Add and Search Words Data Structure | Trie + DFS | Trie; `.` fans out to every child |
+| [Q5](../../book/part-viii/35-heaps-tries-greedy.md#q5-word-search-ii-word-game-board-scan) | Word Search II | Trie + backtracking | One trie, one DFS per cell; clear word on hit |
+| [Q6](../../book/part-viii/35-heaps-tries-greedy.md#q6-jump-game-ii-fewest-deep-link-hops) | Jump Game II | Greedy (BFS by ranges) | Implicit BFS: curEnd / farthest window |
+| [Q7](../../book/part-viii/35-heaps-tries-greedy.md#q7-gas-station-ev-delivery-loop-start) | Gas Station | Greedy (prefix reset) | Total ≥ 0 check; reset start when tank < 0 |
+| [Q8](../../book/part-viii/35-heaps-tries-greedy.md#q8-hand-of-straights-consecutive-ticket-batches) | Hand of Straights | Greedy + ordered map | Smallest card starts a run; consume from ordered counts |
+| [Q9](../../book/part-viii/35-heaps-tries-greedy.md#q9-merge-triplets-to-form-target-triplet-release-gate-versions) | Merge Triplets to Form Target Triplet | Greedy (filter) | Drop overshooting triplets; each slot must be hit exactly |
+| [Q10](../../book/part-viii/35-heaps-tries-greedy.md#q10-partition-labels-chunking-a-sync-log) | Partition Labels | Greedy (last occurrence) | Last index per letter; close chunk when i == end |
+| [Q11](../../book/part-viii/35-heaps-tries-greedy.md#q11-valid-parenthesis-string-template-brackets-with-wildcards) | Valid Parenthesis String | Greedy (range of balances) | Track [lo, hi] open-count range; clamp lo |
 
 ---
 
-## Shared node classes (Swift / Dart)
+## Q3 — Task Scheduler (Swift / Dart)
 
 ### Swift
 
 ```swift
-final class ListNode {
-    var val: Int
-    var next: ListNode?
-    init(_ val: Int, _ next: ListNode? = nil) { self.val = val; self.next = next }
-}
-
-final class TreeNode {
-    var val: Int
-    var left: TreeNode?
-    var right: TreeNode?
-    init(_ val: Int) { self.val = val }
+func leastInterval(_ tasks: [Character], _ n: Int) -> Int {
+    var freq = [Int](repeating: 0, count: 26)
+    for t in tasks {
+        guard let v = t.asciiValue, v >= 65, v <= 90 else { continue } // labels are 'A'...'Z'
+        freq[Int(v) - 65] += 1
+    }
+    guard let maxF = freq.max(), maxF > 0 else { return 0 }
+    let maxCount = freq.filter { $0 == maxF }.count
+    return max(tasks.count, (maxF - 1) * (n + 1) + maxCount)
 }
 ```
 
 ### Dart
 
 ```dart
-class ListNode {
-  int val;
-  ListNode? next;
-  ListNode(this.val, [this.next]);
-}
-
-class TreeNode {
-  int val;
-  TreeNode? left;
-  TreeNode? right;
-  TreeNode(this.val);
+int leastInterval(List<String> tasks, int n) {
+  if (tasks.isEmpty) return 0;
+  final freq = List<int>.filled(26, 0);
+  for (final t in tasks) {
+    freq[t.codeUnitAt(0) - 65]++;
+  }
+  final maxF = freq.reduce(max);
+  final maxCount = freq.where((f) => f == maxF).length;
+  return max(tasks.length, (maxF - 1) * (n + 1) + maxCount);
 }
 ```
 
 ---
 
-## Q1 — Reorder list (Swift / Dart)
+## Q5 — Word Search II (Swift / Dart)
 
 ### Swift
 
 ```swift
-func reorderList(_ head: ListNode?) {
-    guard let head = head, head.next != nil else { return }
-    var slow = head, fast: ListNode? = head
-    while let f = fast?.next?.next { slow = slow.next!; fast = f } // middle
-    var prev: ListNode? = nil, cur = slow.next
-    slow.next = nil
-    while let c = cur { let nxt = c.next; c.next = prev; prev = c; cur = nxt } // reverse 2nd half
-    var a: ListNode? = head, b = prev
-    while let x = a, let y = b { // weave
-        let xNext = x.next, yNext = y.next
-        x.next = y; y.next = xNext
-        a = xNext; b = yNext
+final class WordNode {
+    var next: [Character: WordNode] = [:]
+    var word: String?
+}
+
+func findWords(_ board: [[Character]], _ words: [String]) -> [String] {
+    let root = WordNode()
+    for w in words {
+        var cur = root
+        for c in w {
+            if let nx = cur.next[c] {
+                cur = nx
+            } else {
+                let nx = WordNode()
+                cur.next[c] = nx
+                cur = nx
+            }
+        }
+        cur.word = w
     }
+    var grid = board // local copy; Swift arrays are values
+    let rows = grid.count, cols = grid.first?.count ?? 0
+    var found: [String] = []
+    func dfs(_ r: Int, _ c: Int, _ parent: WordNode) {
+        let ch = grid[r][c]
+        guard let node = parent.next[ch] else { return } // '#' is never a trie edge
+        if let w = node.word {
+            found.append(w)
+            node.word = nil // report once
+        }
+        grid[r][c] = "#"
+        if r > 0 { dfs(r - 1, c, node) }
+        if r < rows - 1 { dfs(r + 1, c, node) }
+        if c > 0 { dfs(r, c - 1, node) }
+        if c < cols - 1 { dfs(r, c + 1, node) }
+        grid[r][c] = ch
+    }
+    for r in 0..<rows { for c in 0..<cols { dfs(r, c, root) } }
+    return found
 }
 ```
 
 ### Dart
 
 ```dart
-void reorderList(ListNode? head) {
-  if (head == null || head.next == null) return;
-  var slow = head;
-  ListNode? fast = head;
-  while (fast?.next?.next != null) { // middle
-    slow = slow.next!;
-    fast = fast!.next!.next;
+class WordNode {
+  final next = <String, WordNode>{};
+  String? word;
+}
+
+List<String> findWords(List<List<String>> board, List<String> words) {
+  final root = WordNode();
+  for (final w in words) {
+    var cur = root;
+    for (final c in w.split('')) {
+      cur = cur.next.putIfAbsent(c, () => WordNode());
+    }
+    cur.word = w;
   }
-  ListNode? prev, cur = slow.next;
-  slow.next = null;
-  while (cur != null) { // reverse 2nd half
-    final nxt = cur.next;
-    cur.next = prev;
-    prev = cur;
-    cur = nxt;
+  final rows = board.length, cols = board[0].length;
+  final found = <String>[];
+  void dfs(int r, int c, WordNode parent) {
+    final ch = board[r][c];
+    final node = parent.next[ch]; // '#' is never a trie edge
+    if (node == null) return;
+    final w = node.word;
+    if (w != null) {
+      found.add(w);
+      node.word = null; // report once
+    }
+    board[r][c] = '#';
+    if (r > 0) dfs(r - 1, c, node);
+    if (r < rows - 1) dfs(r + 1, c, node);
+    if (c > 0) dfs(r, c - 1, node);
+    if (c < cols - 1) dfs(r, c + 1, node);
+    board[r][c] = ch;
   }
-  ListNode? a = head, b = prev;
-  while (a != null && b != null) { // weave
-    final aNext = a.next, bNext = b.next;
-    a.next = b;
-    b.next = aNext;
-    a = aNext;
-    b = bNext;
+
+  for (var r = 0; r < rows; r++) {
+    for (var c = 0; c < cols; c++) {
+      dfs(r, c, root);
+    }
   }
+  return found;
 }
 ```
 
 ---
 
-## Q10 — Kth smallest element in a BST (Swift / Dart)
+## Q8 — Hand of Straights (Swift / Dart)
 
 ### Swift
 
 ```swift
-func kthSmallest(_ root: TreeNode?, _ k: Int) -> Int {
-    var stack: [TreeNode] = []
-    var cur = root, count = 0
-    while cur != nil || !stack.isEmpty {
-        while let c = cur { stack.append(c); cur = c.left } // walk left
-        let node = stack.removeLast()
-        count += 1
-        if count == k { return node.val } // in-order is ascending
-        cur = node.right
+func isNStraightHand(_ hand: [Int], _ groupSize: Int) -> Bool {
+    if hand.count % groupSize != 0 { return false }
+    var count: [Int: Int] = [:]
+    for h in hand { count[h, default: 0] += 1 }
+    for first in count.keys.sorted() {
+        let need = count[first] ?? 0 // groups that must start here
+        if need == 0 { continue }
+        for v in first..<(first + groupSize) {
+            let have = count[v] ?? 0
+            if have < need { return false }
+            count[v] = have - need
+        }
     }
-    fatalError("k > number of nodes")
+    return true
 }
 ```
 
 ### Dart
 
 ```dart
-int kthSmallest(TreeNode? root, int k) {
-  final stack = <TreeNode>[];
-  var cur = root;
-  var count = 0;
-  while (cur != null || stack.isNotEmpty) {
-    while (cur != null) { // walk left
-      stack.add(cur);
-      cur = cur.left;
-    }
-    final node = stack.removeLast();
-    if (++count == k) return node.val; // in-order is ascending
-    cur = node.right;
+bool isNStraightHand(List<int> hand, int groupSize) {
+  if (hand.length % groupSize != 0) return false;
+  final count = <int, int>{};
+  for (final h in hand) {
+    count[h] = (count[h] ?? 0) + 1;
   }
-  throw ArgumentError('k > number of nodes');
+  final keys = count.keys.toList()..sort();
+  for (final first in keys) {
+    final need = count[first] ?? 0; // groups that must start here
+    if (need == 0) continue;
+    for (var v = first; v < first + groupSize; v++) {
+      final have = count[v] ?? 0;
+      if (have < need) return false;
+      count[v] = have - need;
+    }
+  }
+  return true;
 }
 ```
 
 ---
 
-## Q11 — Construct tree from preorder + inorder (Swift / Dart)
-
-### Swift
-
-```swift
-func buildTree(_ preorder: [Int], _ inorder: [Int]) -> TreeNode? {
-    var inIndex: [Int: Int] = [:]
-    for (i, v) in inorder.enumerated() { inIndex[v] = i }
-    var pre = 0
-    func build(_ lo: Int, _ hi: Int) -> TreeNode? { // inorder window [lo, hi]
-        if lo > hi { return nil }
-        let node = TreeNode(preorder[pre]); pre += 1
-        guard let mid = inIndex[node.val] else { return nil } // value missing from inorder
-        node.left = build(lo, mid - 1)
-        node.right = build(mid + 1, hi)
-        return node
-    }
-    return build(0, inorder.count - 1)
-}
-```
-
-### Dart
-
-```dart
-TreeNode? buildTree(List<int> preorder, List<int> inorder) {
-  final inIndex = <int, int>{};
-  for (var i = 0; i < inorder.length; i++) inIndex[inorder[i]] = i;
-  var pre = 0;
-  TreeNode? build(int lo, int hi) { // inorder window [lo, hi]
-    if (lo > hi) return null;
-    final node = TreeNode(preorder[pre++]);
-    final mid = inIndex[node.val]!;
-    node.left = build(lo, mid - 1);
-    node.right = build(mid + 1, hi);
-    return node;
-  }
-  return build(0, inorder.length - 1);
-}
-```
-
----
-
-Back to the chapter: [Chapter 35](../../book/part-x/35-linked-lists-trees.md)
+Back to [Chapter 35](../../book/part-viii/35-heaps-tries-greedy.md).

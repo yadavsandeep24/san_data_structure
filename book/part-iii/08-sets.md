@@ -424,4 +424,19 @@ function longestConsecutive(nums: number[]): number {
 2. **Intersection of two arrays** — [solutions/ch08](../../solutions/ch08/README.md#p2-intersection-of-two-arrays)
 3. **Longest consecutive sequence** — [solutions/ch08](../../solutions/ch08/README.md#p3-longest-consecutive-sequence)
 
-Back: [Chapter 7 — Hash Tables](07-hash-tables.md) · Next: [Chapter 9 — Trees Basics](09-trees-basics.md)
+### More practice
+
+- [Ch 29 — Interview Questions, Q1–Q10](../part-viii/29-interview-questions-q01-q10.md): Q2 Contains Duplicate
+- [Ch 30 — Hard Drill Bank, Q1–Q10](../part-viii/30-hard-drill-bank-q01-q10.md): Q3 Longest Consecutive Sequence
+- [Ch 31 — Arrays, Hashing & Matrix](../part-viii/31-arrays-hashing-matrix.md): Q2 Valid Sudoku · Q10 First Missing Positive
+- [Ch 32 — Two Pointers, Windows & Intervals](../part-viii/32-two-pointers-windows-intervals.md): Q7 Permutation in String · Q10 Find All Anagrams
+
+---
+
+## What to remember
+
+A set is a hash map without values: O(1) average membership, with insertion order kept only in the linked variants and sorted order only in the tree variants. On mobile, a set of selected IDs is the right model for multi-select. It's O(1) per row bind and survives list reloads. Set algebra (union, intersection, difference) is how you reconcile local and server state cleanly.
+
+---
+
+Previous: [Chapter 7 — Hash Tables (HashMap / Dictionary / Map)](07-hash-tables.md) · Next: [Chapter 9 — Trees Basics](09-trees-basics.md) · Solutions: [`solutions/ch08`](../../solutions/ch08/README.md)

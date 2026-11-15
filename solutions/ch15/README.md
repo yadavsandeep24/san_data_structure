@@ -2,328 +2,280 @@
 
 Model solutions for Chapter 15 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
 
-Problems are defined in [`book/part-v/15-searching-sorting.md`](../../book/part-v/15-searching-sorting.md).
+Problems are defined in [`book/part-iv/15-prefix-sums.md`](../../book/part-iv/15-prefix-sums.md).
 
 ---
 
-## P1: Search insert position
+## P1: Find pivot index
+
+Return the leftmost index `i` where `sum(a[0 until i]) == sum(a[i+1 until n])`, or `-1`.
 
 ### Approach
 
-Lower bound on a sorted ascending array: find the first index `i` where `nums[i] >= target` (or `n` if all elements are smaller). Binary search with half-open range `[lo, hi)` where `hi` starts at `n`.
+Prefix sum without storing the array. Compute `total` once. Walk left to right keeping `left`, the sum before `i`. The right side is `total - left - a[i]`. Compare, then add `a[i]` to `left`.
 
 ### Complexity
 
-- Time: O(log n)
+- Time: O(n)
 - Space: O(1)
 
 ### Edge cases
 
-- Empty array → `0`
-- Target smaller than all → `0`
-- Target larger than all → `n`
-- Target equal to an existing element → index of that (leftmost if duplicates and using lower bound)
+- Index 0 is the pivot when the sum of the rest is 0 (the left sum is an empty 0)
+- Negative values are fine. This is not a window.
+- No pivot → `-1`
 
 ### Mobile note
 
-Use when inserting a timestamped event into an already-sorted in-memory log without a full re-sort. Keep the array sorted on write path; do not binary-search unsorted UI state.
+"Where does the timeline balance?" A split marker on a budget chart that puts equal spend on each side, computed once when the data loads.
 
 ### Kotlin
 
 ```kotlin
-fun searchInsert(nums: IntArray, target: Int): Int {
-    var lo = 0
-    var hi = nums.size
-    while (lo < hi) {
-        val mid = lo + (hi - lo) / 2
-        if (nums[mid] < target) lo = mid + 1 else hi = mid
+fun pivotIndex(a: IntArray): Int {
+    val total = a.sumOf { it.toLong() }
+    var left = 0L
+    for (i in a.indices) {
+        if (left == total - left - a[i]) return i
+        left += a[i]
     }
-    return lo
+    return -1
 }
 ```
 
 ### Swift
 
 ```swift
-func searchInsert(_ nums: [Int], _ target: Int) -> Int {
-    var lo = 0, hi = nums.count
-    while lo < hi {
-        let mid = lo + (hi - lo) / 2
-        if nums[mid] < target { lo = mid + 1 } else { hi = mid }
+func pivotIndex(_ a: [Int]) -> Int {
+    let total = a.reduce(0, +)
+    var left = 0
+    for i in a.indices {
+        if left == total - left - a[i] { return i }
+        left += a[i]
     }
-    return lo
+    return -1
 }
 ```
 
 ### Dart
 
 ```dart
-int searchInsert(List<int> nums, int target) {
-  var lo = 0, hi = nums.length;
-  while (lo < hi) {
-    final mid = lo + (hi - lo) ~/ 2;
-    if (nums[mid] < target) {
-      lo = mid + 1;
-    } else {
-      hi = mid;
-    }
+int pivotIndex(List<int> a) {
+  final total = a.fold<int>(0, (s, x) => s + x);
+  var left = 0;
+  for (var i = 0; i < a.length; i++) {
+    if (left == total - left - a[i]) return i;
+    left += a[i];
   }
-  return lo;
+  return -1;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function searchInsert(nums: number[], target: number): number {
-  let lo = 0, hi = nums.length;
-  while (lo < hi) {
-    const mid = lo + ((hi - lo) >> 1);
-    if (nums[mid] < target) lo = mid + 1;
-    else hi = mid;
+function pivotIndex(a: number[]): number {
+  const total = a.reduce((s, x) => s + x, 0);
+  let left = 0;
+  for (let i = 0; i < a.length; i++) {
+    if (left === total - left - a[i]) return i;
+    left += a[i];
   }
-  return lo;
+  return -1;
 }
 ```
 
 ---
 
-## P2: First and last position
+## P2: Contiguous array (equal 0s and 1s)
+
+Given a binary array, return the length of the longest subarray with an equal number of 0s and 1s.
 
 ### Approach
 
-On a sorted array, run lower bound for `target` (first `>= target`) and upper bound (first `> target`). If lower bound is in range and equals `target`, answer is `[first, upper - 1]`; else `[-1, -1]`.
+Treat `0` as `-1`. Then "equal counts" means "subarray sum 0", which in turn means "two equal prefix values". Store the **first index** at which each prefix value appears, seeded with `{0: -1}` (the empty prefix sits before index 0). When a prefix value repeats at `i`, the subarray `(first + 1)..i` sums to 0, so its length is `i - first`.
+
+Store the first index only. A later index would give a shorter subarray.
 
 ### Complexity
 
-- Time: O(log n)
-- Space: O(1)
+- Time: O(n)
+- Space: O(n) for the map (an array of size `2n + 1` indexed by `prefix + n` also works and avoids hashing)
 
 ### Edge cases
 
-- Missing target → `[-1, -1]`
-- Single element match / miss
-- Entire array equal to target
-- Empty array
+- All 0s or all 1s → 0
+- The whole array balances → `n` (thanks to the `-1` seed)
 
 ### Mobile note
 
-Useful for “all events in this second” on a sorted timeline without scanning. Prefer DB range queries (`BETWEEN`) when data lives in SQLite rather than pulling full arrays to JS/Kotlin.
+The same shape answers "longest stretch where up-votes equal down-votes" or "longest period where inflow equals outflow" on a small on-device series.
 
 ### Kotlin
 
 ```kotlin
-fun searchRange(nums: IntArray, target: Int): IntArray {
-    fun lower(): Int {
-        var lo = 0
-        var hi = nums.size
-        while (lo < hi) {
-            val mid = lo + (hi - lo) / 2
-            if (nums[mid] < target) lo = mid + 1 else hi = mid
-        }
-        return lo
+fun findMaxLength(a: IntArray): Int {
+    val first = HashMap<Int, Int>().apply { put(0, -1) }
+    var prefix = 0
+    var best = 0
+    for (i in a.indices) {
+        prefix += if (a[i] == 1) 1 else -1
+        val f = first[prefix]
+        if (f != null) best = maxOf(best, i - f) else first[prefix] = i
     }
-    fun upper(): Int {
-        var lo = 0
-        var hi = nums.size
-        while (lo < hi) {
-            val mid = lo + (hi - lo) / 2
-            if (nums[mid] <= target) lo = mid + 1 else hi = mid
-        }
-        return lo
-    }
-    val L = lower()
-    if (L == nums.size || nums[L] != target) return intArrayOf(-1, -1)
-    return intArrayOf(L, upper() - 1)
+    return best
 }
 ```
 
 ### Swift
 
 ```swift
-func searchRange(_ nums: [Int], _ target: Int) -> [Int] {
-    func lower() -> Int {
-        var lo = 0, hi = nums.count
-        while lo < hi {
-            let mid = lo + (hi - lo) / 2
-            if nums[mid] < target { lo = mid + 1 } else { hi = mid }
-        }
-        return lo
-    }
-    func upper() -> Int {
-        var lo = 0, hi = nums.count
-        while lo < hi {
-            let mid = lo + (hi - lo) / 2
-            if nums[mid] <= target { lo = mid + 1 } else { hi = mid }
-        }
-        return lo
-    }
-    let L = lower()
-    if L == nums.count || nums[L] != target { return [-1, -1] }
-    return [L, upper() - 1]
-}
-```
-
-### Dart
-
-```dart
-List<int> searchRange(List<int> nums, int target) {
-  int lower() {
-    var lo = 0, hi = nums.length;
-    while (lo < hi) {
-      final mid = lo + (hi - lo) ~/ 2;
-      if (nums[mid] < target) {
-        lo = mid + 1;
-      } else {
-        hi = mid;
-      }
-    }
-    return lo;
-  }
-
-  int upper() {
-    var lo = 0, hi = nums.length;
-    while (lo < hi) {
-      final mid = lo + (hi - lo) ~/ 2;
-      if (nums[mid] <= target) {
-        lo = mid + 1;
-      } else {
-        hi = mid;
-      }
-    }
-    return lo;
-  }
-
-  final L = lower();
-  if (L == nums.length || nums[L] != target) return [-1, -1];
-  return [L, upper() - 1];
-}
-```
-
-### TypeScript
-
-```typescript
-function searchRange(nums: number[], target: number): number[] {
-  const lower = (): number => {
-    let lo = 0, hi = nums.length;
-    while (lo < hi) {
-      const mid = lo + ((hi - lo) >> 1);
-      if (nums[mid] < target) lo = mid + 1;
-      else hi = mid;
-    }
-    return lo;
-  };
-  const upper = (): number => {
-    let lo = 0, hi = nums.length;
-    while (lo < hi) {
-      const mid = lo + ((hi - lo) >> 1);
-      if (nums[mid] <= target) lo = mid + 1;
-      else hi = mid;
-    }
-    return lo;
-  };
-  const L = lower();
-  if (L === nums.length || nums[L] !== target) return [-1, -1];
-  return [L, upper() - 1];
-}
-```
-
----
-
-## P3: Merge two sorted arrays
-
-### Approach
-
-Two-pointer merge: compare heads of `a` and `b`, append the smaller, advance that pointer. Append remainders. For equal keys, apply a documented tie-break (here: take from `a` first for stability toward the first array).
-
-### Complexity
-
-- Time: O(n + m)
-- Space: O(n + m) for the output (O(1) extra if merging into a pre-sized buffer in place from the end — optional variant)
-
-### Edge cases
-
-- One array empty
-- All of one array smaller than the other
-- Interleaved equals — stable-ish tie-break
-- Large n+m — allocate once if capacity known
-
-### Mobile note
-
-Mental model for offline sync: local and remote change-logs already ordered by `updatedAt`. Merge linearly instead of `concat + sort`. Run off the UI thread when merging tens of thousands of rows; publish an immutable result to the list adapter (Views) or the `StateFlow` your `LazyColumn` collects (Compose).
-
-### Kotlin
-
-```kotlin
-fun mergeSorted(a: IntArray, b: IntArray): IntArray {
-    val out = IntArray(a.size + b.size)
-    var i = 0
-    var j = 0
-    var k = 0
-    while (i < a.size && j < b.size) {
-        if (a[i] <= b[j]) out[k++] = a[i++] else out[k++] = b[j++]
-    }
-    while (i < a.size) out[k++] = a[i++]
-    while (j < b.size) out[k++] = b[j++]
-    return out
-}
-```
-
-### Swift
-
-```swift
-func mergeSorted(_ a: [Int], _ b: [Int]) -> [Int] {
-    var i = 0, j = 0
-    var out: [Int] = []
-    out.reserveCapacity(a.count + b.count)
-    while i < a.count && j < b.count {
-        if a[i] <= b[j] {
-            out.append(a[i]); i += 1
+func findMaxLength(_ a: [Int]) -> Int {
+    var first: [Int: Int] = [0: -1]
+    var prefix = 0, best = 0
+    for i in a.indices {
+        prefix += a[i] == 1 ? 1 : -1
+        if let f = first[prefix] {
+            best = max(best, i - f)
         } else {
-            out.append(b[j]); j += 1
+            first[prefix] = i
         }
     }
-    if i < a.count { out.append(contentsOf: a[i...]) }
-    if j < b.count { out.append(contentsOf: b[j...]) }
-    return out
+    return best
 }
 ```
 
 ### Dart
 
 ```dart
-List<int> mergeSorted(List<int> a, List<int> b) {
-  final out = <int>[];
-  var i = 0, j = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] <= b[j]) {
-      out.add(a[i++]);
+int findMaxLength(List<int> a) {
+  final first = <int, int>{0: -1};
+  var prefix = 0, best = 0;
+  for (var i = 0; i < a.length; i++) {
+    prefix += a[i] == 1 ? 1 : -1;
+    final f = first[prefix];
+    if (f != null) {
+      if (i - f > best) best = i - f;
     } else {
-      out.add(b[j++]);
+      first[prefix] = i;
     }
   }
-  while (i < a.length) {
-    out.add(a[i++]);
-  }
-  while (j < b.length) {
-    out.add(b[j++]);
-  }
-  return out;
+  return best;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function mergeSorted(a: number[], b: number[]): number[] {
-  const out: number[] = [];
-  let i = 0, j = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] <= b[j]) out.push(a[i++]);
-    else out.push(b[j++]);
+function findMaxLength(a: number[]): number {
+  const first = new Map<number, number>([[0, -1]]);
+  let prefix = 0;
+  let best = 0;
+  for (let i = 0; i < a.length; i++) {
+    prefix += a[i] === 1 ? 1 : -1;
+    const f = first.get(prefix);
+    if (f !== undefined) best = Math.max(best, i - f);
+    else first.set(prefix, i);
   }
-  while (i < a.length) out.push(a[i++]);
-  while (j < b.length) out.push(b[j++]);
-  return out;
+  return best;
+}
+```
+
+---
+
+## P3: Car pooling (capacity check)
+
+`trips[i] = [passengers, from, to]`. Passengers board at `from` and leave at `to`, so they are **not** on board at `to`. Locations are `0..1000`. Return whether a vehicle with `capacity` seats can serve every trip.
+
+### Approach
+
+Difference array over locations. `diff[from] += passengers`, `diff[to] -= passengers` (the drop-off point is exclusive, so there's no `+1`). Take a running sum across locations, and if it ever exceeds `capacity`, return `false`.
+
+If the location range is huge or sparse, sort the `(location, delta)` events instead (a sweep line, Chapter 17). That costs O(t log t) and doesn't depend on the range.
+
+### Complexity
+
+- Time: O(t + L) where L is the location range (1001)
+- Space: O(L)
+
+### Edge cases
+
+- A drop-off and a pickup at the same location: the drop-off frees seats first. The difference array handles this because both deltas land in the same slot.
+- One trip larger than capacity → `false`
+- No trips → `true`
+
+### Mobile note
+
+This is a seat-booking check for a shuttle or ride-share app, and it can run on device for instant feedback before the server confirms.
+
+### Kotlin
+
+```kotlin
+fun carPooling(trips: Array<IntArray>, capacity: Int): Boolean {
+    val diff = IntArray(1001)
+    for ((p, from, to) in trips) {
+        diff[from] += p
+        diff[to] -= p
+    }
+    var onBoard = 0
+    for (d in diff) {
+        onBoard += d
+        if (onBoard > capacity) return false
+    }
+    return true
+}
+```
+
+### Swift
+
+```swift
+func carPooling(_ trips: [[Int]], _ capacity: Int) -> Bool {
+    var diff = [Int](repeating: 0, count: 1001)
+    for t in trips {
+        diff[t[1]] += t[0]
+        diff[t[2]] -= t[0]
+    }
+    var onBoard = 0
+    for d in diff {
+        onBoard += d
+        if onBoard > capacity { return false }
+    }
+    return true
+}
+```
+
+### Dart
+
+```dart
+bool carPooling(List<List<int>> trips, int capacity) {
+  final diff = List<int>.filled(1001, 0);
+  for (final t in trips) {
+    diff[t[1]] += t[0];
+    diff[t[2]] -= t[0];
+  }
+  var onBoard = 0;
+  for (final d in diff) {
+    onBoard += d;
+    if (onBoard > capacity) return false;
+  }
+  return true;
+}
+```
+
+### TypeScript
+
+```typescript
+function carPooling(trips: [number, number, number][], capacity: number): boolean {
+  const diff = new Array<number>(1001).fill(0);
+  for (const [p, from, to] of trips) {
+    diff[from] += p;
+    diff[to] -= p;
+  }
+  let onBoard = 0;
+  for (const d of diff) {
+    onBoard += d;
+    if (onBoard > capacity) return false;
+  }
+  return true;
 }
 ```

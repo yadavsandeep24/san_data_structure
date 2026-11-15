@@ -1,4 +1,4 @@
-// Sample: k largest values via size-k min-heap (Chapter 18)
+// Sample: k largest values via size-k min-heap (Chapter 12)
 func kLargest(_ nums: [Int], _ k: Int) -> [Int] {
     var heap: [Int] = []
     func siftUp(_ i0: Int) {

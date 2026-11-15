@@ -205,16 +205,20 @@ Answers in Appendix D.
 
 ---
 
-## Practice Problems
+## Practice
 
-Warm-ups for the mindset (full model solutions appear with later chapters’ folders as you progress; Chapter 3’s array drills live under [`solutions/ch03/`](../../solutions/ch03/README.md)).
+Warm-ups for the mindset. Model solutions: [`solutions/ch01/`](../../solutions/ch01/README.md).
 
-1. **Membership under scroll** — Given `visibleIds: List<String>` and `selectedIds: List<String>`, return how many visible IDs are selected. Aim for better than O(n·m). Sketch in your primary language, then compare to a set-based approach.
-2. **Thread placement** — For a screen that downloads a 5MB JSON catalog then shows a searchable list, list which steps must not run on the UI thread and which structure you would build once for search.
-3. **Budget math** — If a membership check costs ~50ns on a device, roughly how many such checks fit in 8ms? What does that imply for per-frame work at 120Hz?
+1. **Membership under scroll** ([solution](../../solutions/ch01/README.md#p1-membership-under-scroll)) — Given `visibleIds: List<String>` and `selectedIds: List<String>`, return how many visible IDs are selected. Aim for better than O(n·m). Sketch in your primary language, then compare to a set-based approach.
+2. **Thread placement** ([solution](../../solutions/ch01/README.md#p2-thread-placement)) — For a screen that downloads a 5MB JSON catalog then shows a searchable list, list which steps must not run on the UI thread and which structure you would build once for search.
+3. **Budget math** ([solution](../../solutions/ch01/README.md#p3-budget-math)) — If a membership check costs ~50ns on a device, roughly how many such checks fit in 8ms? What does that imply for per-frame work at 120Hz?
 
 ---
 
 ## What to remember
 
 Users feel structures as smoothness. Keep the UI thread on cheap operations, move heavy preparation off-thread, prefer hash-backed membership when “contains?” is hot, and treat memory as a first-class constraint. Chapter 2 turns these instincts into the vocabulary of Big-O so you can predict cost before the profiler yells.
+
+---
+
+Previous: [Preface](../00-preface.md) · Next: [Chapter 2 — Big-O Notation — Understanding It Practically](02-big-o-notation.md) · Solutions: [`solutions/ch01`](../../solutions/ch01/README.md)

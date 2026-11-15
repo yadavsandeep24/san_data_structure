@@ -1,60 +1,58 @@
 # Chapter 30 — Solution Index & Extra Ports
 
-Full **Kotlin + TypeScript** solutions live inline in [`book/part-ix/30-document-signing-drill-bank.md`](../../book/part-ix/30-document-signing-drill-bank.md). This file adds a timed-review index plus **Swift/Dart** ports for the most interview-heavy design-style problems.
+Full **Kotlin, Swift, Dart and TypeScript** solutions for all 20 problems live inline in [`book/part-viii/30-hard-drill-bank.md`](../../book/part-viii/30-hard-drill-bank.md). This file adds a timed-review index, a binary-heap TypeScript variant for Q14, and keeps the **Swift/Dart** ports of the longest problems for quick review.
 
 | # | Title | Topic | One-line approach |
 |---|-------|-------|-------------------|
-| [Q1](../../book/part-ix/30-document-signing-drill-bank.md#q1-template-merge-fields-envelope-email-body) | Template Merge Fields | Single-pass parse | Index walk; `\{{` literal; `{{key}}` → value or onMissing; never re-render values |
-| [Q2](../../book/part-ix/30-document-signing-drill-bank.md#q2-normalize-signer-names-duplicate-recipients) | Normalize Signer Names | Canonical key | NFD, drop marks, lowercase, split on space/comma, sort tokens; group by key |
-| [Q3](../../book/part-ix/30-document-signing-drill-bank.md#q3-redact-pii-before-logging-crash-reports) | Redact PII Before Logging | Regex | Mask emails first, then phones (keep last 4 digits); prefer typed wrappers at source |
-| [Q4](../../book/part-ix/30-document-signing-drill-bank.md#q4-find-the-bugs-in-this-function-recent-completed-envelopes) | Find the Bugs | Debugging | Descending sort, case-insensitive status, `take(n)` + `require(n ≥ 0)`, drop null timestamps |
-| [Q5](../../book/part-ix/30-document-signing-drill-bank.md#q5-text-editor-with-a-cursor-note-field-on-a-form) | Text Editor with a Cursor | Two stacks | Left stack ends at cursor; right stored reversed; every op touches ends only, clamp x |
-| [Q6](../../book/part-ix/30-document-signing-drill-bank.md#q6-halve-the-largest-k-times-compress-the-biggest-attachments) | Halve the Largest k Times | Max-heap greedy | Pop max, push `x − x/2`, subtract removed; Long sum |
-| [Q7](../../book/part-ix/30-document-signing-drill-bank.md#q7-count-balanced-binary-substrings-pen-down-runs) | Count Balanced Binary Substrings | Run lengths | Each boundary between runs a, b adds `min(a, b)`; add last boundary |
-| [Q8](../../book/part-ix/30-document-signing-drill-bank.md#q8-build-comment-threads-from-a-flat-list-document-comments) | Comment Threads from a Flat List | Tree / hash map | Group replies by parent; roots = null/missing/self parent newest first; replies oldest first; seen set |
-| [Q9](../../book/part-ix/30-document-signing-drill-bank.md#q9-highest-jpeg-quality-that-fits-the-upload-limit-binary-search-on-the-answer) | Highest JPEG Quality That Fits | Binary search on answer | Encode mid; fits → save, go higher; else lower; null if nothing fits |
-| [Q10](../../book/part-ix/30-document-signing-drill-bank.md#q10-deep-link-router-open-the-right-envelope-screen) | Deep-Link Router | Trie + backtracking | Segment trie; try static, then :param, then *; back up on dead ends |
-| [Q11](../../book/part-ix/30-document-signing-drill-bank.md#q11-simplify-a-signature-stroke-ramer-douglas-peucker) | Simplify a Signature Stroke | RDP / stack | Farthest point from first–last segment; keep if > ε and split; explicit stack |
-| [Q12](../../book/part-ix/30-document-signing-drill-bank.md#q12-justify-text-for-a-narrow-screen-agreement-preview) | Justify Text | Greedy | Fill while letters + gaps ≤ width; spaces / gaps each, first `extra` gaps get +1; last line left |
-| [Q13](../../book/part-ix/30-document-signing-drill-bank.md#q13-stable-percentage-rollout-new-signing-flow-flag) | Stable Percentage Rollout | Fixed hash | FNV-1a of `flag:userId` floor-mod 10,000; on if bucket < p × 100 |
+| [Q1](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q1-median-of-two-sorted-arrays-fee-tier-cut) | Median of Two Sorted Arrays | Binary partition | Binary-search cut on shorter array so left half is balanced; median from maxL/minR |
+| [Q2](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q2-trapping-rain-water-price-spike-wells) | Trapping Rain Water | Two pointers | Advance shorter side; water = sideMax − height |
+| [Q3](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q3-longest-consecutive-sequence) | Longest Consecutive Sequence | Hash set | Only start streaks at values with no `x-1` |
+| [Q4](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q4-word-break) | Word Break | DP | `dp[i]` if prefix segments; try dict words from true indices |
+| [Q5](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q5-serialize-or-deserialize-binary-tree) | Serialize / Deserialize Tree | BFS | Level-order with `#` null markers |
+| [Q6](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q6-course-schedule-ii-return-order) | Course Schedule II | Kahn topo | Indegree queue; emit order; empty if cycle |
+| [Q7](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q7-alien-dictionary-harder-graph-variant) | Alien Dictionary | Topo edges | Adjacent word diffs → edges; Kahn; reject bad prefixes |
+| [Q8](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q8-merge-intervals-and-insert-interval-combo) | Merge + Insert Intervals | Intervals | Sort+sweep merge; insert: before / overlap / after |
+| [Q9](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q9-lfu-cache) | LFU Cache | Design | key→node; freq→LRU set; bump freq; evict minFreq LRU |
+| [Q10](../../book/part-viii/30-hard-drill-bank-q01-q10.md#q10-design-tweet-or-timeline-simplified) | Design Twitter | Heap merge | Per-user tweets + follow set; max-heap merge top 10 |
+| [Q11](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q11-longest-substring-with-at-most-k-distinct-characters) | Longest Substring ≤ K Distinct | Sliding window | Expand right; shrink while distinct > k |
+| [Q12](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q12-edit-distance) | Edit Distance | DP | Levenshtein; roll 2 rows |
+| [Q13](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q13-binary-tree-maximum-path-sum) | Max Path Sum | Tree DP | Return upward gain; global = bend through node |
+| [Q14](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q14-find-median-from-data-stream) | Median Data Stream | Two heaps | Max-heap low + min-heap high; balance sizes |
+| [Q15](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q15-accounts-merge-union-find-hard) | Accounts Merge | Union-Find | Union emails in an account; group by root; sort |
+| [Q16](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q16-regular-expression-matching) | Regex Matching | DP | `dp[i][j]` with `*` = empty or extend match |
+| [Q17](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q17-bus-routes-hard-bfs) | Bus Routes | Hard BFS | BFS stops; expand via unused buses; count bus hops |
+| [Q18](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q18-parallel-courses-or-minimum-semesters) | Parallel Courses | Layered topo | Kahn by layers; each layer = one semester |
+| [Q19](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q19-design-hit-counter-rate-limit-window) | Hit Counter | Queue | Push timestamps; pop older than window |
+| [Q20](../../book/part-viii/30-hard-drill-bank-q11-q20.md#q20-currency-conversion-arbitrage-bellman-ford) | FX Arbitrage | Bellman-Ford | Edge weight `-ln(rate)`; negative cycle ⇒ arbitrage |
 
 ---
 
-## Q5 — Text editor with a cursor (Swift / Dart)
+## Q1 — Median of two sorted arrays (Swift / Dart)
 
 ### Swift
 
 ```swift
-final class TextEditor {
-    private var left: [Character] = []
-    private var right: [Character] = []   // stored backwards: its end is the cursor
-
-    func insert(_ text: String) { left.append(contentsOf: text) }
-
-    func moveLeft(_ x: Int) {
-        for _ in 0..<min(x, left.count) { right.append(left.removeLast()) }
+func findMedianSortedArrays(_ a: [Int], _ b: [Int]) -> Double {
+    if a.count > b.count { return findMedianSortedArrays(b, a) }
+    let m = a.count, n = b.count
+    var lo = 0, hi = m
+    let half = (m + n + 1) / 2
+    while lo <= hi {
+        let i = (lo + hi) / 2
+        let j = half - i
+        let aLeft = i == 0 ? Int.min : a[i - 1]
+        let aRight = i == m ? Int.max : a[i]
+        let bLeft = j == 0 ? Int.min : b[j - 1]
+        let bRight = j == n ? Int.max : b[j]
+        if aLeft <= bRight && bLeft <= aRight {
+            if (m + n) % 2 == 0 {
+                return Double(max(aLeft, bLeft) + min(aRight, bRight)) / 2.0
+            }
+            return Double(max(aLeft, bLeft))
+        } else if aLeft > bRight { hi = i - 1 }
+        else { lo = i + 1 }
     }
-
-    func moveRight(_ x: Int) {
-        for _ in 0..<min(x, right.count) { left.append(right.removeLast()) }
-    }
-
-    @discardableResult func backspace(_ x: Int) -> Int {
-        let n = min(x, left.count)
-        left.removeLast(n)
-        return n
-    }
-
-    @discardableResult func delete(_ x: Int) -> Int {
-        let n = min(x, right.count)
-        right.removeLast(n)
-        return n
-    }
-
-    // Up to x characters immediately left of the cursor.
-    func print(_ x: Int) -> String { String(left.suffix(max(0, x))) }
-
-    func text() -> String { String(left) + String(right.reversed()) }
+    fatalError("unreachable")
 }
 ```
 
@@ -63,277 +61,373 @@ final class TextEditor {
 ```dart
 import 'dart:math';
 
-class TextEditor {
-  final List<String> _left = [];
-  final List<String> _right = []; // stored backwards: its end is the cursor
-
-  void insert(String text) => _left.addAll(text.split(''));
-
-  void moveLeft(int x) {
-    for (var k = min(x, _left.length); k > 0; k--) _right.add(_left.removeLast());
-  }
-
-  void moveRight(int x) {
-    for (var k = min(x, _right.length); k > 0; k--) _left.add(_right.removeLast());
-  }
-
-  int backspace(int x) {
-    final n = min(x, _left.length);
-    _left.length -= n;
-    return n;
-  }
-
-  int delete(int x) {
-    final n = min(x, _right.length);
-    _right.length -= n;
-    return n;
-  }
-
-  // Up to x characters immediately left of the cursor.
-  String print(int x) => _left.sublist(max(0, _left.length - x)).join();
-
-  String text() => _left.join() + _right.reversed.join();
-}
-```
-
----
-
-## Q8 — Comment threads from a flat list (Swift / Dart)
-
-### Swift
-
-```swift
-struct Comment { let id: String; let parentId: String?; let at: Int64; let text: String }
-struct Thread { let comment: Comment; let replies: [Thread] }
-
-/// Roots newest first, replies oldest first. Orphans (parent missing) become roots.
-func buildThreads(_ all: [Comment]) -> [Thread] {
-    let ids = Set(all.map(\.id))
-    func isRoot(_ c: Comment) -> Bool {
-        guard let p = c.parentId else { return true }
-        return !ids.contains(p) || p == c.id
-    }
-    var children: [String: [Comment]] = [:]
-    for c in all where !isRoot(c) { children[c.parentId!, default: []].append(c) }
-    var seen = Set<String>()
-    func build(_ c: Comment) -> Thread {
-        seen.insert(c.id)
-        let kids = (children[c.id] ?? []).filter { !seen.contains($0.id) }.sorted { $0.at < $1.at }
-        return Thread(comment: c, replies: kids.map(build))
-    }
-    return all.filter(isRoot).sorted { $0.at > $1.at }.map(build)
-}
-```
-
-### Dart
-
-```dart
-class Comment {
-  final String id;
-  final String? parentId;
-  final int at;
-  final String text;
-  const Comment(this.id, this.parentId, this.at, this.text);
-}
-
-class Thread {
-  final Comment comment;
-  final List<Thread> replies;
-  const Thread(this.comment, this.replies);
-}
-
-/// Roots newest first, replies oldest first. Orphans (parent missing) become roots.
-List<Thread> buildThreads(List<Comment> all) {
-  final ids = {for (final c in all) c.id};
-  bool isRoot(Comment c) => c.parentId == null || !ids.contains(c.parentId) || c.parentId == c.id;
-  final children = <String, List<Comment>>{};
-  for (final c in all) {
-    if (!isRoot(c)) children.putIfAbsent(c.parentId!, () => []).add(c);
-  }
-  final seen = <String>{};
-  Thread build(Comment c) {
-    seen.add(c.id);
-    final kids = (children[c.id] ?? []).where((k) => !seen.contains(k.id)).toList()
-      ..sort((a, b) => a.at.compareTo(b.at));
-    return Thread(c, kids.map(build).toList());
-  }
-  final roots = all.where(isRoot).toList()..sort((a, b) => b.at.compareTo(a.at));
-  return roots.map(build).toList();
-}
-```
-
----
-
-## Q10 — Deep-link router (Swift / Dart)
-
-### Swift
-
-```swift
-final class Router<T> {
-    private final class Node {
-        var kids: [String: Node] = [:]
-        var param: (name: String, node: Node)?
-        var wildcard: T?
-        var value: T?
-    }
-
-    private let root = Node()
-
-    private static func segments(_ s: String) -> [String] {
-        let path = s.split(separator: "?", maxSplits: 1, omittingEmptySubsequences: false).first ?? ""
-        return path.split(separator: "/").map(String.init)
-    }
-
-    func add(_ pattern: String, _ value: T) {
-        var n = root
-        for seg in Router.segments(pattern) {
-            if seg == "*" { n.wildcard = value; return }
-            if seg.hasPrefix(":") {
-                if n.param == nil { n.param = (String(seg.dropFirst()), Node()) }
-                n = n.param!.node
-            } else {
-                if n.kids[seg] == nil { n.kids[seg] = Node() }
-                n = n.kids[seg]!
-            }
-        }
-        n.value = value
-    }
-
-    /// Static segments beat :params, which beat *. Backtracks if a static branch dead-ends.
-    func match(_ path: String) -> (value: T, params: [String: String])? {
-        let segs = Router.segments(path)
-        func go(_ n: Node, _ i: Int, _ params: [String: String]) -> (value: T, params: [String: String])? {
-            if i == segs.count {
-                if let v = n.value ?? n.wildcard { return (v, params) }
-                return nil
-            }
-            if let k = n.kids[segs[i]], let m = go(k, i + 1, params) { return m }
-            if let p = n.param {
-                var next = params; next[p.name] = segs[i]
-                if let m = go(p.node, i + 1, next) { return m }
-            }
-            if let w = n.wildcard { return (w, params) }
-            return nil
-        }
-        return go(root, 0, [:])
-    }
-}
-```
-
-### Dart
-
-```dart
-class _Node<T> {
-  final kids = <String, _Node<T>>{};
-  (String, _Node<T>)? param;
-  T? wildcard;
-  T? value;
-}
-
-class Router<T> {
-  final _root = _Node<T>();
-
-  static List<String> _segments(String s) =>
-      s.split('?').first.split('/').where((p) => p.isNotEmpty).toList();
-
-  void add(String pattern, T value) {
-    var n = _root;
-    for (final seg in _segments(pattern)) {
-      if (seg == '*') { n.wildcard = value; return; }
-      if (seg.startsWith(':')) {
-        n.param ??= (seg.substring(1), _Node<T>());
-        n = n.param!.$2;
-      } else {
-        n = n.kids.putIfAbsent(seg, () => _Node<T>());
-      }
-    }
-    n.value = value;
-  }
-
-  /// Static segments beat :params, which beat *. Backtracks if a static branch dead-ends.
-  (T, Map<String, String>)? match(String path) {
-    final segs = _segments(path);
-    (T, Map<String, String>)? go(_Node<T> n, int i, Map<String, String> params) {
-      if (i == segs.length) {
-        final v = n.value ?? n.wildcard;
-        return v == null ? null : (v, params);
-      }
-      final k = n.kids[segs[i]];
-      if (k != null) {
-        final m = go(k, i + 1, params);
-        if (m != null) return m;
-      }
-      final p = n.param;
-      if (p != null) {
-        final m = go(p.$2, i + 1, {...params, p.$1: segs[i]});
-        if (m != null) return m;
-      }
-      final w = n.wildcard;
-      return w == null ? null : (w, params);
-    }
-    return go(_root, 0, const {});
-  }
-}
-```
-
----
-
-## Q12 — Justify text (Swift / Dart)
-
-### Swift
-
-```swift
-func justify(_ words: [String], _ width: Int) -> [String] {
-    var lines: [String] = []
-    var i = 0
-    while i < words.count {
-        var j = i, len = 0
-        while j < words.count && len + words[j].count + (j - i) <= width { len += words[j].count; j += 1 }
-        precondition(j > i, "word longer than width: \(words[i])")
-        let gaps = j - i - 1
-        if j == words.count || gaps == 0 {
-            let s = words[i..<j].joined(separator: " ")       // last line or one word: left-aligned
-            lines.append(s + String(repeating: " ", count: width - s.count))
-        } else {
-            let spaces = width - len, each = spaces / gaps, extra = spaces % gaps
-            var line = ""
-            for k in i..<j {
-                line += words[k]
-                if k < j - 1 { line += String(repeating: " ", count: each + (k - i < extra ? 1 : 0)) }
-            }
-            lines.append(line)
-        }
-        i = j
-    }
-    return lines
-}
-```
-
-### Dart
-
-```dart
-List<String> justify(List<String> words, int width) {
-  final lines = <String>[];
-  var i = 0;
-  while (i < words.length) {
-    var j = i, len = 0;
-    while (j < words.length && len + words[j].length + (j - i) <= width) { len += words[j].length; j++; }
-    if (j == i) throw ArgumentError('word longer than width: ${words[i]}');
-    final gaps = j - i - 1;
-    if (j == words.length || gaps == 0) {
-      lines.add(words.sublist(i, j).join(' ').padRight(width)); // last line or one word: left-aligned
+double findMedianSortedArrays(List<int> a, List<int> b) {
+  if (a.length > b.length) return findMedianSortedArrays(b, a);
+  final m = a.length, n = b.length;
+  var lo = 0, hi = m;
+  final half = (m + n + 1) ~/ 2;
+  while (lo <= hi) {
+    final i = (lo + hi) ~/ 2;
+    final j = half - i;
+    final num aLeft = i == 0 ? double.negativeInfinity : a[i - 1];
+    final num aRight = i == m ? double.infinity : a[i];
+    final num bLeft = j == 0 ? double.negativeInfinity : b[j - 1];
+    final num bRight = j == n ? double.infinity : b[j];
+    if (aLeft <= bRight && bLeft <= aRight) {
+      if ((m + n) % 2 == 1) return max(aLeft, bLeft).toDouble();
+      return (max(aLeft, bLeft) + min(aRight, bRight)) / 2.0;
+    } else if (aLeft > bRight) {
+      hi = i - 1;
     } else {
-      final spaces = width - len, each = spaces ~/ gaps, extra = spaces % gaps;
-      final sb = StringBuffer();
-      for (var k = i; k < j; k++) {
-        sb.write(words[k]);
-        if (k < j - 1) sb.write(' ' * (each + (k - i < extra ? 1 : 0)));
-      }
-      lines.add(sb.toString());
+      lo = i + 1;
     }
-    i = j;
   }
-  return lines;
+  throw StateError('unreachable');
+}
+```
+
+---
+
+## Q9 — LFU cache (Swift / Dart)
+
+### Swift
+
+```swift
+/// Insertion-ordered key set: O(1) append / remove / first (doubly linked list over dictionaries).
+struct OrderedKeySet {
+    private var prev: [Int: Int] = [:]
+    private var next: [Int: Int] = [:]
+    private(set) var first: Int?
+    private var last: Int?
+    private(set) var count = 0
+    var isEmpty: Bool { count == 0 }
+
+    mutating func append(_ k: Int) {
+        if let l = last { next[l] = k; prev[k] = l } else { first = k }
+        last = k
+        count += 1
+    }
+
+    /// Precondition: `k` is in the set.
+    mutating func remove(_ k: Int) {
+        let p = prev.removeValue(forKey: k), n = next.removeValue(forKey: k)
+        if let p { next[p] = n } else { first = n }
+        if let n { prev[n] = p } else { last = p }
+        count -= 1
+    }
+}
+
+final class LFUCache {
+    private let cap: Int
+    private var keyNode: [Int: (value: Int, freq: Int)] = [:]
+    private var freqList: [Int: OrderedKeySet] = [:] // freq -> keys, LRU first
+    private var minFreq = 0
+
+    init(_ capacity: Int) { cap = capacity }
+
+    func get(_ key: Int) -> Int {
+        guard let n = keyNode[key] else { return -1 }
+        touch(key, n)
+        return n.value
+    }
+
+    func put(_ key: Int, _ value: Int) {
+        guard cap > 0 else { return }
+        if var n = keyNode[key] {
+            n.value = value
+            keyNode[key] = n
+            touch(key, n)
+            return
+        }
+        if keyNode.count >= cap, let evict = freqList[minFreq]?.first {
+            freqList[minFreq]?.remove(evict)
+            keyNode.removeValue(forKey: evict)
+        }
+        keyNode[key] = (value, 1)
+        freqList[1, default: OrderedKeySet()].append(key)
+        minFreq = 1
+    }
+
+    private func touch(_ key: Int, _ n: (value: Int, freq: Int)) {
+        let f = n.freq
+        freqList[f]?.remove(key)
+        if freqList[f]?.isEmpty == true {
+            freqList.removeValue(forKey: f)
+            if minFreq == f { minFreq += 1 }
+        }
+        keyNode[key] = (n.value, f + 1)
+        freqList[f + 1, default: OrderedKeySet()].append(key)
+    }
+}
+```
+
+### Dart
+
+```dart
+class LFUCache {
+  LFUCache(this.capacity);
+  final int capacity;
+  final _keyNode = <int, (int value, int freq)>{};
+  final _freqList = <int, Set<int>>{}; // LinkedHashSet: insertion order = LRU first
+  var _minFreq = 0;
+
+  int get(int key) {
+    final n = _keyNode[key];
+    if (n == null) return -1;
+    _touch(key, n);
+    return n.$1;
+  }
+
+  void put(int key, int value) {
+    if (capacity == 0) return;
+    final existing = _keyNode[key];
+    if (existing != null) {
+      _keyNode[key] = (value, existing.$2);
+      _touch(key, (value, existing.$2));
+      return;
+    }
+    if (_keyNode.length >= capacity) {
+      final set = _freqList[_minFreq]!;
+      final evict = set.first;
+      set.remove(evict);
+      _keyNode.remove(evict);
+    }
+    _keyNode[key] = (value, 1);
+    (_freqList[1] ??= {}).add(key);
+    _minFreq = 1;
+  }
+
+  void _touch(int key, (int, int) n) {
+    final f = n.$2;
+    _freqList[f]!.remove(key);
+    if (_freqList[f]!.isEmpty) {
+      _freqList.remove(f);
+      if (_minFreq == f) _minFreq++;
+    }
+    final nf = f + 1;
+    _keyNode[key] = (n.$1, nf);
+    (_freqList[nf] ??= {}).add(key);
+  }
+}
+```
+
+---
+
+## Q14: Find median from data stream (TypeScript two-heap or Swift or Dart)
+
+### TypeScript (binary heap sketch)
+
+```typescript
+class MedianFinderHeaps {
+  private low: number[] = [];
+  private high: number[] = [];
+
+  private less(a: number, b: number) { return a < b; }
+
+  private pushHeap(h: number[], x: number, isMax: boolean) {
+    h.push(x);
+    let i = h.length - 1;
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      const ok = isMax ? h[i] <= h[p] : h[i] >= h[p];
+      if (ok) break;
+      [h[i], h[p]] = [h[p], h[i]];
+      i = p;
+    }
+  }
+
+  private popHeap(h: number[], isMax: boolean): number {
+    const top = h[0];
+    const last = h.pop()!;
+    if (h.length) {
+      h[0] = last;
+      this.siftDown(h, 0, isMax);
+    }
+    return top;
+  }
+
+  private siftDown(h: number[], i: number, isMax: boolean) {
+    for (;;) {
+      let best = i;
+      const l = i * 2 + 1, r = l + 1;
+      const better = (a: number, b: number) => isMax ? a > b : a < b;
+      if (l < h.length && better(h[l], h[best])) best = l;
+      if (r < h.length && better(h[r], h[best])) best = r;
+      if (best === i) break;
+      [h[i], h[best]] = [h[best], h[i]];
+      i = best;
+    }
+  }
+
+  addNum(num: number): void {
+    this.pushHeap(this.low, num, true);
+    this.pushHeap(this.high, this.popHeap(this.low, true), false);
+    if (this.high.length > this.low.length) {
+      this.pushHeap(this.low, this.popHeap(this.high, false), true);
+    }
+  }
+
+  findMedian(): number {
+    if (this.low.length > this.high.length) return this.low[0];
+    return (this.low[0] + this.high[0]) / 2;
+  }
+}
+```
+
+### Swift
+
+```swift
+final class MedianFinder {
+    private var low: [Int] = [] // max-heap
+    private var high: [Int] = [] // min-heap
+
+    func addNum(_ num: Int) {
+        low.append(num); low.sort(by: >)
+        high.append(low.removeFirst()); high.sort()
+        if high.count > low.count {
+            low.append(high.removeFirst()); low.sort(by: >)
+        }
+    }
+
+    func findMedian() -> Double {
+        if low.count > high.count { return Double(low[0]) }
+        return Double(low[0] + high[0]) / 2.0
+    }
+}
+```
+
+*(Contest/production: replace sorted inserts with binary heaps as in TypeScript above.)*
+
+### Dart
+
+```dart
+class MedianFinder {
+  final _low = <int>[]; // max via sort desc
+  final _high = <int>[];
+
+  void addNum(int num) {
+    _low.add(num);
+    _low.sort((a, b) => b.compareTo(a));
+    _high.add(_low.removeAt(0));
+    _high.sort();
+    if (_high.length > _low.length) {
+      _low.add(_high.removeAt(0));
+      _low.sort((a, b) => b.compareTo(a));
+    }
+  }
+
+  double findMedian() {
+    if (_low.length > _high.length) return _low.first.toDouble();
+    return (_low.first + _high.first) / 2.0;
+  }
+}
+```
+
+---
+
+## Q16 — Regular expression matching (Swift / Dart)
+
+### Swift
+
+```swift
+func isMatch(_ s: String, _ p: String) -> Bool {
+    let s = Array(s), p = Array(p)
+    let m = s.count, n = p.count
+    var dp = Array(repeating: Array(repeating: false, count: n + 1), count: m + 1)
+    dp[0][0] = true
+    for j in stride(from: 2, through: n, by: 1) where p[j - 1] == "*" && dp[0][j - 2] {
+        dp[0][j] = true
+    }
+    for i in stride(from: 1, through: m, by: 1) {
+        for j in stride(from: 1, through: n, by: 1) {
+            if p[j - 1] == "*" {
+                dp[i][j] = dp[i][j - 2] ||
+                    ((p[j - 2] == "." || p[j - 2] == s[i - 1]) && dp[i - 1][j])
+            } else if p[j - 1] == "." || p[j - 1] == s[i - 1] {
+                dp[i][j] = dp[i - 1][j - 1]
+            }
+        }
+    }
+    return dp[m][n]
+}
+```
+
+### Dart
+
+```dart
+bool isMatch(String s, String p) {
+  final m = s.length, n = p.length;
+  final dp = List.generate(m + 1, (_) => List.filled(n + 1, false));
+  dp[0][0] = true;
+  for (var j = 2; j <= n; j++) {
+    if (p[j - 1] == '*' && dp[0][j - 2]) dp[0][j] = true;
+  }
+  for (var i = 1; i <= m; i++) {
+    for (var j = 1; j <= n; j++) {
+      if (p[j - 1] == '*') {
+        dp[i][j] = dp[i][j - 2] ||
+            ((p[j - 2] == '.' || p[j - 2] == s[i - 1]) && dp[i - 1][j]);
+      } else if (p[j - 1] == '.' || p[j - 1] == s[i - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      }
+    }
+  }
+  return dp[m][n];
+}
+```
+
+---
+
+## Q20 — Currency arbitrage (Swift / Dart)
+
+### Swift
+
+```swift
+import Foundation
+
+func hasArbitrage(_ pairs: [(String, String, Double)]) -> Bool {
+    var nodes = Set<String>()
+    for (a, b, _) in pairs { nodes.insert(a); nodes.insert(b) }
+    let list = Array(nodes)
+    let idx = Dictionary(uniqueKeysWithValues: list.enumerated().map { ($1, $0) })
+    let n = list.count
+    let edges = pairs.map { (a, b, rate) in (idx[a]!, idx[b]!, -log(rate)) }
+    var dist = Array(repeating: 0.0, count: n)
+    for _ in 0..<max(0, n - 1) {
+        for (u, v, w) in edges where dist[v] > dist[u] + w { dist[v] = dist[u] + w }
+    }
+    for (u, v, w) in edges where dist[v] > dist[u] + w + 1e-12 { return true }
+    return false
+}
+```
+
+### Dart
+
+```dart
+import 'dart:math';
+
+bool hasArbitrage(List<(String, String, double)> pairs) {
+  final nodes = <String>{};
+  for (final (a, b, _) in pairs) {
+    nodes.add(a);
+    nodes.add(b);
+  }
+  final list = nodes.toList();
+  final idx = {for (var i = 0; i < list.length; i++) list[i]: i};
+  final n = list.length;
+  final edges = pairs
+      .map((e) => (idx[e.$1]!, idx[e.$2]!, -log(e.$3)))
+      .toList();
+  final dist = List.filled(n, 0.0);
+  for (var i = 0; i < n - 1; i++) {
+    for (final (u, v, w) in edges) {
+      if (dist[v] > dist[u] + w) dist[v] = dist[u] + w;
+    }
+  }
+  for (final (u, v, w) in edges) {
+    if (dist[v] > dist[u] + w + 1e-12) return true;
+  }
+  return false;
 }
 ```
 
@@ -341,8 +435,8 @@ List<String> justify(List<String> words, int width) {
 
 ## Counts
 
-- **13** document / e-signature drills — Kotlin + TS in chapter  
-- **4** problems with extra Swift/Dart ports here (Q5, Q8, Q10, Q12)  
-- Timed protocol: **25–35 min** (45 for Q10, Q12), simple version → better idea → complexity before code  
+- **20** hard drills — Kotlin, Swift, Dart and TS in chapter  
+- **6** problems with extra Swift/Dart ports here (Q1, Q9, Q14, Q16, Q20 + TS heap Q14)  
+- Timed protocol: **45–55 min**, complexity spoken first  
 
-Back: [Chapter 30](../../book/part-ix/30-document-signing-drill-bank.md)
+Back: [Chapter 30](../../book/part-viii/30-hard-drill-bank.md)

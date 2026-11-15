@@ -2,289 +2,360 @@
 
 Model solutions for Chapter 22 practice problems. Each names the pattern, states complexity, lists edge cases, and adds a short mobile note.
 
-Problems are defined in [`book/part-vi/22-bits-matrix.md`](../../book/part-vi/22-bits-matrix.md).
+Problems are defined in [`book/part-vi/22-recursion-backtracking.md`](../../book/part-vi/22-recursion-backtracking.md).
 
 ---
 
-## P1: Single number
+## P1: Subsets
 
 ### Approach
 
-XOR every element. Pairs cancel (`x ^ x = 0`); identity `x ^ 0 = x` leaves the unique value. Works because XOR is associative and commutative.
+Backtracking over indices: at position `i`, either skip `nums[i]` or include it. Record a **copy** of the current path at every call (including the start) so the power set is complete. Undo the include branch with `removeLast` / `pop`.
 
 ### Complexity
 
-- Time: O(n)
-- Space: O(1)
+- Time: O(n · 2ⁿ) — 2ⁿ subsets, each copied in O(n)
+- Space: O(n) recursion depth + O(n · 2ⁿ) for output
 
 ### Edge cases
 
-- Single-element array
-- Negatives (two’s complement XOR still works for equal pairs)
-- Zero as the singleton or as a duplicated value
+- Empty input → `[[]]`
+- Duplicates in input — this solution assumes distinct elements; sort + skip-equal siblings if duplicates appear
+- Large n (>20) — output size explodes; not for production feeds
 
 ### Mobile note
 
-Teaching/interview pattern. Real “find unique ID in a stream” on device still favors hashing if appearances are not exactly twice — XOR assumes the classic constraint.
+Interview staple. In apps, “all subsets of user-selected filters” is only sane for tiny n (e.g. ≤ 12 toggles). Prefer explicit product rules over generating 2ⁿ UI states.
 
 ### Kotlin
 
 ```kotlin
-fun singleNumber(nums: IntArray): Int =
-    nums.fold(0) { acc, x -> acc xor x }
-```
-
-### Swift
-
-```swift
-func singleNumber(_ nums: [Int]) -> Int {
-    nums.reduce(0, ^)
-}
-```
-
-### Dart
-
-```dart
-int singleNumber(List<int> nums) {
-  var x = 0;
-  for (final n in nums) {
-    x ^= n;
-  }
-  return x;
-}
-```
-
-### TypeScript
-
-```typescript
-function singleNumber(nums: number[]): number {
-  return nums.reduce((a, x) => a ^ x, 0);
-}
-```
-
----
-
-## P2: Number of islands
-
-### Approach
-
-Scan each cell. When you find land `'1'`, increment the island count and **DFS (or BFS) flood** the connected 4-direction component, marking visited by setting cells to `'0'` (or a visited matrix). Continue scan.
-
-### Complexity
-
-- Time: O(R · C) — each cell visited constantly often
-- Space: O(R · C) worst-case recursion/queue depth
-
-### Edge cases
-
-- Empty grid
-- All water / all land (one island if 4-connected)
-- Diagonal-only touches — **not** the same island under 4-neighbor rules
-- Single cell island
-
-### Mobile note
-
-Map tile / game board / heat-map region counting. Prefer iterative BFS if grids are large (avoid deep recursion on mobile stacks). Mutating the grid in place saves memory; copy first if the caller needs the original.
-
-### Kotlin
-
-```kotlin
-fun numIslands(grid: Array<CharArray>): Int {
-    if (grid.isEmpty()) return 0
-    var count = 0
-    fun dfs(r: Int, c: Int) {
-        if (r !in grid.indices || c !in grid[0].indices || grid[r][c] != '1') return
-        grid[r][c] = '0'
-        dfs(r + 1, c)
-        dfs(r - 1, c)
-        dfs(r, c + 1)
-        dfs(r, c - 1)
-    }
-    for (r in grid.indices) {
-        for (c in grid[0].indices) {
-            if (grid[r][c] == '1') {
-                count++
-                dfs(r, c)
-            }
+fun subsets(nums: IntArray): List<List<Int>> {
+    val out = mutableListOf<List<Int>>()
+    val path = mutableListOf<Int>()
+    fun dfs(i: Int) {
+        if (i == nums.size) {
+            out += path.toList()
+            return
         }
+        dfs(i + 1)                 // skip
+        path += nums[i]            // take
+        dfs(i + 1)
+        path.removeAt(path.lastIndex)
     }
-    return count
+    dfs(0)
+    return out
 }
 ```
 
 ### Swift
 
 ```swift
-func numIslands(_ grid: [[Character]]) -> Int {
-    var g = grid
-    guard !g.isEmpty else { return 0 }
-    let rows = g.count, cols = g[0].count
-    var count = 0
-    func dfs(_ r: Int, _ c: Int) {
-        if r < 0 || c < 0 || r >= rows || c >= cols || g[r][c] != "1" { return }
-        g[r][c] = "0"
-        dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1)
-    }
-    for r in 0..<rows {
-        for c in 0..<cols where g[r][c] == "1" {
-            count += 1
-            dfs(r, c)
+func subsets(_ nums: [Int]) -> [[Int]] {
+    var out: [[Int]] = []
+    var path: [Int] = []
+    func dfs(_ i: Int) {
+        if i == nums.count {
+            out.append(path)
+            return
         }
+        dfs(i + 1)
+        path.append(nums[i])
+        dfs(i + 1)
+        path.removeLast()
     }
-    return count
+    dfs(0)
+    return out
 }
 ```
 
 ### Dart
 
 ```dart
-int numIslands(List<List<String>> grid) {
-  if (grid.isEmpty) return 0;
-  final rows = grid.length, cols = grid[0].length;
-  var count = 0;
-  void dfs(int r, int c) {
-    if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] != '1') return;
-    grid[r][c] = '0';
-    dfs(r + 1, c);
-    dfs(r - 1, c);
-    dfs(r, c + 1);
-    dfs(r, c - 1);
-  }
-
-  for (var r = 0; r < rows; r++) {
-    for (var c = 0; c < cols; c++) {
-      if (grid[r][c] == '1') {
-        count++;
-        dfs(r, c);
-      }
+List<List<int>> subsets(List<int> nums) {
+  final out = <List<int>>[];
+  final path = <int>[];
+  void dfs(int i) {
+    if (i == nums.length) {
+      out.add(List<int>.from(path));
+      return;
     }
+    dfs(i + 1);
+    path.add(nums[i]);
+    dfs(i + 1);
+    path.removeLast();
   }
-  return count;
+  dfs(0);
+  return out;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function numIslands(grid: string[][]): number {
-  if (!grid.length) return 0;
-  const rows = grid.length, cols = grid[0].length;
-  let count = 0;
-  const dfs = (r: number, c: number) => {
-    if (r < 0 || c < 0 || r >= rows || c >= cols || grid[r][c] !== "1") return;
-    grid[r][c] = "0";
-    dfs(r + 1, c);
-    dfs(r - 1, c);
-    dfs(r, c + 1);
-    dfs(r, c - 1);
+function subsets(nums: number[]): number[][] {
+  const out: number[][] = [];
+  const path: number[] = [];
+  const dfs = (i: number) => {
+    if (i === nums.length) {
+      out.push([...path]);
+      return;
+    }
+    dfs(i + 1);
+    path.push(nums[i]);
+    dfs(i + 1);
+    path.pop();
   };
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (grid[r][c] === "1") {
-        count++;
-        dfs(r, c);
-      }
-    }
-  }
-  return count;
+  dfs(0);
+  return out;
 }
 ```
 
 ---
 
-## P3: Rotate image 90°
+## P2: Combination sum
 
 ### Approach
 
-In-place for `n × n`: (1) **transpose** along the main diagonal; (2) **reverse each row**. That yields 90° clockwise. (Counter-clockwise: transpose then reverse columns, or reverse rows then transpose.)
+Candidates may be reused. DFS with remaining `target` and start index `start` to avoid permuting the same multiset. Try each `candidates[j]` for `j >= start` if `candidates[j] <= remain`; push, recurse with same `j` (reuse allowed), pop.
+
+Sorting first enables early break when `candidates[j] > remain`.
 
 ### Complexity
 
-- Time: O(n²)
-- Space: O(1) extra
+- Time: exponential in solution count / depth; roughly O(n^{T/min}) worst case
+- Space: O(T/min) depth + output size
 
 ### Edge cases
 
-- `n == 1` — no-op
-- Even vs odd `n` (center cell fixed under 90° for odd n)
-- Non-square — this algorithm does not apply; need a new matrix
+- No combination → empty list
+- `target` equals one candidate
+- Candidate `1` with large target — deep recursion; iterative DP may be safer for huge targets
+- Zeros / negatives — problem assumes positive candidates
 
 ### Mobile note
 
-Interview version mutates an int matrix. Real camera/avatar rotation should use platform image APIs (orientation flags, GPU transforms) — do not manually rotate megapixel buffers on the UI thread with this nested loop.
+Maps to “ways to spend store credit with reusable SKUs” only at tiny catalogs. Prefer DP coin-change counting or server-side rules for real commerce.
 
 ### Kotlin
 
 ```kotlin
-fun rotate(matrix: Array<IntArray>) {
-    val n = matrix.size
-    for (i in 0 until n) {
-        for (j in i until n) {
-            val tmp = matrix[i][j]
-            matrix[i][j] = matrix[j][i]
-            matrix[j][i] = tmp
+fun combinationSum(candidates: IntArray, target: Int): List<List<Int>> {
+    candidates.sort()
+    val out = mutableListOf<List<Int>>()
+    val path = mutableListOf<Int>()
+    fun dfs(start: Int, remain: Int) {
+        if (remain == 0) {
+            out += path.toList()
+            return
+        }
+        for (j in start until candidates.size) {
+            val c = candidates[j]
+            if (c > remain) break
+            path += c
+            dfs(j, remain - c)
+            path.removeAt(path.lastIndex)
         }
     }
-    for (row in matrix) row.reverse()
+    dfs(0, target)
+    return out
 }
 ```
 
 ### Swift
 
 ```swift
-func rotate(_ matrix: inout [[Int]]) {
-    let n = matrix.count
-    for i in 0..<n {
-        for j in i..<n {
-            let tmp = matrix[i][j]
-            matrix[i][j] = matrix[j][i]
-            matrix[j][i] = tmp
+func combinationSum(_ candidates: [Int], _ target: Int) -> [[Int]] {
+    let nums = candidates.sorted()
+    var out: [[Int]] = []
+    var path: [Int] = []
+    func dfs(_ start: Int, _ remain: Int) {
+        if remain == 0 {
+            out.append(path)
+            return
+        }
+        for j in start..<nums.count {
+            let c = nums[j]
+            if c > remain { break }
+            path.append(c)
+            dfs(j, remain - c)
+            path.removeLast()
         }
     }
-    for i in 0..<n {
-        matrix[i].reverse()
-    }
+    dfs(0, target)
+    return out
 }
 ```
 
 ### Dart
 
 ```dart
-void rotate(List<List<int>> matrix) {
-  final n = matrix.length;
-  for (var i = 0; i < n; i++) {
-    for (var j = i; j < n; j++) {
-      final tmp = matrix[i][j];
-      matrix[i][j] = matrix[j][i];
-      matrix[j][i] = tmp;
+List<List<int>> combinationSum(List<int> candidates, int target) {
+  final nums = [...candidates]..sort();
+  final out = <List<int>>[];
+  final path = <int>[];
+  void dfs(int start, int remain) {
+    if (remain == 0) {
+      out.add(List<int>.from(path));
+      return;
+    }
+    for (var j = start; j < nums.length; j++) {
+      final c = nums[j];
+      if (c > remain) break;
+      path.add(c);
+      dfs(j, remain - c);
+      path.removeLast();
     }
   }
-  for (var i = 0; i < n; i++) {
-    final row = matrix[i];
-    var L = 0, R = n - 1;
-    while (L < R) {
-      final tmp = row[L];
-      row[L] = row[R];
-      row[R] = tmp;
-      L++;
-      R--;
-    }
-  }
+  dfs(0, target);
+  return out;
 }
 ```
 
 ### TypeScript
 
 ```typescript
-function rotate(matrix: number[][]): void {
-  const n = matrix.length;
-  for (let i = 0; i < n; i++) {
-    for (let j = i; j < n; j++) {
-      const tmp = matrix[i][j];
-      matrix[i][j] = matrix[j][i];
-      matrix[j][i] = tmp;
+function combinationSum(candidates: number[], target: number): number[][] {
+  const nums = [...candidates].sort((a, b) => a - b);
+  const out: number[][] = [];
+  const path: number[] = [];
+  const dfs = (start: number, remain: number) => {
+    if (remain === 0) {
+      out.push([...path]);
+      return;
+    }
+    for (let j = start; j < nums.length; j++) {
+      const c = nums[j];
+      if (c > remain) break;
+      path.push(c);
+      dfs(j, remain - c);
+      path.pop();
+    }
+  };
+  dfs(0, target);
+  return out;
+}
+```
+
+---
+
+## P3: Phone letter combinations
+
+### Approach
+
+Classic backtracking on digit positions. Map `'2'..'9'` to letter groups. At index `i`, append each letter for `digits[i]`, recurse to `i+1`, pop. Base: `i == digits.length` → record string. Empty input → empty list (not `[""]`).
+
+### Complexity
+
+- Time: O(4ⁿ · n) worst case (digits like 7/9 have 4 letters); n = length
+- Space: O(n) depth + output size
+
+### Edge cases
+
+- `""` → `[]`
+- Single digit
+- Digits including 7 or 9 (four letters)
+- Very long digit strings — output explodes; cap in product code
+
+### Mobile note
+
+Same shape as building autocomplete paths from a small key graph. Fine for SMS T9-style demos; production keyboards use tries and language models, not raw 4ⁿ enumeration on the UI thread.
+
+### Kotlin
+
+```kotlin
+fun letterCombinations(digits: String): List<String> {
+    if (digits.isEmpty()) return emptyList()
+    val map = arrayOf("", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz")
+    val out = mutableListOf<String>()
+    val path = StringBuilder()
+    fun dfs(i: Int) {
+        if (i == digits.length) {
+            out += path.toString()
+            return
+        }
+        for (c in map[digits[i] - '0']) {
+            path.append(c)
+            dfs(i + 1)
+            path.deleteCharAt(path.lastIndex)
+        }
+    }
+    dfs(0)
+    return out
+}
+```
+
+### Swift
+
+```swift
+func letterCombinations(_ digits: String) -> [String] {
+    if digits.isEmpty { return [] }
+    let map = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"]
+    let chars = Array(digits)
+    var out: [String] = []
+    var path: [Character] = []
+    func dfs(_ i: Int) {
+        if i == chars.count {
+            out.append(String(path))
+            return
+        }
+        let idx = Int(chars[i].asciiValue! - Character("0").asciiValue!)
+        for c in map[idx] {
+            path.append(c)
+            dfs(i + 1)
+            path.removeLast()
+        }
+    }
+    dfs(0)
+    return out
+}
+```
+
+### Dart
+
+```dart
+List<String> letterCombinations(String digits) {
+  if (digits.isEmpty) return [];
+  const map = ['', '', 'abc', 'def', 'ghi', 'jkl', 'mno', 'pqrs', 'tuv', 'wxyz'];
+  final out = <String>[];
+  final path = <String>[];
+  void dfs(int i) {
+    if (i == digits.length) {
+      out.add(path.join());
+      return;
+    }
+    final letters = map[digits.codeUnitAt(i) - 48];
+    for (var k = 0; k < letters.length; k++) {
+      path.add(letters[k]);
+      dfs(i + 1);
+      path.removeLast();
     }
   }
-  for (const row of matrix) row.reverse();
+  dfs(0);
+  return out;
+}
+```
+
+### TypeScript
+
+```typescript
+function letterCombinations(digits: string): string[] {
+  if (!digits) return [];
+  const map = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"];
+  const out: string[] = [];
+  const path: string[] = [];
+  const dfs = (i: number) => {
+    if (i === digits.length) {
+      out.push(path.join(""));
+      return;
+    }
+    for (const c of map[digits.charCodeAt(i) - 48]) {
+      path.push(c);
+      dfs(i + 1);
+      path.pop();
+    }
+  };
+  dfs(0);
+  return out;
 }
 ```

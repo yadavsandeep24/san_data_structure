@@ -24,6 +24,7 @@ Each chapter follows the same shape:
 5. Mistakes that quietly slow apps
 6. Self-check questions (answers in Appendix D)
 7. Practice problems with full model solutions under `solutions/`
+8. **More practice** links into the Part VIII drill banks, and a closing “What to remember”
 
 ## What “model solution” means here
 
@@ -31,13 +32,17 @@ A model solution is not only correct code. It names the pattern, states time and
 
 ## A note on originality
 
-The curriculum follows the widely shared *DSA for Mobile* topic map (foundation → linear → associative → mobile systems → algorithms → advanced → practice). The prose, examples, and solutions in this repository are original teaching material written for that map.
+The curriculum follows the widely shared *DSA for Mobile* topic map (foundation → linear → associative → core patterns → mobile systems → algorithms → advanced → practice → domain tracks). The prose, examples, and solutions in this repository are original teaching material written for that map.
 
 ## Suggested path
 
-If you have eight focused weeks, use Appendix A (weeks 1–12 core). If you are mid-level and interview-bound, skim Parts I–II quickly, spend deep time on hashing, trees, caching, list diffing, heaps, and Chapter 24’s question bank. If you are senior, treat Part IV and Chapter 23 as architecture vocabulary you should be able to teach.
+If you have twelve focused weeks, follow Appendix A week by week; if you have four, use its compression plan. If you are mid-level and interview-bound, skim Parts I–II quickly and spend deep time on hashing, heaps, the **Core Patterns** of Part IV (two pointers, sliding window, prefix sums, monotonic stacks, intervals), caching, list diffing, and Chapter 29’s question bank. If you are senior, treat Part V and Chapter 28 as architecture vocabulary you should be able to teach.
 
-**Top fintech loops** (Stripe, Block, PayPal, Coinbase, major Indian fintech mobile roles): after Part VII, run **Part VIII** — money/idempotency (26), hard drills (27), system design lite (28), behavioral/product (29). Appendix A weeks 13–16 schedule that track. Before applying, complete the execution checklist in [Appendix F](appendices/F-execution-and-optional-polish.md) (reading alone is not enough).
+**Top fintech loops** (Stripe, Block, PayPal, Coinbase, major Indian fintech mobile roles): after the Part VIII practice banks (including the hard drills in Chapter 30), run the **fintech track** of Part IX — money/idempotency (Ch 39), system design lite (Ch 40), behavioral/product (Ch 41). Appendix A weeks 13–16 schedule that track.
+
+**Document / e-signature loops** (Docusign-style): add Chapter 42’s signing-app drills and Chapter 37’s math drills.
+
+Before applying, complete the execution checklist in [Appendix F](appendices/F-execution-and-optional-polish.md) (reading alone is not enough).
 
 ## Modern platform defaults (2024–2026)
 
