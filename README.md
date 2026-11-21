@@ -116,9 +116,13 @@ Every chapter has a folder under [`solutions/`](solutions/README.md) (`solutions
 - Mini projects (38): reference architectures.
 - Self-Check answers: [Appendix D](book/appendices/D-self-check-answer-key.md).
 
-## Code and snippet tests
+## Source code (all four languages)
 
-[`code/`](code/) holds a harness that **extracts code blocks from the chapters and runs tests against them** in Kotlin, Dart and TypeScript (`code/verify_snippets.py`), plus a few small reference samples with a smoke script. See [`code/README.md`](code/README.md).
+[`src/`](src/README.md) holds **every problem's code as real projects** — a Gradle Kotlin project, a Swift package, a Dart package and a TypeScript package — one file per problem, with an index from each book section to its four files. All four compile; run `./src/verify.sh` to check them on your machine.
+
+## Snippet tests
+
+[`code/`](code/) holds a harness that **extracts code blocks from the chapters and runs behaviour tests against them** in Kotlin, Dart and TypeScript (`code/verify_snippets.py`), plus a few small reference samples with a smoke script. See [`code/README.md`](code/README.md).
 
 ## Read online (GitHub Pages)
 

@@ -1,6 +1,6 @@
 # Appendix F — Execution Checklist & Optional Polish
 
-The **curriculum content is complete**: Parts I–IX (42 chapters), Appendices A–G, per-chapter solutions, and a snippet-verification harness in `code/`. This appendix separates what the **book cannot do for you** from **optional future additions** to the repo.
+The **curriculum content is complete**: Parts I–IX (42 chapters), Appendices A–G, per-chapter solutions, compiled source projects for all four languages in `src/`, and a snippet-test harness in `code/`. This appendix separates what the **book cannot do for you** from **optional future additions** to the repo.
 
 Use this as an honest readiness gate before applying to top fintech mobile loops.
 
@@ -91,7 +91,7 @@ Low-priority **future curriculum** items. The book is interview-ready without th
 
 | Item | Notes |
 |------|--------|
-| **Snippet tests for every chapter** | `code/verify_snippets.py` runs the Core Patterns chapters (13–17) and Ch 21's binary-search-on-answer in Kotlin, Dart and TypeScript. Extending it to the older chapters is open work. Swift isn't run automatically. |
+| **Behaviour tests for every chapter** | Every problem compiles in all four languages ([`src/`](../../src/README.md), `./src/verify.sh`). Behaviour tests (`code/verify_snippets.py`) cover the Core Patterns chapters (13–17) and Ch 21; extending tests to the other chapters is open work. |
 | **Automated timed drill timer / tracker** | Spreadsheet or Notion is enough for now |
 | **CI for markdown link check** | Nice for contributors |
 

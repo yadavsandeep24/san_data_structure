@@ -200,6 +200,7 @@ class TtlLruCache<K, V> {
     this.map.set(key, { value, expiresAt: this.clock() + ttlMs });
     while (this.map.size > this.capacity) {
       const lru = this.map.keys().next().value;
+      if (lru === undefined) break;
       this.map.delete(lru);
     }
   }

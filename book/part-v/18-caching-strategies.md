@@ -363,7 +363,7 @@ class LruCache<K, V> {
     this.map.set(key, value);
     if (this.map.size > this.capacity) {
       const lru = this.map.keys().next().value;
-      this.map.delete(lru);
+      if (lru !== undefined) this.map.delete(lru);
     }
   }
 }

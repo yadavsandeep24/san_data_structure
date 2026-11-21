@@ -1,0 +1,8 @@
+name: dsa_mobile
+description: Dart code for every problem in "DSA for Mobile Developers", one library per problem.
+publish_to: none
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+dependencies:
+  collection: ^1.18.0
+  characters: ^1.3.0
