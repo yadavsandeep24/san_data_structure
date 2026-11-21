@@ -244,17 +244,15 @@ class AutoComplete {
       n = next;
     }
     final out = <String>[];
-    void dfs(_TNode cur, StringBuffer path) {
+    void dfs(_TNode cur, String path) {
       if (out.length >= k) return;
-      if (cur.end) out.add(path.toString());
+      if (cur.end) out.add(path);
       for (final e in cur.kids.entries) {
-        path.write(e.key);
-        dfs(e.value, path);
-        path.length = path.length - 1;
+        dfs(e.value, path + e.key);         // StringBuffer has no length setter; pass the prefix down
         if (out.length >= k) return;
       }
     }
-    dfs(n, StringBuffer(p));
+    dfs(n, p);
     return out;
   }
 }

@@ -1,0 +1,9 @@
+# Errors fail the check; style lints are left to the reader.
+analyzer:
+  exclude:
+    - flutter-snippets/**
+  errors:
+    unused_local_variable: ignore
+    unused_element: ignore
+    unused_import: ignore
+    dead_code: ignore

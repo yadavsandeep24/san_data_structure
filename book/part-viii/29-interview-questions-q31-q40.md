@@ -651,7 +651,8 @@ final class TokenBucket {
     func allow() -> Bool {
         lock.lock(); defer { lock.unlock() }
         let now = ContinuousClock.now
-        let elapsed = last.duration(to: now).seconds
+        let d = last.duration(to: now)
+        let elapsed = Double(d.components.seconds) + Double(d.components.attoseconds) / 1e18
         last = now
         tokens = min(capacity, tokens + elapsed * rate)
         guard tokens >= 1 else { return false }

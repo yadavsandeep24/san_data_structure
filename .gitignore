@@ -1,1 +1,12 @@
 .DS_Store
+
+# Build outputs for src/
+src/kotlin/build/
+src/kotlin/.gradle/
+src/kotlin/out/
+src/dart/.dart_tool/
+src/dart/pubspec.lock
+src/typescript/node_modules/
+src/typescript/package-lock.json
+src/swift/.build/
+src/swift/Package.resolved

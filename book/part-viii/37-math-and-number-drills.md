@@ -1091,6 +1091,8 @@ Brute force stores everything, shuffles, takes `k` — O(n) memory. Better: keep
 ### Kotlin
 
 ```kotlin
+import kotlin.random.Random
+
 fun <T> reservoirSample(items: Sequence<T>, k: Int, random: Random = Random.Default): List<T> {
     require(k >= 0)
     val reservoir = ArrayList<T>(k)

@@ -534,18 +534,16 @@ class OfflinePaymentQueue(
             val intent = store.load(id) ?: continue
             if (intent.status != "pending") continue
 
-            statusGet(id)?.let { remote ->
-                when (remote) {
-                    "succeeded" -> {
-                        intent.status = "succeeded"
-                        store.save(intent)
-                        continue
-                    }
-                    "failed" -> {
-                        intent.status = "failed"
-                        store.save(intent)
-                        continue
-                    }
+            when (statusGet(id)) {          // null = status endpoint unsupported → just retry
+                "succeeded" -> {
+                    intent.status = "succeeded"
+                    store.save(intent)
+                    continue
+                }
+                "failed" -> {
+                    intent.status = "failed"
+                    store.save(intent)
+                    continue
                 }
             }
 
